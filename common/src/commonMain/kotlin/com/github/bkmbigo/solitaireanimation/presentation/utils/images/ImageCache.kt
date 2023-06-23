@@ -24,15 +24,18 @@ expect fun vectorResourceCached(res: String, resourcePath: ResourcePath = Resour
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun painterResourceCached(res: String): Painter =
-    if (cache.containsKey(res)) {
-        cache[res]!!
+fun painterResourceCached(res: String, resourcePath: ResourcePath = ResourcePath.IMAGE_DIRECTORY): Painter {
+    val fullResourcePath = "${resourcePath}/$res"
+
+    return if (cache.containsKey(fullResourcePath)) {
+        cache[fullResourcePath]!!
     } else {
-        val rib = resource(res).rememberImageBitmap()
+        val rib = resource(fullResourcePath).rememberImageBitmap()
         if (rib !is LoadState.Success<ImageBitmap>) {
             BitmapPainter(rib.orEmpty())
         } else {
-            cache[res] = BitmapPainter(rib.orEmpty())
-            cache[res]!!
+            cache[fullResourcePath] = BitmapPainter(rib.orEmpty())
+            cache[fullResourcePath]!!
         }
     }
+}
