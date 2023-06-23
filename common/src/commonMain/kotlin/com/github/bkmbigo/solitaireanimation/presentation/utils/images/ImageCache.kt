@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -20,15 +19,26 @@ private val cache = mutableStateMapOf<String, Painter>()
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun vectorResourceCached(res: String): Painter =
-    if(cache.containsKey(res)) {
+fun vectorResourceCached(res: String): Painter {
+    val imageBitmap = resource(res).rememberImageVector(LocalDensity.current)
+    return if (imageBitmap !is LoadState.Success<ImageVector>) {
+        rememberVectorPainter(imageBitmap.orEmpty())
+    } else {
+        rememberVectorPainter(imageBitmap.orEmpty())
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun painterResourceCached(res: String): Painter =
+    if (cache.containsKey(res)) {
         cache[res]!!
     } else {
-        val imageBitmap = resource(res).rememberImageVector(LocalDensity.current)
-        if(imageBitmap !is LoadState.Success<ImageVector>) {
-            rememberVectorPainter(imageBitmap.orEmpty())
+        val rib = resource(res).rememberImageBitmap()
+        if (rib !is LoadState.Success<ImageBitmap>) {
+            BitmapPainter(rib.orEmpty())
         } else {
-            cache[res] = rememberVectorPainter(imageBitmap.orEmpty())
+            cache[res] = BitmapPainter(rib.orEmpty())
             cache[res]!!
         }
     }
