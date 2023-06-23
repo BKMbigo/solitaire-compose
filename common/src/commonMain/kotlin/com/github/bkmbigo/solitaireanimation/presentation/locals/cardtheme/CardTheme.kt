@@ -12,7 +12,7 @@ interface CardTheme {
     val cardBackBackground: Color
     val gameBackground: Color
 
-    val miniPassportFont: FontFamily
+    val miniCardFont: FontFamily
 
     val appFont: FontFamily
 
