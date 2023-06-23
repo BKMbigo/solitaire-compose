@@ -6,6 +6,6 @@ import androidx.compose.ui.text.font.FontWeight
 
 actual class LocalFont(
     @FontRes val resource: Int,
-    actual val weight: FontWeight,
-    actual val style: FontStyle
+    actual val weight: FontWeight = FontWeight.Normal,
+    actual val style: FontStyle = FontStyle.Normal
 )
