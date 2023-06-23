@@ -1,13 +1,23 @@
 package com.github.bkmbigo.solitaireanimation.models
 
-import com.github.bkmbigo.solitaireanimation.presentation.utils.SvgImage
-
-expect enum class CardSuite {
-    SPADE,
-    CLOVER,
-    HEARTS,
-    DIAMOND;
-
-    val color: CardColor;
-    val image: SvgImage
+enum class CardSuite(
+    val color: CardColor,
+    val imageFilename: String
+) {
+    SPADE(
+        color = CardColor.BLACK,
+        imageFilename = "suite_spade.xml"
+    ),
+    CLOVER(
+        color = CardColor.BLACK,
+        imageFilename = "suite_clover.xml"
+    ),
+    HEARTS(
+        color = CardColor.RED,
+        imageFilename = "suite_hearts.xml"
+    ),
+    DIAMOND(
+        color = CardColor.RED,
+        imageFilename = "suite_diamond.xml"
+    );
 }
