@@ -4,7 +4,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 
 actual class LocalFont(
-    val identifier: String,
+    val identity: String,
     val filename: String,
     actual val weight: FontWeight,
     actual val style: FontStyle
