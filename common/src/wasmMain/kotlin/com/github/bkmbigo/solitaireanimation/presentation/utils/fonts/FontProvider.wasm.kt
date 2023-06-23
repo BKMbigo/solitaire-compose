@@ -8,7 +8,7 @@ import org.jetbrains.compose.resources.resource
 @OptIn(ExperimentalResourceApi::class)
 internal actual suspend fun LocalFont.provideFont() : Font  = androidx.compose.ui.text.platform.Font(
     identity = identity,
-    data = resource(this.filename).readBytes(),
+    data = resource("${fontDirectory}/${filename}").readBytes(),
     weight = weight,
     style = style
 )
