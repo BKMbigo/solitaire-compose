@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.github.bkmbigo.solitaireanimation.models.CardSuite
-import com.github.bkmbigo.solitaireanimation.presentation.utils.SvgLoader
 
 @Composable
 fun GameScreen() {
@@ -20,10 +19,6 @@ fun GameScreen() {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-//        SvgLoader(
-//            image = card.image,
-//            modifier = Modifier.align(Alignment.Center)
-//        )
         Text(
             text = "Hello Game"
         )
