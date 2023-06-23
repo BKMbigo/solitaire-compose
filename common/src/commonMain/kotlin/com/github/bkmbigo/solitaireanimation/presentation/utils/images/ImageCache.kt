@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
+import com.github.bkmbigo.solitaireanimation.utils.Logger
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.LoadState
 import org.jetbrains.compose.resources.orEmpty
@@ -17,16 +18,8 @@ import org.jetbrains.compose.resources.resource
 
 private val cache = mutableStateMapOf<String, Painter>()
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun vectorResourceCached(res: String): Painter {
-    val imageBitmap = resource(res).rememberImageVector(LocalDensity.current)
-    return if (imageBitmap !is LoadState.Success<ImageVector>) {
-        rememberVectorPainter(imageBitmap.orEmpty())
-    } else {
-        rememberVectorPainter(imageBitmap.orEmpty())
-    }
-}
+expect fun vectorResourceCached(res: String): Painter
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
