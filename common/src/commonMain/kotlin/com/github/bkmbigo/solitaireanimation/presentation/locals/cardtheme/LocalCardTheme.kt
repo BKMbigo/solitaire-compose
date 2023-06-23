@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 
 val LocalCardTheme = staticCompositionLocalOf<CardTheme> { DefaultCardTheme }
 
-private val DefaultCardTheme = object: CardTheme {
+val DefaultCardTheme = object: CardTheme {
     override val isDark: Boolean = false
     override val useMiniCards: Boolean = false
     override val cardFrontBackground: Color = Color.White

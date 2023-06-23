@@ -10,7 +10,7 @@ import com.github.bkmbigo.solitaireanimation.presentation.utils.images.vectorRes
 
 val LocalResourceProvider = compositionLocalOf<ResourceProvider> { DefaultResourceProvider }
 
-object DefaultResourceProvider: ResourceProvider {
+val DefaultResourceProvider = object : ResourceProvider {
     @Composable
     override fun getImage(resourcePath: String): Painter = vectorResourceCached(resourcePath)
 
