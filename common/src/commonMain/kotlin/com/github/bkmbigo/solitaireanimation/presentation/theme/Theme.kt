@@ -10,7 +10,7 @@ import com.github.bkmbigo.solitaireanimation.presentation.locals.resourceprovide
 import com.github.bkmbigo.solitaireanimation.presentation.locals.resourceprovider.LocalResourceProvider
 
 @Composable
-fun SolitaireAnimationTheme(
+fun SolitaireTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable ()-> Unit
 ) {
