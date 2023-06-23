@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.bkmbigo.solitaireanimation.models.Card
-import com.github.bkmbigo.solitaireanimation.presentation.theme.locals.LocalCardTheme
+import com.github.bkmbigo.solitaireanimation.presentation.locals.cardtheme.LocalCardTheme
 
 /* [MiniCard] Displays a mini card whenever full cards cannot fit in the screen. Please ensure the card maintain an aspect ratio ~ 155:243
 * */
