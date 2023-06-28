@@ -31,7 +31,7 @@ internal fun FullCard(
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 8.dp
     ) {
-        if(isFlipped) {
+        if (!isFlipped) {
             Image(
                 painter = vectorResourceCached(Card.cardBackFilename),
                 contentDescription = null,
@@ -39,7 +39,7 @@ internal fun FullCard(
             )
         } else {
             Image(
-                painter = vectorResourceCached(if(cardTheme.isDark && card.darkImageFilename != null) card.darkImageFilename else card.imageFilename),
+                painter = vectorResourceCached(if (cardTheme.isDark && card.darkImageFilename != null) card.darkImageFilename else card.imageFilename),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )

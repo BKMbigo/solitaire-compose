@@ -47,7 +47,7 @@ internal fun MiniCard(
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 8.dp
     ) {
-        if (isFlipped) {
+        if (!isFlipped) {
             Image(
                 painter = vectorResourceCached(Card.cardBackFilename),
                 contentDescription = null,
