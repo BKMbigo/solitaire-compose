@@ -11,6 +11,7 @@ interface CardTheme {
 
     val cardFrontBackground: Color
     val cardBackBackground: Color
+    val cardSelectedColor: Color
     val gameBackground: Color
 
     val miniCardFont: FontFamily

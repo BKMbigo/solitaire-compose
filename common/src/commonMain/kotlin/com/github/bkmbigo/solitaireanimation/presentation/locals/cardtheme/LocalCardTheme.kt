@@ -17,6 +17,7 @@ val DefaultCardTheme = object: CardTheme {
 
     override val cardFrontBackground: Color = Color.White
     override val cardBackBackground: Color = Color(0xFF552200)
+    override val cardSelectedColor: Color = Color.Blue
     override val gameBackground: Color = Color(0xFF15360F)
 
     override val miniCardFont: FontFamily = FontFamily.Monospace
@@ -37,6 +38,7 @@ fun rememberCardTheme(
         override val useMiniCards: Boolean = false
         override val cardFrontBackground: Color = if(isDark) Color.Black else Color.White
         override val cardBackBackground: Color = Color(0xFF552200)
+        override val cardSelectedColor: Color = Color.Blue
         override val gameBackground: Color = Color(0xFF15360F)
         override val miniCardFont: FontFamily = lobsterTwoFamily ?: FontFamily.Monospace
         override val appFont: FontFamily = andikaFont ?: FontFamily.SansSerif
