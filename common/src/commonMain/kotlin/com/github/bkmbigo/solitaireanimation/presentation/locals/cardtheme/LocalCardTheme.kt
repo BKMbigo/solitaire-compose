@@ -23,7 +23,7 @@ val DefaultCardTheme = object: CardTheme {
     override val miniCardFont: FontFamily = FontFamily.Monospace
     override val appFont: FontFamily = FontFamily.SansSerif
 
-    override val cardSize: DpSize = DpSize((121.5).dp, (77.5).dp)
+    override val cardSize: DpSize = DpSize((77.5).dp, (121.5).dp)
     override val verticalCardStackSeparation: Dp = 20.dp
     override val horizontalCardStackSeparation: Dp = 20.dp
 }
@@ -42,7 +42,7 @@ fun rememberCardTheme(
         override val gameBackground: Color = Color(0xFF15360F)
         override val miniCardFont: FontFamily = lobsterTwoFamily ?: FontFamily.Monospace
         override val appFont: FontFamily = andikaFont ?: FontFamily.SansSerif
-        override val cardSize: DpSize = DpSize((121.5).dp, (77.5).dp)
+        override val cardSize: DpSize = DpSize((77.5).dp, (121.5).dp)
         override val verticalCardStackSeparation: Dp = 20.dp
         override val horizontalCardStackSeparation: Dp = 20.dp
     }
