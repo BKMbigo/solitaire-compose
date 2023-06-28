@@ -1,4 +1,4 @@
-package com.github.bkmbigo.solitaireanimation.presentation.screens
+package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire
 
 /**
  * A typesafe collection of available stacks
