@@ -10,13 +10,13 @@ data class SolitaireGame(
     val diamondsFoundation: SolitaireFoundationStack,
     val heartsFoundation: SolitaireFoundationStack,
 
-    val firstStack: SolitaireTableStack,
-    val secondStack: SolitaireTableStack,
-    val thirdStack: SolitaireTableStack,
-    val fourthStack: SolitaireTableStack,
-    val fifthStack: SolitaireTableStack,
-    val sixthStack: SolitaireTableStack,
-    val seventhStack: SolitaireTableStack
+    val firstStack: CardStack,
+    val secondStack: CardStack,
+    val thirdStack: CardStack,
+    val fourthStack: CardStack,
+    val fifthStack: CardStack,
+    val sixthStack: CardStack,
+    val seventhStack: CardStack
 ) {
 
 
@@ -53,31 +53,31 @@ data class SolitaireGame(
                 cloversFoundation = SolitaireFoundationStack(cards = listOf()),
                 diamondsFoundation = SolitaireFoundationStack(cards = listOf()),
                 heartsFoundation = SolitaireFoundationStack(cards = listOf()),
-                firstStack = SolitaireTableStack(
+                firstStack = CardStack(
                     cells = randomizedList[0],
                     flippedCells = 1
                 ),
-                secondStack = SolitaireTableStack(
+                secondStack = CardStack(
                     cells = randomizedList[1],
                     flippedCells = 1
                 ),
-                thirdStack = SolitaireTableStack(
+                thirdStack = CardStack(
                     cells = randomizedList[2],
                     flippedCells = 1
                 ),
-                fourthStack = SolitaireTableStack(
+                fourthStack = CardStack(
                     cells = randomizedList[3],
                     flippedCells = 1
                 ),
-                fifthStack = SolitaireTableStack(
+                fifthStack = CardStack(
                     cells = randomizedList[4],
                     flippedCells = 1
                 ),
-                sixthStack = SolitaireTableStack(
+                sixthStack = CardStack(
                     cells = randomizedList[5],
                     flippedCells = 1
                 ),
-                seventhStack = SolitaireTableStack(
+                seventhStack = CardStack(
                     cells = randomizedList[6],
                     flippedCells = 1
                 )
