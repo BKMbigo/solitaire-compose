@@ -21,12 +21,12 @@ fun CardStackLayout(
     Layout(
         modifier = modifier,
         content = {
-            tableStackState.cells.forEachIndexed { index, card ->
+            tableStackState.cards.forEachIndexed { index, card ->
                 CardView(
                     card,
-                    isFlipped = index >= (tableStackState.cells.size - tableStackState.flippedCells),
+                    isFlipped = index >= (tableStackState.cards.size - tableStackState.flippedCells),
                     modifier = Modifier,
-                    isSelected = index >= (tableStackState.cells.size - tableStackState.selectedCells),
+                    isSelected = index >= (tableStackState.cards.size - tableStackState.selectedCells),
                 )
             }
         },

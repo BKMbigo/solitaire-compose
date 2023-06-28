@@ -3,7 +3,7 @@ package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.sta
 import com.github.bkmbigo.solitaireanimation.models.Card
 
 data class TableStackState(
-    val cells: List<Card> = emptyList(),
+    val cards: List<Card> = emptyList(),
     val flippedCells: Int = 0,
     val selectedCells: Int = 0
 )
