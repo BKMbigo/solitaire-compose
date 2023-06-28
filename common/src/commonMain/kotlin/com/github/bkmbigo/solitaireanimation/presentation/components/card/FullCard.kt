@@ -3,6 +3,7 @@ package com.github.bkmbigo.solitaireanimation.presentation.components.card
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -23,9 +24,9 @@ internal fun FullCard(
     val cardTheme = LocalCardTheme.current
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.size(cardTheme.cardSize),
         border = if (isSelected) BorderStroke(2.dp, cardTheme.cardSelectedColor)
-        else BorderStroke(1.dp, Color.Black),,
+        else BorderStroke(1.dp, Color.Black),
         color = cardTheme.cardFrontBackground,
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 8.dp

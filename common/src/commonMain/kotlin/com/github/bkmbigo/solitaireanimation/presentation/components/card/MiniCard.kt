@@ -40,7 +40,7 @@ internal fun MiniCard(
     val cardTheme = LocalCardTheme.current
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.size(cardTheme.cardSize),
         border = if (isSelected) BorderStroke(2.dp, cardTheme.cardSelectedColor)
         else BorderStroke(1.dp, Color.Black),
         color = cardTheme.cardFrontBackground,
