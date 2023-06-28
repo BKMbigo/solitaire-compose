@@ -31,77 +31,79 @@ import com.github.bkmbigo.solitaireanimation.presentation.utils.images.vectorRes
 * */
 
 @Composable
-fun MiniCard(
+internal fun MiniCard(
     card: Card,
     isFlipped: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
 ) {
     val cardTheme = LocalCardTheme.current
 
-   Surface(
-       modifier = modifier,
-       border = BorderStroke(1.dp, Color.Black),
-       color = cardTheme.cardFrontBackground,
-       shape = RoundedCornerShape(5.dp),
-       shadowElevation = 8.dp
-   ) {
-       if(isFlipped) {
-           Image(
-               painter = vectorResourceCached(Card.cardBackFilename),
-               contentDescription = null,
-               modifier = Modifier.fillMaxSize()
-           )
-       } else {
-           Column(
-               modifier = Modifier.fillMaxSize()
-           ) {
-               Row(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(
-                           horizontal = 4.dp
-                       )
-                       .border(1.dp, Color.Black),
-                   horizontalArrangement = Arrangement.SpaceBetween,
-                   verticalAlignment = Alignment.CenterVertically
-               ) {
-                   Text(
-                       text = card.rank.symbol,
-                       fontWeight = FontWeight.Bold,
-                       fontFamily = cardTheme.miniCardFont,
-                       color = when (card.suite.color) {
-                           CardColor.RED -> Card.redColor
-                           CardColor.BLACK -> when (cardTheme.isDark) {
-                               true -> Color.Black
-                               false -> Color.White
-                           }
-                       },
-                       textAlign = TextAlign.Center,
-                       modifier = Modifier.align(Alignment.CenterVertically),
-                       fontSize = 14.sp
-                   )
+    Surface(
+        modifier = modifier,
+        border = if (isSelected) BorderStroke(2.dp, cardTheme.cardSelectedColor)
+        else BorderStroke(1.dp, Color.Black),
+        color = cardTheme.cardFrontBackground,
+        shape = RoundedCornerShape(5.dp),
+        shadowElevation = 8.dp
+    ) {
+        if (isFlipped) {
+            Image(
+                painter = vectorResourceCached(Card.cardBackFilename),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 4.dp
+                        )
+                        .border(1.dp, Color.Black),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = card.rank.symbol,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = cardTheme.miniCardFont,
+                        color = when (card.suite.color) {
+                            CardColor.RED -> Card.redColor
+                            CardColor.BLACK -> when (cardTheme.isDark) {
+                                true -> Color.Black
+                                false -> Color.White
+                            }
+                        },
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        fontSize = 14.sp
+                    )
 
-                   Image(
-                       painter = vectorResourceCached(card.suite.imageFilename),
-                       contentDescription = null,
-                       modifier = Modifier
-                           .size(12.dp)
-                           .align(Alignment.CenterVertically)
-                   )
-               }
+                    Image(
+                        painter = vectorResourceCached(card.suite.imageFilename),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(12.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
 
-               Box(
-                   modifier = Modifier.weight(1f, true).fillMaxWidth()
-               ) {
-                   Image(
-                       painter = vectorResourceCached(card.suite.imageFilename),
-                       contentDescription = null,
-                       modifier = Modifier
-                           .fillMaxSize(0.4f)
-                           .align(Alignment.Center)
-                   )
-               }
-           }
-       }
-   }
+                Box(
+                    modifier = Modifier.weight(1f, true).fillMaxWidth()
+                ) {
+                    Image(
+                        painter = vectorResourceCached(card.suite.imageFilename),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize(0.4f)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+        }
+    }
 }

@@ -17,13 +17,15 @@ import com.github.bkmbigo.solitaireanimation.presentation.utils.images.vectorRes
 internal fun FullCard(
     card: Card,
     isFlipped: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
 ) {
     val cardTheme = LocalCardTheme.current
 
     Surface(
         modifier = modifier,
-        border = BorderStroke(1.dp, Color.Black),
+        border = if (isSelected) BorderStroke(2.dp, cardTheme.cardSelectedColor)
+        else BorderStroke(1.dp, Color.Black),,
         color = cardTheme.cardFrontBackground,
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 8.dp

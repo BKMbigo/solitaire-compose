@@ -9,7 +9,8 @@ import com.github.bkmbigo.solitaireanimation.presentation.locals.cardtheme.Local
 fun CardView(
     card: Card,
     isFlipped: Boolean,
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
 ) {
     val cardTheme = LocalCardTheme.current
 
@@ -17,13 +18,15 @@ fun CardView(
         MiniCard(
             card = card,
             isFlipped = isFlipped,
-            modifier = modifier
+            modifier = modifier,
+            isSelected = isSelected
         )
     } else {
         FullCard(
             card = card,
             isFlipped = isFlipped,
-            modifier = modifier
+            modifier = modifier,
+            isSelected = isSelected
         )
     }
 }
