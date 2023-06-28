@@ -16,4 +16,6 @@ enum class CardRank(val symbol: String) {
     JUDGE("J"),
     QUEEN("Q"),
     KING("K");
+    operator fun minus(other: CardRank) = ordinal - other.ordinal
+
 }
