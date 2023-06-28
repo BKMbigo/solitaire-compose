@@ -39,8 +39,8 @@ enum class Card(
     TWO_OF_SPADES(
         rank = CardRank.TWO,
         suite = CardSuite.SPADE,
-        imageFilename = "card_two_spades.xml",
-        darkImageFilename = "card_two_spades_dark.xml"
+        imageFilename = "card_two_spade.xml",
+        darkImageFilename = "card_two_spade_dark.xml"
     ),
     TWO_OF_CLOVER(
         rank = CardRank.TWO,
