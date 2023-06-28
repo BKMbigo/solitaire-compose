@@ -1,8 +1,8 @@
-package com.github.bkmbigo.solitaireanimation.domain
+package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state
 
 import com.github.bkmbigo.solitaireanimation.models.Card
 
-data class CardStack(
+data class TableStackState(
     val cells: List<Card> = emptyList(),
     val flippedCells: Int = 0,
     val selectedCells: Int = 0

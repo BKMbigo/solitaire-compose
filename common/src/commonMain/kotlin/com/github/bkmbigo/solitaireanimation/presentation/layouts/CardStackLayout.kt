@@ -6,13 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.times
-import com.github.bkmbigo.solitaireanimation.domain.CardStack
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state.TableStackState
 import com.github.bkmbigo.solitaireanimation.presentation.components.card.CardView
 import com.github.bkmbigo.solitaireanimation.presentation.locals.cardtheme.LocalCardTheme
 
 @Composable
 fun CardStackLayout(
-    cardStack: CardStack,
+    tableStackState: TableStackState,
     modifier: Modifier = Modifier,
     orientation: Orientation = Orientation.Vertical
 ) {
@@ -21,12 +21,12 @@ fun CardStackLayout(
     Layout(
         modifier = modifier,
         content = {
-            cardStack.cells.forEachIndexed { index, card ->
+            tableStackState.cells.forEachIndexed { index, card ->
                 CardView(
                     card,
-                    isFlipped = index >= (cardStack.cells.size - cardStack.flippedCells),
+                    isFlipped = index >= (tableStackState.cells.size - tableStackState.flippedCells),
                     modifier = Modifier,
-                    isSelected = index >= (cardStack.cells.size - cardStack.selectedCells),
+                    isSelected = index >= (tableStackState.cells.size - tableStackState.selectedCells),
                 )
             }
         },
