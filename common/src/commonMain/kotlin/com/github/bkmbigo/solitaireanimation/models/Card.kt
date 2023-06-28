@@ -1,5 +1,7 @@
 package com.github.bkmbigo.solitaireanimation.models
 
+import androidx.compose.ui.graphics.Color
+
 enum class Card(
     val rank: CardRank,
     val suite: CardSuite,
@@ -347,5 +349,6 @@ enum class Card(
     
     companion object {
         val cardBackFilename = "card_back.xml"
+        val redColor = Color(0xFFDF0000)
     }
 }
