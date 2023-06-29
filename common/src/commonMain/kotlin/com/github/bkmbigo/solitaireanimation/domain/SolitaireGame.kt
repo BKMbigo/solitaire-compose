@@ -1,22 +1,16 @@
 package com.github.bkmbigo.solitaireanimation.domain
 
 import com.github.bkmbigo.solitaireanimation.models.Card
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.FoundationStack
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.TableStack
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state.FoundationStackState
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state.TableStackState
 
 data class SolitaireGame(
     val stock: List<Card>, // Cards left on top
 
-    val spadesFoundation: SolitaireFoundationStack,
-    val cloversFoundation: SolitaireFoundationStack,
-    val diamondsFoundation: SolitaireFoundationStack,
-    val heartsFoundation: SolitaireFoundationStack,
-
-    val firstStack: CardStack,
-    val secondStack: CardStack,
-    val thirdStack: CardStack,
-    val fourthStack: CardStack,
-    val fifthStack: CardStack,
-    val sixthStack: CardStack,
-    val seventhStack: CardStack
+    val foundationStacks: Map<FoundationStack, FoundationStackState> = FoundationStack.values().associateWith { FoundationStackState() },
+    val tableStacks: Map<TableStack, TableStackState> = TableStack.values().associateWith { TableStackState() }
 ) {
 
 
@@ -49,38 +43,17 @@ data class SolitaireGame(
 
             return SolitaireGame(
                 stock = randomizedList[7],
-                spadesFoundation = SolitaireFoundationStack(cards = listOf()),
-                cloversFoundation = SolitaireFoundationStack(cards = listOf()),
-                diamondsFoundation = SolitaireFoundationStack(cards = listOf()),
-                heartsFoundation = SolitaireFoundationStack(cards = listOf()),
-                firstStack = CardStack(
-                    cells = randomizedList[0],
-                    flippedCells = 1
+                foundationStacks = mapOf(),
+                tableStacks = mapOf(
+                    TableStack.FIRST to TableStackState(randomizedList[0]),
+                    TableStack.SECOND to TableStackState(randomizedList[1]),
+                    TableStack.THIRD to TableStackState(randomizedList[2]),
+                    TableStack.FOURTH to TableStackState(randomizedList[3]),
+                    TableStack.FIFTH to TableStackState(randomizedList[4]),
+                    TableStack.SIXTH to TableStackState(randomizedList[5]),
+                    TableStack.SEVENTH to TableStackState(randomizedList[6])
                 ),
-                secondStack = CardStack(
-                    cells = randomizedList[1],
-                    flippedCells = 1
-                ),
-                thirdStack = CardStack(
-                    cells = randomizedList[2],
-                    flippedCells = 1
-                ),
-                fourthStack = CardStack(
-                    cells = randomizedList[3],
-                    flippedCells = 1
-                ),
-                fifthStack = CardStack(
-                    cells = randomizedList[4],
-                    flippedCells = 1
-                ),
-                sixthStack = CardStack(
-                    cells = randomizedList[5],
-                    flippedCells = 1
-                ),
-                seventhStack = CardStack(
-                    cells = randomizedList[6],
-                    flippedCells = 1
-                )
+
             )
         }
     }
