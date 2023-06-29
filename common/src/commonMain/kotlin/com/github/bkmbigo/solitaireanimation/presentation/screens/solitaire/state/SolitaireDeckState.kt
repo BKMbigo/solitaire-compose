@@ -2,7 +2,7 @@ package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.sta
 
 import com.github.bkmbigo.solitaireanimation.models.Card
 
-data class CardDeckState(
+data class SolitaireDeckState(
     val openStack: List<Card> = emptyList(),
     val uncoveredStack: List<Card> = emptyList(),
     val hiddenCards: List<Card> = emptyList()
