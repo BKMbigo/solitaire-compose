@@ -1,12 +1,9 @@
 package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state
 
 import com.github.bkmbigo.solitaireanimation.domain.SolitaireGame
-import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.PlayingGameState
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.SolitaireGameState
 
-sealed class GameScreenState(open val game: SolitaireGame?) {
-    object NewGame: GameScreenState(null)
-    data class PlayingGame(
-        val state: PlayingGameState,
-        override val game: SolitaireGame
-    ): GameScreenState(game)
-}
+data class GameScreenState(
+    val state: SolitaireGameState = SolitaireGameState.PLAYING,
+    val game: SolitaireGame
+)
