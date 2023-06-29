@@ -20,8 +20,8 @@ fun CardStackLayout(
         cards = tableStackState.cards,
         modifier = modifier,
         orientation = Orientation.Vertical,
-        flippedCards = tableStackState.flippedCells,
-        selectedCards = tableStackState.selectedCells
+        flippedCards = tableStackState.flippedCards,
+        selectedCards = tableStackState.selectedCards
     )
 }
 
