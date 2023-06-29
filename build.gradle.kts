@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.composeMultiplatform) apply false
-    alias(libs.plugins.org.jetbrains.kotlin.jvm) apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block
 
@@ -28,6 +27,15 @@ allprojects {
             val isComposeCompiler = requested.module.group.startsWith("org.jetbrains.compose.compiler")
             if (isComposeGroup && !isComposeCompiler && !isWasm && !isJs) {
                 useVersion("1.4.0")
+            }
+            if (requested.module.name.startsWith("kotlin-stdlib")) {
+                useVersion("1.8.21")
+            }
+            if(requested.module.name.contains("material-icons-extended")) {
+                useVersion("1.4.0-dev-wasm05")
+            }
+            if(requested.module.name.contains("kotlinx-coroutines-core") && isWasm) {
+                useVersion("1.7.0-RC-wasm0")
             }
         }
     }
