@@ -6,27 +6,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.times
-import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state.TableStackState
+import com.github.bkmbigo.solitaireanimation.models.Card
 import com.github.bkmbigo.solitaireanimation.presentation.components.card.CardView
 import com.github.bkmbigo.solitaireanimation.presentation.locals.cardtheme.LocalCardTheme
+import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.state.TableStackState
 
 @Composable
 fun CardStackLayout(
     tableStackState: TableStackState,
+    modifier: Modifier = Modifier
+) {
+    CardStackLayout(
+        cards = tableStackState.cards,
+        modifier = modifier,
+        orientation = Orientation.Vertical,
+        flippedCards = tableStackState.flippedCells,
+        selectedCards = tableStackState.selectedCells
+    )
+}
+
+@Composable
+fun CardStackLayout(
+    cards: List<Card>,
     modifier: Modifier = Modifier,
-    orientation: Orientation = Orientation.Vertical
+    orientation: Orientation = Orientation.Vertical,
+    flippedCards: Int = cards.size,
+    selectedCards: Int = 0
 ) {
     val cardTheme = LocalCardTheme.current
 
     Layout(
         modifier = modifier,
         content = {
-            tableStackState.cards.forEachIndexed { index, card ->
+            cards.forEachIndexed { index, card ->
                 CardView(
                     card,
-                    isFlipped = index >= (tableStackState.cards.size - tableStackState.flippedCells),
+                    isFlipped = index >= (cards.size - flippedCards),
                     modifier = Modifier,
-                    isSelected = index >= (tableStackState.cards.size - tableStackState.selectedCells),
+                    isSelected = index >= (cards.size - selectedCards),
                 )
             }
         },
