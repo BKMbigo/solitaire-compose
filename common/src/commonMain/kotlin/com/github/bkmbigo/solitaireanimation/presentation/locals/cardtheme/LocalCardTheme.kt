@@ -29,6 +29,9 @@ val DefaultCardTheme = object: CardTheme {
     override val cardSize: DpSize = DpSize((77.5).dp, (121.5).dp)
     override val verticalCardStackSeparation: Dp = 20.dp
     override val horizontalCardStackSeparation: Dp = 20.dp
+    override val SolitaireGameOptions = object: SolitaireGameOptions {
+        override val cardsUnveiledPerDeal: Int = 1
+    }
 }
 @Composable
 fun rememberCardTheme(
@@ -49,5 +52,8 @@ fun rememberCardTheme(
         override val cardSize: DpSize = DpSize((77.5).dp, (121.5).dp)
         override val verticalCardStackSeparation: Dp = 20.dp
         override val horizontalCardStackSeparation: Dp = 20.dp
+        override val SolitaireGameOptions: SolitaireGameOptions = object: SolitaireGameOptions {
+            override val cardsUnveiledPerDeal: Int = 1
+        }
     }
 }

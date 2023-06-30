@@ -22,4 +22,6 @@ interface CardTheme {
     val cardSize: DpSize
     val verticalCardStackSeparation: Dp
     val horizontalCardStackSeparation: Dp
+
+    val SolitaireGameOptions: SolitaireGameOptions
 }
