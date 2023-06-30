@@ -8,12 +8,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.github.bkmbigo.solitaireanimation.utils.Platform
+import com.github.bkmbigo.solitaireanimation.utils.currentPlatform
 
 val LocalCardTheme = staticCompositionLocalOf<CardTheme> { DefaultCardTheme }
 
 val DefaultCardTheme = object: CardTheme {
     override val isDark: Boolean = false
     override val useMiniCards: Boolean = false
+    override val useAnimations: Boolean = currentPlatform != Platform.WASM
 
     override val cardFrontBackground: Color = Color.White
     override val cardBackBackground: Color = Color(0xFF552200)
@@ -36,6 +39,7 @@ fun rememberCardTheme(
     object: CardTheme {
         override val isDark: Boolean = isDark
         override val useMiniCards: Boolean = false
+        override val useAnimations: Boolean = currentPlatform != Platform.WASM
         override val cardFrontBackground: Color = if(isDark) Color.Black else Color.White
         override val cardBackBackground: Color = Color(0xFF552200)
         override val cardSelectedColor: Color = Color.Blue

@@ -9,6 +9,8 @@ interface CardTheme {
     val isDark: Boolean
     val useMiniCards: Boolean
 
+    val useAnimations: Boolean
+
     val cardFrontBackground: Color
     val cardBackBackground: Color
     val cardSelectedColor: Color
