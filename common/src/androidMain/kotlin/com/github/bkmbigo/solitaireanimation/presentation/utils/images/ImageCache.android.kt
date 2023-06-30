@@ -15,10 +15,18 @@ import org.jetbrains.compose.resources.resource
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painter {
-    val imageBitmap = resource("${resourcePath.directoryPath}/$res").rememberImageVector(LocalDensity.current)
-    return if (imageBitmap !is LoadState.Success<ImageVector>) {
-        rememberVectorPainter(imageBitmap.orEmpty())
+    val fullResourcePath = "${resourcePath.directoryPath}/$res"
+
+    return if (vectorCache.containsKey(fullResourcePath)) {
+        rememberVectorPainter(vectorCache[fullResourcePath]!!)
     } else {
-        rememberVectorPainter(imageBitmap.orEmpty())
+        val imageBitmap = resource(fullResourcePath).rememberImageVector(LocalDensity.current)
+        return if (imageBitmap !is LoadState.Success<ImageVector>) {
+            rememberVectorPainter(imageBitmap.orEmpty())
+        } else {
+            val newVector = imageBitmap.orEmpty()
+            vectorCache[fullResourcePath] = newVector
+            rememberVectorPainter(newVector)
+        }
     }
 }

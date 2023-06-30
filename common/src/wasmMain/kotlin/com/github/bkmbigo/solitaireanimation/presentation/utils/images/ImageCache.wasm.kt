@@ -18,11 +18,11 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.github.bkmbigo.solitaireanimation.presentation.utils.ResourcePath
-import com.github.bkmbigo.solitaireanimation.utils.Logger
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.LoadState
 import org.jetbrains.compose.resources.Resource
 import org.jetbrains.compose.resources.orEmpty
+import org.jetbrains.compose.resources.rememberImageVector
 import org.jetbrains.compose.resources.resource
 import org.jetbrains.compose.resources.vector.parseVectorRoot
 import org.w3c.dom.parsing.DOMParser
@@ -32,19 +32,19 @@ import org.w3c.dom.Node as DomNode
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painter {
-    val imageBitmap = resource("${resourcePath.directoryPath}/$res").rememberImageVector(LocalDensity.current)
-    return if (imageBitmap !is LoadState.Success<ImageVector>) {
-        Logger.LogInfo(
-            "SVG Loader",
-            when (imageBitmap) {
-                is LoadState.Error -> "Load State is Error: ${imageBitmap.exception}"
-                is LoadState.Loading -> "Load State is Loading"
-                is LoadState.Success -> "Load State is WTF"
-            }
-        )
-        rememberVectorPainter(imageBitmap.orEmpty())
+    val fullResourcePath = "${resourcePath.directoryPath}/$res"
+
+    return if (vectorCache.containsKey(fullResourcePath)) {
+        rememberVectorPainter(vectorCache[fullResourcePath]!!)
     } else {
-        rememberVectorPainter(imageBitmap.orEmpty())
+        val imageBitmap = resource(fullResourcePath).rememberImageVector(LocalDensity.current)
+        return if (imageBitmap !is LoadState.Success<ImageVector>) {
+            rememberVectorPainter(imageBitmap.orEmpty())
+        } else {
+            val newVector = imageBitmap.orEmpty()
+            vectorCache[fullResourcePath] = newVector
+            rememberVectorPainter(newVector)
+        }
     }
 }
 
