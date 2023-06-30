@@ -2,25 +2,25 @@ package com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.sta
 
 import com.github.bkmbigo.solitaireanimation.domain.SolitaireGame
 
-sealed class SolitaireGameState {
+sealed class SolitaireGameState(open val game: SolitaireGame?) {
     /**The user has just opened the Game Screen*/
-    object New: SolitaireGameState()
+    object New: SolitaireGameState(null)
     /**The game is playing the entry animation of the game*/
     data class EntryAnimation(
-        val game: SolitaireGame
-    ): SolitaireGameState()
+        override val game: SolitaireGame
+    ): SolitaireGameState(game)
     /**The user is currently playing the game*/
     data class Playing(
-        val game: SolitaireGame
-    ): SolitaireGameState()
+        override val game: SolitaireGame
+    ): SolitaireGameState(game)
     /**The user has paused the current game*/
     data class Paused(
-        val game: SolitaireGame
-    ): SolitaireGameState()
+        override val game: SolitaireGame
+    ): SolitaireGameState(game)
     /**The game is currently playing the exit animation*/
     data class ExitAnimation(
-        val game: SolitaireGame
-    ): SolitaireGameState()
+        override val game: SolitaireGame
+    ): SolitaireGameState(game)
     /**The user has Successfully completed the game*/
-    object Completed: SolitaireGameState()
+    object Completed: SolitaireGameState(null)
 }
