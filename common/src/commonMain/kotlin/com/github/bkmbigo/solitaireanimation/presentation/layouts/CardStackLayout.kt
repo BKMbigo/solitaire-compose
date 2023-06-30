@@ -14,11 +14,13 @@ import com.github.bkmbigo.solitaireanimation.presentation.screens.solitaire.stat
 @Composable
 fun CardStackLayout(
     tableStackState: TableStackState,
+    cardView: @Composable (Card, Boolean, Modifier, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     CardStackLayout(
         cards = tableStackState.cards,
         modifier = modifier,
+        cardView = cardView,
         orientation = Orientation.Vertical,
         flippedCards = tableStackState.flippedCards,
         selectedCards = tableStackState.selectedCards
@@ -29,6 +31,7 @@ fun CardStackLayout(
 fun CardStackLayout(
     cards: List<Card>,
     modifier: Modifier = Modifier,
+    cardView: @Composable (Card, Boolean, Modifier, Boolean) -> Unit,
     orientation: Orientation = Orientation.Vertical,
     flippedCards: Int = cards.size,
     selectedCards: Int = 0
@@ -39,11 +42,11 @@ fun CardStackLayout(
         modifier = modifier,
         content = {
             cards.forEachIndexed { index, card ->
-                CardView(
+                cardView(
                     card,
-                    isFlipped = index >= (cards.size - flippedCards),
-                    modifier = Modifier,
-                    isSelected = index >= (cards.size - selectedCards),
+                    index >= (cards.size - flippedCards),
+                    Modifier,
+                    index >= (cards.size - selectedCards),
                 )
             }
         },
