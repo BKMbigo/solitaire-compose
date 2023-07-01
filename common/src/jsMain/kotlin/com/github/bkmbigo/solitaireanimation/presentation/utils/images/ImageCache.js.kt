@@ -22,7 +22,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.LoadState
 import org.jetbrains.compose.resources.Resource
 import org.jetbrains.compose.resources.orEmpty
-import org.jetbrains.compose.resources.rememberImageVector
 import org.jetbrains.compose.resources.resource
 import org.jetbrains.compose.resources.vector.parseVectorRoot
 import org.w3c.dom.parsing.DOMParser
