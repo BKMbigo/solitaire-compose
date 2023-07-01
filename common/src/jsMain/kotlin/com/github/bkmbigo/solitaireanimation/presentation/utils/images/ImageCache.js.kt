@@ -34,15 +34,15 @@ actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painte
     val fullResourcePath = "${resourcePath.directoryPath}/$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {
-        rememberVectorPainter(vectorCache[fullResourcePath]!!)
+        vectorCache[fullResourcePath]!!
     } else {
         val imageBitmap = resource(fullResourcePath).rememberImageVector(LocalDensity.current)
         return if (imageBitmap !is LoadState.Success<ImageVector>) {
             rememberVectorPainter(imageBitmap.orEmpty())
         } else {
-            val newVector = imageBitmap.orEmpty()
+            val newVector = rememberVectorPainter(imageBitmap.orEmpty())
             vectorCache[fullResourcePath] = newVector
-            rememberVectorPainter(newVector)
+            newVector
         }
     }
 }

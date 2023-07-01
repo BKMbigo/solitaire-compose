@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
 import com.github.bkmbigo.solitaireanimation.presentation.utils.ResourcePath
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.LoadState
@@ -14,7 +15,7 @@ import org.jetbrains.compose.resources.rememberImageBitmap
 import org.jetbrains.compose.resources.resource
 
 private val bitmapCache = mutableStateMapOf<String, Painter>()
-internal val vectorCache: MutableMap<String, ImageVector> = mutableMapOf()
+internal val vectorCache: MutableMap<String, VectorPainter> = mutableMapOf()
 
 @Composable
 expect fun vectorResourceCached(
