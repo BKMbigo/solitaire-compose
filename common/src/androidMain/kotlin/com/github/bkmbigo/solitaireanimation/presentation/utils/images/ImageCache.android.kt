@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.resource
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painter {
-    val fullResourcePath = "${resourcePath.directoryPath}/$res"
+    val fullResourcePath = "${resourcePath.directoryPath}$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {
         rememberVectorPainter(vectorCache[fullResourcePath]!!)
