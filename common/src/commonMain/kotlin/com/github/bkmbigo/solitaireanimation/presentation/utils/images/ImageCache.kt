@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.rememberImageBitmap
 import org.jetbrains.compose.resources.resource
 
 private val bitmapCache = mutableStateMapOf<String, Painter>()
-internal val vectorCache: MutableMap<String, VectorPainter> = mutableMapOf()
+internal val vectorCache: MutableMap<String, ImageVector> = mutableMapOf()
 
 @Composable
 expect fun vectorResourceCached(
