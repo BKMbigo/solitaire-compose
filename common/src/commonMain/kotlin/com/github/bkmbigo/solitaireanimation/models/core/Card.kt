@@ -1,6 +1,7 @@
-package com.github.bkmbigo.solitaireanimation.models
+package com.github.bkmbigo.solitaireanimation.models.core
 
 import androidx.compose.ui.graphics.Color
+import com.github.bkmbigo.solitaireanimation.models.core.utils.of
 
 enum class Card(
     val rank: CardRank,
@@ -350,5 +351,23 @@ enum class Card(
     companion object {
         val cardBackFilename = "card_back.xml"
         val redColor = Color(0xFFDF0000)
+
+        /**
+         * Returns a list of all cards belonging to a particular [suite]
+         * @param suite [CardSuite] you want to query
+         * @return List<[Card]>*/
+        fun getAllCards(suite: CardSuite): List<Card> = CardRank.values().toList().map { it of suite }
+
+        /**
+         * Returns a list of all cards belonging to a particular [rank]
+         * @param rank [CardRank] you want to query
+         * @return List<[Card]>
+         */
+        fun getAllCards(rank: CardRank): List<Card> = listOf(
+            rank of CardSuite.SPADE,
+            rank of CardSuite.CLOVER,
+            rank of CardSuite.HEARTS,
+            rank of CardSuite.DIAMOND
+        )
     }
 }

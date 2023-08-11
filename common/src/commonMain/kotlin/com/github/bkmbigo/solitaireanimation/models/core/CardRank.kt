@@ -1,6 +1,4 @@
-package com.github.bkmbigo.solitaireanimation.models
-
-import kotlin.math.abs
+package com.github.bkmbigo.solitaireanimation.models.core
 
 enum class CardRank(val symbol: String) {
     ACE("A"),
