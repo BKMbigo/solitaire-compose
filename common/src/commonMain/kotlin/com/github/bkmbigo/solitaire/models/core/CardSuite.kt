@@ -1,4 +1,4 @@
-package com.github.bkmbigo.solitaireanimation.models.core
+package com.github.bkmbigo.solitaire.models.core
 
 enum class CardSuite(
     val color: CardColor,

@@ -7,7 +7,7 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = "SolitaireAnimation"
+rootProject.name = "Solitaire"
 include(":app")
 include(":common")
 include(":desktop")

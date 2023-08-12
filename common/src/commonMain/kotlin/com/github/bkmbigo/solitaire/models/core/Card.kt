@@ -1,8 +1,14 @@
-package com.github.bkmbigo.solitaireanimation.models.core
+package com.github.bkmbigo.solitaire.models.core
 
 import androidx.compose.ui.graphics.Color
-import com.github.bkmbigo.solitaireanimation.models.core.utils.of
+import com.github.bkmbigo.solitaire.models.core.utils.of
 
+/** Represents a Playing Card. There are 52 playing cards (Jokers are not yet supported). To get a card, use `of` function(ACE of SPADE)
+ * @param rank The [CardRank] of the card.
+ * @param suite The [CardSuite] of the card.
+ * @param imageFilename The filename of the Vector drawable of the card (light).
+ * @param darkImageFilename The filename of the Vector drawable of the card (dark). Can be null if no dark variant is available.
+ */
 enum class Card(
     val rank: CardRank,
     val suite: CardSuite,
@@ -22,7 +28,7 @@ enum class Card(
         suite = CardSuite.CLOVER,
         imageFilename = "card_ace_clover.xml",
         darkImageFilename = "card_ace_clover_dark.xml"
-        ),
+    ),
     ACE_OF_DIAMOND(
         rank = CardRank.ACE,
         suite = CardSuite.DIAMOND,
@@ -347,7 +353,11 @@ enum class Card(
         imageFilename = "card_king_hearts.xml",
         darkImageFilename = "card_king_hearts_dark.xml"
     );
-    
+
+    val color = suite.color
+
+    override fun toString(): String = "Card($rank of $suite)"
+
     companion object {
         val cardBackFilename = "card_back.xml"
         val redColor = Color(0xFFDF0000)
@@ -356,7 +366,8 @@ enum class Card(
          * Returns a list of all cards belonging to a particular [suite]
          * @param suite [CardSuite] you want to query
          * @return List<[Card]>*/
-        fun getAllCards(suite: CardSuite): List<Card> = CardRank.values().toList().map { it of suite }
+        fun getAllCards(suite: CardSuite): List<Card> =
+            CardRank.values().toList().map { it of suite }
 
         /**
          * Returns a list of all cards belonging to a particular [rank]
