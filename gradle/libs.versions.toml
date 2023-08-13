@@ -1,6 +1,6 @@
 [versions]
-agp = "8.2.0-alpha10"
-kotlin = "1.8.20"
+agp = "8.0.2"
+kotlin = "1.9.0"
 core-ktx = "1.10.1"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
@@ -8,10 +8,14 @@ espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.6.1"
 activity-compose = "1.7.2"
 compose-bom = "2023.06.00"
-compose-multiplatform-wasm = "1.4.0-dev-wasm06"
+compose-multiplatform-wasm = "1.4.0-dev-wasm09"
 compose-multiplatform-stable = "1.4.0"
+
 kotlinx-coroutines = "1.7.2"
-kotlinx-coroutines-wasm = "1.6.4-wasm3"
+kotlinx-coroutines-wasm = "1.7.2-wasm0"
+
+kotlinx-datetime = "0.4.0"
+kotlinx-datetime-wasm = "0.4.0-wasm1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -39,6 +43,9 @@ compose-stable-material-icons = { group = "androidx.compose.material", name = "m
 
 kotlinx-coroutines-wasm = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref="kotlinx-coroutines-wasm" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref="kotlinx-coroutines" }
+
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-datetime-wasm = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime-wasm" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

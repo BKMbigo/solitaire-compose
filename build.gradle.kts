@@ -26,16 +26,16 @@ allprojects {
             val isComposeGroup = requested.module.group.startsWith("org.jetbrains.compose")
             val isComposeCompiler = requested.module.group.startsWith("org.jetbrains.compose.compiler")
             if (isComposeGroup && !isComposeCompiler && !isWasm && !isJs) {
-                useVersion("1.4.0")
+                useVersion(libs.versions.compose.multiplatform.stable.get())
             }
             if (requested.module.name.startsWith("kotlin-stdlib")) {
-                useVersion("1.8.21")
-            }
-            if(requested.module.name.contains("material-icons-extended")) {
-                useVersion("1.4.0-dev-wasm05")
+                useVersion(libs.versions.kotlin.get())
             }
             if(requested.module.name.contains("kotlinx-coroutines-core") && isWasm) {
-                useVersion("1.7.0-RC-wasm0")
+                useVersion(libs.versions.kotlinx.coroutines.wasm.get())
+            }
+            if(requested.module.name.contains("kotlinx-datetime") && isWasm) {
+                useVersion("0.4.0-wasm1")
             }
         }
     }

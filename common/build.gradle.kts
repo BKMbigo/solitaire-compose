@@ -16,7 +16,7 @@ kotlin {
         binaries.executable()
     }
     wasm {
-        moduleName = "solitaire"
+        moduleName = "game"
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
@@ -44,15 +44,18 @@ kotlin {
                 implementation(compose.components.resources)
 
                 implementation(libs.kotlinx.coroutines)
+                implementation(libs.kotlinx.datetime)
             }
         }
 
 
-        val jsMain by getting {
+        val commonTest by getting {
             dependencies {
-                //implementation(compose.html.core)
+                implementation(kotlin("test"))
             }
         }
+
+        val jsMain by getting {}
 
         val wasmMain by getting {}
 
@@ -102,4 +105,6 @@ compose {
             application {}
         }
     }
+    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.wasm)
+    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
 }

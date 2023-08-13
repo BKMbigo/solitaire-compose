@@ -14,6 +14,12 @@
     <meta http-equiv="origin-trial" content="AvV2HYiHMw7lpIVcmGMSVmm6xC0Gzu4W5xBnZExmfHtE5zyNKFszcyNGm5IfCFQ6swnMotbn16lS1ozkJ0QzEAEAAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODMiLCJmZWF0dXJlIjoiV2ViQXNzZW1ibHlHQyIsImV4cGlyeSI6MTY5ODk2OTU5OX0=">
 
     <title>Solitaire</title>
+
+    <!-- Styling the loading page. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Andika">
+    <link rel="stylesheet" href="loading.css"/>
+    <link rel="stylesheet" href="animation.css"/>
+
     <script type="application/javascript" src="skiko.js"></script>
     <script type="module" src="load.mjs"></script>
     <style>
@@ -28,6 +34,17 @@
         </style>
 </head>
 <body>
+<div class="loading" id="loading">
+    <h2>Solitaire</h2>
+    <div class="instruction">
+        <p class="welcome">Welcome to Solitaire WebAssembly version. The game will begin shortly after WebAssembly component has been initialized.</p>
+        <div class = "animation">
+            <div class="ring"></div>
+        </div>
+    </div>
+    <h6>Developed using <a href="https://kotl.in/wasm">Kotlin/Wasm</a> and
+        <a href="https://github.com/JetBrains/compose-multiplatform">Compose for Web</a></h6>
+</div>
 <canvas id="ComposeTarget"></canvas>
 </body>
 </html>
