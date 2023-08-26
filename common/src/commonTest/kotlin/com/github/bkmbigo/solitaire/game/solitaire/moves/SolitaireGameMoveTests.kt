@@ -8,8 +8,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 data class SolitaireGameMoveTest(
-    val game: SolitaireGame,
     val move: SolitaireGameMove,
+    val game: SolitaireGame,
     val actual: Boolean,
     val message: String = "Solitaire Game Move",
     val expectedGame: SolitaireGame = game
@@ -25,9 +25,9 @@ class SolitaireGameMoveTests {
 
 private fun testMoves(moves: List<SolitaireGameMoveTest>) = moves.forEach { moveTest ->
     if (moveTest.actual) {
-        assertTrue(moveTest.message) { moveTest.move.isValid() }
+        assertTrue(moveTest.message) { moveTest.move.isValid(moveTest.game) }
     } else {
-        assertFalse(moveTest.message) { moveTest.move.isValid() }
+        assertFalse(moveTest.message) { moveTest.move.isValid(moveTest.game) }
     }
 }
 

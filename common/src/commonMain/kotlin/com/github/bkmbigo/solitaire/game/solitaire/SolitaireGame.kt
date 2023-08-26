@@ -4,13 +4,11 @@ import com.github.bkmbigo.solitaire.game.Game
 import com.github.bkmbigo.solitaire.game.solitaire.logic.allIndexed
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isFullyValid
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
-import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
+import com.github.bkmbigo.solitaire.game.solitaire.moves.*
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
-import com.github.bkmbigo.solitaire.models.solitaire.utils.TableStackEntry
+import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
 data class SolitaireGame(
     val deck: List<Card>,
@@ -26,9 +24,8 @@ data class SolitaireGame(
     val fourthTableStackState: TableStack,
     val fifthTableStackState: TableStack,
     val sixthTableStackState: TableStack,
-    val seventhTableStackState: TableStack,
-    val eighthTableStackState: TableStack
-) : Game<SolitaireGameMove> {
+    val seventhTableStackState: TableStack
+) : Game<SolitaireGame, SolitaireGameMove> {
 
     fun tableStack(entry: TableStackEntry) = when (entry) {
         TableStackEntry.ONE -> firstTableStackState
@@ -38,7 +35,6 @@ data class SolitaireGame(
         TableStackEntry.FIVE -> fifthTableStackState
         TableStackEntry.SIX -> sixthTableStackState
         TableStackEntry.SEVEN -> seventhTableStackState
-        TableStackEntry.EIGHT -> eighthTableStackState
     }
 
     fun foundationStack(suite: CardSuite) = when (suite) {
@@ -56,8 +52,7 @@ data class SolitaireGame(
             fourthTableStackState,
             fifthTableStackState,
             sixthTableStackState,
-            seventhTableStackState,
-            eighthTableStackState
+            seventhTableStackState
         )
 
     val foundationStacks
@@ -70,7 +65,7 @@ data class SolitaireGame(
 
     companion object {
         val ALL_CARDS_IN_DECK = SolitaireGame(
-            deck = Card.values().toList(),
+            deck = Card.entries.toList(),
             spadeFoundationStack = emptyList(),
             cloverFoundationStack = emptyList(),
             heartsFoundationStack = emptyList(),
@@ -81,26 +76,38 @@ data class SolitaireGame(
             fourthTableStackState = TableStack.EMPTY,
             fifthTableStackState = TableStack.EMPTY,
             sixthTableStackState = TableStack.EMPTY,
-            seventhTableStackState = TableStack.EMPTY,
-            eighthTableStackState = TableStack.EMPTY
+            seventhTableStackState = TableStack.EMPTY
+        )
+
+        val EMPTY_GAME = SolitaireGame(
+            deck = emptyList(),
+            spadeFoundationStack = emptyList(),
+            cloverFoundationStack = emptyList(),
+            heartsFoundationStack = emptyList(),
+            diamondFoundationStack = emptyList(),
+            firstTableStackState = TableStack.EMPTY,
+            secondTableStackState = TableStack.EMPTY,
+            thirdTableStackState = TableStack.EMPTY,
+            fourthTableStackState = TableStack.EMPTY,
+            fifthTableStackState = TableStack.EMPTY,
+            sixthTableStackState = TableStack.EMPTY,
+            seventhTableStackState = TableStack.EMPTY
         )
     }
 
+    /* Todo: Accept a list of moves to enable optimizations. */
     override fun play(move: SolitaireGameMove): SolitaireGame {
         var newGame = this
-        if (!move.isValid()) return newGame
+        if (!move.isValid(this)) return newGame
 
 
         when (move) {
-            SolitaireGameMove.Deal -> {
-                return newGame
-            }
+            SolitaireUserMove.Deal -> return newGame
 
-            is SolitaireGameMove.CardMove -> {
-
+            is SolitaireUserMove.CardMove -> {
 
                 when (move.from) {
-                    MoveSource.FromDeck -> {
+                    is MoveSource.FromDeck -> {
                         newGame = newGame.copy(
                             deck = newGame.deck.toMutableList().apply { remove(move.cards.first()) }
                         )
@@ -144,6 +151,49 @@ data class SolitaireGame(
                     }
                 }
             }
+
+            is SolitaireGameMove.HideCard -> {
+                newGame = newGame.withTableStack(
+                    move.tableStackEntry,
+                    newGame.tableStack(move.tableStackEntry).withHideCard()
+                )
+            }
+
+            is SolitaireGameMove.RevealCard -> {
+                newGame = newGame.withTableStack(
+                    move.tableStackEntry,
+                    newGame.tableStack(move.tableStackEntry).withRevealCard()
+                )
+            }
+
+            is SolitaireGameMove.ReturnToDeck -> {
+                newGame = newGame.copy(
+                    deck = deck.toMutableList().apply {
+                        add(move.index, move.card)
+                    }
+                )
+
+                /* Remove card from source: */
+                when(move.from) {
+                    ReturnToDeckSource.FromFoundation -> {
+                        newGame = newGame.withFoundationStack(
+                            suite = move.card.suite,
+                            cards = foundationStack(move.card.suite).toMutableList().apply {
+                                remove(move.card)
+                            }
+                        )
+                    }
+                    is ReturnToDeckSource.FromTable -> {
+                        newGame = newGame.withTableStack(
+                            move.from.tableStackEntry,
+                            newGame.tableStack(move.from.tableStackEntry)
+                                .withRemovedCard(move.card)
+                        )
+                    }
+                }
+            }
+
+            SolitaireGameMove.Undeal -> { /* no-op */ }
         }
 
         return if (newGame.isValid()) newGame else this         // Todo: Check will be removed as validation will be moved to moves instead of entire games
@@ -158,15 +208,16 @@ data class SolitaireGame(
         *       2. All foundation stacks are valid.
         *           - contain the corresponding suite only
         *           - cards are in incremental order from A -> K
-        *       3. All table stacks are valid.
+        *       3. All revealed table stacks are valid.
         *           - colors are interchanging in subsequent cards.
         *           - ranks are in decrementing order K -> A*/
 
         val allCards = listOf(deck, foundationStacks.flatten(), tableStacks.flatten()).flatten()
         if (allCards.size != 52) return false // 1.(i)
-        if (!allCards.groupBy { it.suite }
-                .all { it.value.size == 13 } || !allCards.groupBy { it.rank }
-                .all { it.value.size == 4 }) return false // 1.(ii) & 1.(iii)
+        if (
+            !allCards.groupBy { it.suite }.all { it.value.size == 13 } ||
+            !allCards.groupBy { it.rank }.all { it.value.size == 4 }
+        ) return false // 1.(ii) & 1.(iii)
 
         if (!foundationStacks.all { it.isValidFoundationStack() }) return false
 
@@ -227,8 +278,42 @@ data class SolitaireGame(
             TableStackEntry.FIVE -> copy(fifthTableStackState = stack)
             TableStackEntry.SIX -> copy(sixthTableStackState = stack)
             TableStackEntry.SEVEN -> copy(seventhTableStackState = stack)
-            TableStackEntry.EIGHT -> copy(eighthTableStackState = stack)
         }
+
+    fun withFoundationStack(fn: List<Card>.() -> List<Card>): SolitaireGame {
+        val spades = spadeFoundationStack.fn()
+        val clover = cloverFoundationStack.fn()
+        val hearts = heartsFoundationStack.fn()
+        val diamond = diamondFoundationStack.fn()
+
+        return copy(
+            spadeFoundationStack = spades,
+            cloverFoundationStack = clover,
+            heartsFoundationStack = hearts,
+            diamondFoundationStack = diamond
+        )
+    }
+
+    fun withTableStacks(fn: TableStack.() -> TableStack): SolitaireGame {
+        val firstTableStack = firstTableStackState.fn()
+        val secondTableStack = secondTableStackState.fn()
+        val thirdTableStack = thirdTableStackState.fn()
+        val fourthTableStack = fourthTableStackState.fn()
+        val fifthTableStack = fifthTableStackState.fn()
+        val sixthTableStack = sixthTableStackState.fn()
+        val seventhTableStack = seventhTableStackState.fn()
+
+        return copy(
+            firstTableStackState = firstTableStack,
+            secondTableStackState = secondTableStack,
+            thirdTableStackState = thirdTableStack,
+            fourthTableStackState = fourthTableStack,
+            fifthTableStackState = fifthTableStack,
+            sixthTableStackState = sixthTableStack,
+            seventhTableStackState = seventhTableStack
+        )
+
+    }
 
     private fun deckIsEmpty(): Boolean = deck.isEmpty()
 
@@ -239,8 +324,7 @@ data class SolitaireGame(
                 fourthTableStackState.isEmpty() &&
                 fifthTableStackState.isEmpty() &&
                 sixthTableStackState.isEmpty() &&
-                seventhTableStackState.isEmpty() &&
-                eighthTableStackState.isEmpty()
+                seventhTableStackState.isEmpty()
 
     private fun foundationStacksAreEmpty(): Boolean =
         spadeFoundationStack.isEmpty() &&
@@ -255,8 +339,7 @@ data class SolitaireGame(
         fourthTableStackState.isEmpty(),
         fifthTableStackState.isEmpty(),
         sixthTableStackState.isEmpty(),
-        seventhTableStackState.isEmpty(),
-        eighthTableStackState.isEmpty()
+        seventhTableStackState.isEmpty()
     )
 
     private fun emptyFoundationStacks(): Int = count(

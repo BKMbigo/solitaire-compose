@@ -1,16 +1,16 @@
 package com.github.bkmbigo.solitaire.game
 
-import kotlinx.datetime.Instant
-
 /* A mechanism helping in
 *       - providing hints.
 *       - storing moves (for player to undo/redo).
 *       - scoring.
 * */
-interface GameMove {
+interface GameMove<
+        G: Game<G, M>,
+        in M: GameMove<G, M>> {
 
-    val time: Instant
+//    val time: Instant   /* Time will be added with upgrade to 1.9.20 */
 
-    /** The move is valid in the context of the game.*/
-    fun isValid(): Boolean
+    /** The move is valid in the context of a game.*/
+    abstract fun isValid(game: G): Boolean
 }

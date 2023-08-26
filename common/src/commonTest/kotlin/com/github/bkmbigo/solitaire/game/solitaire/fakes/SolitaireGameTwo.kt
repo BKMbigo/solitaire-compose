@@ -21,8 +21,7 @@ val SolitaireGameTwo = SolitaireGameTestObject(
         fourthTableStackState = TableStack.EMPTY,
         fifthTableStackState = TableStack.EMPTY,
         sixthTableStackState = TableStack.EMPTY,
-        seventhTableStackState = TableStack.EMPTY,
-        eighthTableStackState = TableStack.EMPTY,
+        seventhTableStackState = TableStack.EMPTY
     ),
     isValid = true,
     isWon = true,

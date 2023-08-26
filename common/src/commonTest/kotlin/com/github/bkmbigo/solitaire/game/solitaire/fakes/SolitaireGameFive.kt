@@ -33,8 +33,7 @@ val SolitaireGameFive = SolitaireGameTestObject(
         firstTableStackState = TableStack.EMPTY,
         secondTableStackState = TableStack.EMPTY,
         thirdTableStackState = TableStack.EMPTY,
-        fourthTableStackState = TableStack.EMPTY,
-        fifthTableStackState = TableStack(
+        fourthTableStackState = TableStack(
             revealedCards = listOf(
                 KING of SPADE,
                 QUEEN of HEARTS,
@@ -51,7 +50,7 @@ val SolitaireGameFive = SolitaireGameTestObject(
                 ACE of CLOVER
             )
         ),
-        sixthTableStackState = TableStack(
+        fifthTableStackState = TableStack(
             revealedCards = listOf(
                 KING of CLOVER,
                 QUEEN of DIAMOND,
@@ -68,7 +67,7 @@ val SolitaireGameFive = SolitaireGameTestObject(
                 TWO of CLOVER,      // INVALID: ACE before TWO
             )
         ),
-        seventhTableStackState = TableStack(
+        sixthTableStackState = TableStack(
             revealedCards = listOf(
                 KING of HEARTS,
                 QUEEN of SPADE,
@@ -85,7 +84,7 @@ val SolitaireGameFive = SolitaireGameTestObject(
                 TWO of HEARTS    // INVALID: ACE before TWO
             )
         ),
-        eighthTableStackState = TableStack(
+        seventhTableStackState = TableStack(
             revealedCards = listOf(
                 KING of DIAMOND,
                 QUEEN of CLOVER,

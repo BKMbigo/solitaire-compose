@@ -18,8 +18,7 @@ val SolitaireGameSix = SolitaireGameTestObject(
         firstTableStackState = TableStack.EMPTY,
         secondTableStackState = TableStack.EMPTY,
         thirdTableStackState = TableStack.EMPTY,
-        fourthTableStackState = TableStack.EMPTY,
-        fifthTableStackState = TableStack(
+        fourthTableStackState = TableStack(
             revealedCards = listOf(
                 KING of SPADE,
                 QUEEN of HEARTS,
@@ -36,7 +35,7 @@ val SolitaireGameSix = SolitaireGameTestObject(
                 ACE of CLOVER
             )
         ),
-        sixthTableStackState = TableStack(      // INVALID: stack is repeated
+        fifthTableStackState = TableStack(      // INVALID: stack is repeated
             revealedCards = listOf(
                 KING of SPADE,
                 QUEEN of HEARTS,
@@ -53,7 +52,7 @@ val SolitaireGameSix = SolitaireGameTestObject(
                 ACE of CLOVER
             )
         ),
-        seventhTableStackState = TableStack(
+        sixthTableStackState = TableStack(
             revealedCards = listOf(
                 KING of HEARTS,
                 QUEEN of SPADE,
@@ -70,7 +69,7 @@ val SolitaireGameSix = SolitaireGameTestObject(
                 ACE of DIAMOND
             )
         ),
-        eighthTableStackState = TableStack(
+        seventhTableStackState = TableStack(
             revealedCards = listOf(
                 KING of DIAMOND,
                 QUEEN of CLOVER,

@@ -1,40 +1,26 @@
 package com.github.bkmbigo.solitaire.game.solitaire.moves.dsl
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMoveTest
 import com.github.bkmbigo.solitaire.models.core.Card
-import com.github.bkmbigo.solitaire.models.solitaire.utils.TableStackEntry
 
-infix fun SolitaireGameMove.CardMove.test(actual: Boolean): SolitaireGameMoveTest =
+infix fun SolitaireGameMove.testIsValid(game: SolitaireGame): SolitaireGameMoveTest =
     SolitaireGameMoveTest(
-        this.game,
         this,
-        actual
+        game,
+        true
+    )
+infix fun SolitaireGameMove.testIsNotValid(game: SolitaireGame): SolitaireGameMoveTest =
+    SolitaireGameMoveTest(
+        this,
+        game,
+        false
     )
 
 infix fun SolitaireGameMoveTest.withMessage(message: String) = this.copy(message = message)
 
 infix fun SolitaireGameMoveTest.expectGame(game: SolitaireGame) = this.copy(expectedGame = game)
-
-infix fun SolitaireMoveGameCard.from(
-    table: TableStackEntry
-): SolitaireMoveGameCardFrom = SolitaireMoveGameCardFrom(
-    game,
-    cards,
-    MoveSource.FromTable(table)
-)
-
-infix fun SolitaireMoveGameCardFrom.to(
-    table: TableStackEntry
-): SolitaireGameMove.CardMove =
-    SolitaireGameMove.CardMove(
-        game,
-        cards,
-        from,
-        com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination.ToTable(table)
-    )
 
 
 fun SolitaireGame.withRemoveFromDeck(card: Card): SolitaireGame =

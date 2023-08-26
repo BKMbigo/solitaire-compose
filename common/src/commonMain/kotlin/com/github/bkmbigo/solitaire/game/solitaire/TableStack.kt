@@ -46,4 +46,34 @@ data class TableStack(
             }
         )
 
+    fun withHideCard(): TableStack {
+        val card = revealedCards.firstOrNull()
+
+        return if (card != null) {
+            TableStack(
+                revealedCards = revealedCards.toMutableList().apply {
+                    remove(card)
+                },
+                hiddenCards = hiddenCards.toMutableList().apply {
+                    add(card)
+                }
+            )
+        } else this
+    }
+
+    fun withRevealCard(): TableStack {
+        val card = hiddenCards.lastOrNull()
+
+        return if (card != null) {
+            TableStack(
+                revealedCards = revealedCards.toMutableList().apply {
+                    add(card)
+                },
+                hiddenCards = hiddenCards.toMutableList().apply {
+                    remove(card)
+                }
+            )
+        } else this
+    }
+
 }

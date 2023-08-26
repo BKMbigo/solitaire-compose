@@ -1,4 +1,4 @@
-package com.github.bkmbigo.solitaire.models.solitaire.utils
+package com.github.bkmbigo.solitaire.models.solitaire
 
 /**
  * The identity of a particular table stack
@@ -10,6 +10,5 @@ enum class TableStackEntry {
     FOUR,
     FIVE,
     SIX,
-    SEVEN,
-    EIGHT
+    SEVEN
 }
