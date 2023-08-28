@@ -27,7 +27,7 @@ compose {
             mainClass = "MainKt"
             nativeDistributions {
                 targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-                packageName = "SolitaireAnimation"
+                packageName = "Solitaire"
                 packageVersion = "1.0.0"
             }
         }

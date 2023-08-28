@@ -7,15 +7,20 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.6.1"
 activity-compose = "1.7.2"
-compose-bom = "2023.06.00"
+compose-bom = "2023.08.00"
 compose-multiplatform-wasm = "1.4.0-dev-wasm09"
-compose-multiplatform-stable = "1.4.0"
+compose-multiplatform-stable = "1.5.0"
 
 kotlinx-coroutines = "1.7.2"
 kotlinx-coroutines-wasm = "1.7.2-wasm0"
 
 kotlinx-datetime = "0.4.0"
 kotlinx-datetime-wasm = "0.4.0-wasm1"
+
+kotlinx-atomicfu-wasm = "0.21.0-wasm0"
+multiplatform-uuid = "0.8.0"
+
+voyager = "1.0.0-rc05"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -24,6 +29,7 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
@@ -46,6 +52,11 @@ kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-datetime-wasm = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime-wasm" }
+
+kotlinx-atomicfu-wasm = { group = "org.jetbrains.kotlinx", name = "atomicfu-wasm", version.ref = "kotlinx-atomicfu-wasm" }
+multiplatform-uuid = { module = "com.benasher44:uuid", version.ref = "multiplatform-uuid" }
+
+voyager-navigator = { group = "cafe.adriel.voyager", name = "voyager-navigator", version.ref = "voyager" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

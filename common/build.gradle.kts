@@ -9,7 +9,7 @@ plugins {
 
 
 kotlin {
-    android()
+    androidTarget()
     jvm("desktop")
     js(IR) {
         browser()
@@ -55,19 +55,30 @@ kotlin {
             }
         }
 
-        val jsMain by getting {}
+        val jsMain by getting {
+            dependencies {
+                implementation(libs.multiplatform.uuid)
+            }
+        }
 
-        val wasmMain by getting {}
+        val wasmMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.atomicfu.wasm)
+                implementation(libs.multiplatform.uuid)
+            }
+        }
 
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.activity.compose)
+                implementation(libs.voyager.navigator)
             }
         }
         val desktopMain by getting {
             dependencies {
                 api(compose.desktop.common)
+                implementation(libs.voyager.navigator)
             }
         }
     }
@@ -75,8 +86,8 @@ kotlin {
 
 android {
 
-    compileSdk = 33
-    namespace = "com.github.bkmbigo.solitaireanimation"
+    compileSdk = 34
+    namespace = "com.github.bkmbigo.solitaire"
 
     //sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
@@ -84,7 +95,7 @@ android {
 
     defaultConfig {
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
