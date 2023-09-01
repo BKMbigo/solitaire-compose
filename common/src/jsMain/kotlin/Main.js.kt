@@ -1,12 +1,12 @@
-import com.github.bkmbigo.solitaireanimation.presentation.screens.GameScreen
-import com.github.bkmbigo.solitaireanimation.presentation.theme.SolitaireTheme
+import com.github.bkmbigo.solitaire.presentation.ui.core.screens.StartScreen
+import com.github.bkmbigo.solitaire.presentation.ui.core.theme.SolitaireTheme
 import org.jetbrains.skiko.wasm.onWasmReady
 
 fun main() {
     onWasmReady {
-        BrowserViewportWindow("Solitaire") { screenWidth ->
+        BrowserViewportWindow("Solitaire") {
             SolitaireTheme {
-                GameScreen()
+                StartScreen()
             }
         }
     }

@@ -1,7 +1,7 @@
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.github.bkmbigo.solitaireanimation.presentation.screens.GameScreen
-import com.github.bkmbigo.solitaireanimation.presentation.theme.SolitaireTheme
+import com.github.bkmbigo.solitaire.presentation.ui.core.screens.StartScreen
+import com.github.bkmbigo.solitaire.presentation.ui.core.theme.SolitaireTheme
 
 fun main() = application {
     Window(
@@ -9,7 +9,7 @@ fun main() = application {
         title = "Solitaire Animation"
     ) {
         SolitaireTheme {
-            GameScreen()
+            StartScreen()
         }
     }
 }

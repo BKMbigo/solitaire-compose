@@ -356,7 +356,7 @@ enum class Card(
 
     val color = suite.color
 
-    override fun toString(): String = "Card($rank of $suite)"
+    override fun toString(): String = "$rank of $suite"
 
     companion object {
         val cardBackFilename = "card_back.xml"

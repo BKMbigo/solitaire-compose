@@ -99,7 +99,8 @@ sealed class SolitaireUserMove: SolitaireGameMove() {
                 is MoveSource.FromDeck -> {
                     if (cards.size != 1) return false
 
-                    if (game.deck[from.index] != cards.first()) return false
+                    if (game.deck[from.index] != cards.first())
+                        return false
                 }
 
                 MoveSource.FromFoundation -> {

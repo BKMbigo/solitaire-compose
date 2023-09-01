@@ -1,13 +1,20 @@
 package com.github.bkmbigo.solitaire.game
 
-interface Game<M : GameMove> {
+interface Game< G: Game<G, M>, in M : GameMove<G, M>> {
 
-    fun play(move: M): Game<M>
+    abstract fun play(move: M): G
 
-    /* Check to verify that the current iteration of the game is valid*/
-    fun isValid(): Boolean
+    //  UNDO moves
+/*    *//** The player wants to undo a move they had previously made *//*
+    abstract fun undo(move: M): Game<M>
 
-    fun isWon(): Boolean
+    *//** The player wants to undo a move they had previously made *//*
+    abstract fun redo(move: M): Game<M>*/
 
-    fun isDrawn(): Boolean
+    /** Check to verify that the current iteration of the game is valid*/
+    abstract fun isValid(): Boolean
+
+    abstract fun isWon(): Boolean
+
+    abstract fun isDrawn(): Boolean
 }
