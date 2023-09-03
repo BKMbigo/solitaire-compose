@@ -15,6 +15,14 @@ data class TableStack(
     val lastCard: Card?
         get() = revealedCards.lastOrNull()
 
+    /** The bottom-most revealed card */
+    val firstRevealedCard: Card?
+        get() = revealedCards.firstOrNull()
+
+    /** The top card in the hidden cards pile */
+    val topHiddenCard: Card?
+        get() = hiddenCards.lastOrNull()
+
     companion object {
         val EMPTY = TableStack()
     }
