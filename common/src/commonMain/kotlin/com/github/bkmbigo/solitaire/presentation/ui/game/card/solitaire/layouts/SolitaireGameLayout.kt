@@ -1,25 +1,18 @@
 package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.interaction.DragInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
-import com.github.bkmbigo.solitaire.game.solitaire.TableStack
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
@@ -28,12 +21,10 @@ import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 import com.github.bkmbigo.solitaire.presentation.ui.core.locals.cardtheme.LocalCardTheme
-import com.github.bkmbigo.solitaire.presentation.ui.game.card.core.layouts.LinearCardStackLayout
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.components.deck.DeckOverlay
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.components.deck.EmptyDeck
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.components.foundation.EmptyFoundation
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.utils.*
-import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.utils.SolitairePlacer
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens.SolitaireAction
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens.SolitaireState
 import kotlinx.coroutines.launch
@@ -96,7 +87,7 @@ fun SolitaireGameLayout(
 
                 cardView(
                     card,
-                    (state.deckPosition < deck.size - index),
+                    (state.game.deckPosition < deck.size - index),
                     Modifier
                         .size(cardTheme.cardSize)
                         .layoutId(SolitaireLayoutId.DECK_CARD)
@@ -113,12 +104,12 @@ fun SolitaireGameLayout(
                             }
                         )
 
-                        .pointerInput(state.deckPosition, state.game) {
-                            if (state.deckPosition > 0 && state.deckPosition == deck.size - index) {
+                        .pointerInput(state.game) {
+                            if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
                                 detectTapGestures(
                                     onDoubleTap = {
                                         val move =
-                                            card move MoveSource.FromDeck(state.game.deck.size - state.deckPosition) to MoveDestination.ToFoundation
+                                            card move MoveSource.FromDeck(state.game.deck.size - state.game.deckPosition) to MoveDestination.ToFoundation
                                         if (move.isValid(state.game)) {
                                             onAction(
                                                 SolitaireAction.PlayMove(move)
@@ -128,8 +119,8 @@ fun SolitaireGameLayout(
                                 )
                             }
                         }
-                        .pointerInput(state.deckPosition, state.game) {
-                            if (state.deckPosition > 0 && state.deckPosition == deck.size - index) {
+                        .pointerInput(state.game) {
+                            if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
                                 detectDragGestures(
                                     onDragStart = {
                                         isDragging = true
@@ -139,7 +130,7 @@ fun SolitaireGameLayout(
                                             solitairePlacer.processDeckMove(
                                                 game = state.game,
                                                 card = card,
-                                                deckPosition = state.deckPosition,
+                                                deckPosition = state.game.deckPosition,
                                                 offsetX = offsetX,
                                                 offsetY = offsetY,
                                                 onMoveSuccess = {
@@ -1224,7 +1215,7 @@ fun SolitaireGameLayout(
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             /* First, let's place the deck */
-            solitairePlacer.placeDeckCards(this, cardsOnDeckPlaceable, state.deckPosition)
+            solitairePlacer.placeDeckCards(this, cardsOnDeckPlaceable, state.game.deckPosition)
             emptyDeckPlaceable?.let { placeable ->
                 solitairePlacer.place(this, placeable, SolitaireLayoutId.EMPTY_DECK)
             }

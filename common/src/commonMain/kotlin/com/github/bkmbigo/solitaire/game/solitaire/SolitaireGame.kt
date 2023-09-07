@@ -10,7 +10,10 @@ import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
+/** A solitaire game */
 data class SolitaireGame(
+    /** The current deck position. Please Note that the current card in display is actually deckSize - deckPosition */
+    val deckPosition: Int = 0,
     val deck: List<Card>,
 
     val spadeFoundationStack: List<Card>,
@@ -102,14 +105,19 @@ data class SolitaireGame(
 
 
         when (move) {
-            SolitaireUserMove.Deal -> return newGame
+            SolitaireUserMove.Deal -> {
+                newGame = newGame.copy(
+                    deckPosition = if (newGame.deckPosition < newGame.deck.size) deckPosition + 1 else 0
+                )
+            }
 
             is SolitaireUserMove.CardMove -> {
 
                 when (move.from) {
                     is MoveSource.FromDeck -> {
                         newGame = newGame.copy(
-                            deck = newGame.deck.toMutableList().apply { remove(move.cards.first()) }
+                            deck = newGame.deck.toMutableList().apply { remove(move.cards.first()) },
+                            deckPosition = newGame.deckPosition - 1
                         )
                     }
 
@@ -174,7 +182,7 @@ data class SolitaireGame(
                 )
 
                 /* Remove card from source: */
-                when(move.from) {
+                when (move.from) {
                     ReturnToDeckSource.FromFoundation -> {
                         newGame = newGame.withFoundationStack(
                             suite = move.card.suite,
@@ -183,6 +191,7 @@ data class SolitaireGame(
                             }
                         )
                     }
+
                     is ReturnToDeckSource.FromTable -> {
                         newGame = newGame.withTableStack(
                             move.from.tableStackEntry,
@@ -193,10 +202,23 @@ data class SolitaireGame(
                 }
             }
 
-            SolitaireGameMove.Undeal -> { /* no-op */ }
+            SolitaireGameMove.Undeal -> {
+                newGame = newGame.copy(
+                    deckPosition = if (newGame.deckPosition == 0) deck.size else deckPosition - 1
+                )
+            }
         }
 
-        return if (newGame.isValid()) newGame else this         // Todo: Check will be removed as validation will be moved to moves instead of entire games
+        /* This is purposefully made to evade tests. In theory, a play move should never invalidate a game.
+        Todo: Check will be removed as validation will be moved to moves instead of entire games */
+
+        return if (newGame.isValid())
+            newGame
+        else
+            if (isValid())
+                this
+            else
+                newGame
     }
 
     override fun isValid(): Boolean {

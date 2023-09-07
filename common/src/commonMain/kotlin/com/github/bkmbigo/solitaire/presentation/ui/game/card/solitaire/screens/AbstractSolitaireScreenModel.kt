@@ -2,7 +2,6 @@ package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
@@ -40,7 +39,6 @@ abstract class AbstractSolitaireScreenModel {
 
             _state.value = _state.value.copy(
                 game = newGame,
-                deckPosition = if(_state.value.deckPosition < newGame.deck.size) _state.value.deckPosition + 1 else 0,
                 canUndo = pastMoves.isNotEmpty(),
                 isWon = newGame.isWon(),
                 isDrawn = newGame.isDrawn()
@@ -68,13 +66,8 @@ abstract class AbstractSolitaireScreenModel {
                 )
             )
 
-            val newDeckPosition = if (move is SolitaireUserMove.CardMove && move.from is MoveSource.FromDeck) {
-                _state.value.deckPosition - 1
-            } else _state.value.deckPosition
-
             _state.value = _state.value.copy(
                 game = gameWithAmendments.first,
-                deckPosition = newDeckPosition,
                 canUndo = pastMoves.isNotEmpty(),
                 isWon = gameWithAmendments.first.isWon(),
                 isDrawn = gameWithAmendments.first.isDrawn()
@@ -109,5 +102,5 @@ abstract class AbstractSolitaireScreenModel {
     private data class RecordedMove(
         val userMove: SolitaireUserMove,
         val amendments: List<SolitaireGameMove>
-    ): List<SolitaireGameMove> by listOf(listOf(userMove), amendments).flatten()
+    ) : List<SolitaireGameMove> by listOf(listOf(userMove), amendments).flatten()
 }
