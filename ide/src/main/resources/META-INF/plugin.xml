@@ -1,0 +1,16 @@
+<idea-plugin url="https://www.github.com/BKMbigo/solitaire-compose">
+    <id>com.github.bkmbigo.solitaire</id>
+    <name>Solitaire Compose</name>
+    <vendor url="https://www.github.com/BKMbigo">Brian Mbigo</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <actions>
+        <action id="com.github.bkmbigo.solitaire.action.SolitaireAction"
+                class="com.github.bkmbigo.solitaire.action.SolitaireAction" text="Solitaire"
+                description="Open Solitaire">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+
+</idea-plugin>

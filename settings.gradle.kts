@@ -11,3 +11,4 @@ rootProject.name = "Solitaire"
 include(":app")
 include(":common")
 include(":desktop")
+include("ide")

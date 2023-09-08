@@ -20,12 +20,14 @@ import com.github.bkmbigo.solitaire.presentation.ui.core.locals.resourceprovider
 import com.github.bkmbigo.solitaire.presentation.ui.core.locals.resourceprovider.LocalResourceProvider
 import com.github.bkmbigo.solitaire.presentation.ui.core.utils.fonts.localfonts.LocalFontFamily
 import com.github.bkmbigo.solitaire.presentation.ui.core.utils.fonts.provideFontFamily
+import com.github.bkmbigo.solitaire.utils.Platform
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun SolitaireTheme(
+    platform: Platform,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -37,8 +39,8 @@ fun SolitaireTheme(
 
     LaunchedEffect(Unit) {
         launch {
-            andikaFont = LocalFontFamily.ANDIKA.provideFontFamily()
-            lobsterTwoFont = LocalFontFamily.LOBSTER_TWO.provideFontFamily()
+            andikaFont = LocalFontFamily.ANDIKA.provideFontFamily(platform = platform)
+            lobsterTwoFont = LocalFontFamily.LOBSTER_TWO.provideFontFamily(platform = platform)
         }
         launch {
 //            cardVectors = getCardVectors(density)
@@ -47,10 +49,11 @@ fun SolitaireTheme(
 
     CompositionLocalProvider(
         LocalCardTheme provides rememberCardTheme(
-            false,
-            andikaFont,
-            lobsterTwoFont,
-            cardVectors ?: EmptyCardVectors
+            isDark = false,
+            platform = platform,
+            andikaFont = andikaFont,
+            lobsterTwoFamily = lobsterTwoFont,
+            cardVectors = cardVectors ?: EmptyCardVectors
         ),
         LocalResourceProvider provides DefaultResourceProvider
     ) {

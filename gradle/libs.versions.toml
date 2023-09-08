@@ -1,15 +1,20 @@
 [versions]
 agp = "8.0.2"
 kotlin = "1.9.0"
-core-ktx = "1.10.1"
+gradleIntelliJPlugin = "1.15.0"
+
+androidx-core = "1.12.0"
+androidx-activity = "1.7.2"
+androidx-lifecycle = "2.6.2"
+
+
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
-lifecycle-runtime-ktx = "2.6.1"
-activity-compose = "1.7.2"
-compose-bom = "2023.08.00"
+
+compose-bom = "2023.09.00"
 compose-multiplatform-wasm = "1.4.0-dev-wasm09"
-compose-multiplatform-stable = "1.5.0"
+compose-multiplatform-stable = "1.5.1"
 
 kotlinx-coroutines = "1.7.2"
 kotlinx-coroutines-wasm = "1.7.2-wasm0"
@@ -23,12 +28,12 @@ multiplatform-uuid = "0.8.0"
 voyager = "1.0.0-rc05"
 
 [libraries]
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity" }
 
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
@@ -62,8 +67,10 @@ voyager-navigator = { group = "cafe.adriel.voyager", name = "voyager-navigator",
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform-wasm" }
+gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
 
 [bundles]
 

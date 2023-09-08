@@ -4,8 +4,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import com.github.bkmbigo.solitaire.utils.Platform
 
 interface CardTheme {
+    val platform: Platform
+
     val isDark: Boolean
     val useMiniCards: Boolean
 

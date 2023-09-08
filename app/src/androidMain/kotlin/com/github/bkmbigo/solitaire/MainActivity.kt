@@ -11,12 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.bkmbigo.solitaire.presentation.ui.core.screens.StartScreen
 import com.github.bkmbigo.solitaire.presentation.ui.core.theme.SolitaireTheme
+import com.github.bkmbigo.solitaire.utils.Platform
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SolitaireTheme {
+            SolitaireTheme(
+                platform = Platform.ANDROID
+            ) {
                 StartScreen()
             }
         }
@@ -34,7 +37,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    SolitaireTheme {
+    SolitaireTheme(
+        platform = Platform.ANDROID
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
         }
