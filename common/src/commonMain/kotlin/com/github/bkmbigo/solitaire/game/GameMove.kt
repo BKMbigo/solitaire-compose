@@ -6,11 +6,13 @@ package com.github.bkmbigo.solitaire.game
 *       - scoring.
 * */
 interface GameMove<
-        G: Game<G, M>,
-        in M: GameMove<G, M>> {
+        G : Game<G, M>,
+        M : GameMove<G, M>> {
 
 //    val time: Instant   /* Time will be added with upgrade to 1.9.20 */
 
     /** The move is valid in the context of a game.*/
-    abstract fun isValid(game: G): Boolean
+    fun isValid(game: G): Boolean
+
+    fun reversed(): M?
 }
