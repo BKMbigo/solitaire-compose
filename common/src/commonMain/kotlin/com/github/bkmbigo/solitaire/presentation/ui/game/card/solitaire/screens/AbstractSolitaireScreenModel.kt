@@ -13,7 +13,9 @@ abstract class AbstractSolitaireScreenModel {
     private val _state = MutableStateFlow(SolitaireState())
     val state = _state.asStateFlow()
 
-    private val pastMoves = mutableListOf<RecordedMove>()
+    private val pastMoves = mutableListOf<RecordedUserMove>()
+
+    private val redoMoves = mutableListOf<RecordedGameMove>()
 
     protected suspend fun performCreateGame(provider: SolitaireGameProvider) {
         val newGame = provider.createGame()
@@ -31,15 +33,19 @@ abstract class AbstractSolitaireScreenModel {
 
             // record moves made in iteration
             pastMoves.add(
-                RecordedMove(
+                RecordedUserMove(
                     userMove = SolitaireUserMove.Deal,
                     amendments = emptyList()
                 )
             )
 
+            // Clear redoMoves
+            redoMoves.clear()
+
             _state.value = _state.value.copy(
                 game = newGame,
                 canUndo = pastMoves.isNotEmpty(),
+                canRedo = redoMoves.isNotEmpty(),
                 isWon = newGame.isWon(),
                 isDrawn = newGame.isDrawn()
             )
@@ -60,18 +66,96 @@ abstract class AbstractSolitaireScreenModel {
 
             // record moves made in iteration
             pastMoves.add(
-                RecordedMove(
+                RecordedUserMove(
                     userMove = move,
                     amendments = gameWithAmendments.second
                 )
             )
 
+            // Clear redoMoves
+            redoMoves.clear()
+
             _state.value = _state.value.copy(
                 game = gameWithAmendments.first,
                 canUndo = pastMoves.isNotEmpty(),
+                canRedo = redoMoves.isNotEmpty(),
                 isWon = gameWithAmendments.first.isWon(),
                 isDrawn = gameWithAmendments.first.isDrawn()
             )
+        }
+    }
+
+    protected fun performUndo() {
+        /* The user seeks to undo their last move
+        *  1.Perform a reverse move action on the last recorded move
+        *  2. Add the undone move to the redo move stack */
+
+        pastMoves.lastOrNull()?.let { lastMove ->
+            lastMove.userMove.reversed()?.let { reverseMove ->
+                val reverseAmendments = lastMove.amendments.mapNotNull { it.reversed() }.reversed()
+
+                var newGame = _state.value.game
+
+                reverseAmendments.forEach { amendment ->
+                    newGame = newGame.play(amendment)
+                }
+
+                newGame = newGame.play(reverseMove)
+
+                pastMoves.removeLastOrNull()
+
+                redoMoves.add(
+                    RecordedGameMove(
+                        userMove = reverseMove,
+                        amendments = reverseAmendments
+                    )
+                )
+
+                _state.value = _state.value.copy(
+                    game = newGame,
+                    canUndo = pastMoves.isNotEmpty(),
+                    canRedo = redoMoves.isNotEmpty(),
+                    isWon = newGame.isWon(),
+                    isDrawn = newGame.isDrawn()
+                )
+            }
+        }
+    }
+
+    protected fun performRedo() {
+        /* The user would like to redo a previously undone move. */
+        redoMoves.lastOrNull()?.let { lastMove ->
+            lastMove.userMove.reversed()?.let { reverse ->
+                val reverseUserMove = reverse as? SolitaireUserMove
+                reverseUserMove?.let { reverseMove ->
+                    val reverseAmendments = lastMove.amendments.mapNotNull { it.reversed() }.reversed()
+
+                    var newGame = _state.value.game
+
+                    reverseAmendments.forEach { amendment ->
+                        newGame = newGame.play(amendment)
+                    }
+
+                    newGame = newGame.play(reverseMove)
+
+                    redoMoves.removeLastOrNull()
+
+                    pastMoves.add(
+                        RecordedUserMove(
+                            userMove = reverseMove,
+                            amendments = reverseAmendments
+                        )
+                    )
+
+                    _state.value = _state.value.copy(
+                        game = newGame,
+                        canUndo = pastMoves.isNotEmpty(),
+                        canRedo = redoMoves.isNotEmpty(),
+                        isWon = newGame.isWon(),
+                        isDrawn = newGame.isDrawn()
+                    )
+                }
+            }
         }
     }
 
@@ -99,8 +183,13 @@ abstract class AbstractSolitaireScreenModel {
 
     private fun getTableStackEntryFromIndex(index: Int) = TableStackEntry.entries[index]
 
-    private data class RecordedMove(
+    private data class RecordedUserMove(
         val userMove: SolitaireUserMove,
+        val amendments: List<SolitaireGameMove>
+    ) : List<SolitaireGameMove> by listOf(listOf(userMove), amendments).flatten()
+
+    private data class RecordedGameMove(
+        val userMove: SolitaireGameMove,
         val amendments: List<SolitaireGameMove>
     ) : List<SolitaireGameMove> by listOf(listOf(userMove), amendments).flatten()
 }
