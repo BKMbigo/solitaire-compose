@@ -35,3 +35,9 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks {
+    patchPluginXml {
+        version.set("0.0.0-beta.1")
+    }
+}
