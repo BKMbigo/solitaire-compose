@@ -1,5 +1,6 @@
 package com.github.bkmbigo.solitaire.presentation.ui.core.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,10 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.presentation.ui.core.locals.cardtheme.LocalCardTheme
+import com.github.bkmbigo.solitaire.presentation.ui.core.utils.images.vectorResourceCached
 
 @Composable
 expect fun StartScreen()
@@ -118,7 +122,54 @@ private fun GameItem(
                 modifier = Modifier
                     .weight(1f, true)
                     .fillMaxWidth()
-            )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = vectorResourceCached(res = CardSuite.SPADE.imageFilename),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(8.dp)
+                        )
+
+                        Image(
+                            painter = vectorResourceCached(res = CardSuite.HEARTS.imageFilename),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(8.dp)
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = vectorResourceCached(res = CardSuite.DIAMOND.imageFilename),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(8.dp)
+                        )
+
+                        Image(
+                            painter = vectorResourceCached(res = CardSuite.CLOVER.imageFilename),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(8.dp)
+                        )
+                    }
+                }
+            }
 
             Text(
                 text = gameName,
