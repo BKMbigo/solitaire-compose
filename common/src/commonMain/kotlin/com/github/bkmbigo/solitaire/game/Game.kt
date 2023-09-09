@@ -1,6 +1,6 @@
 package com.github.bkmbigo.solitaire.game
 
-interface Game< G: Game<G, M>, in M : GameMove<G, M>> {
+interface Game< G: Game<G, M>, M : GameMove<G, M>> {
 
     abstract fun play(move: M): G
 

@@ -101,7 +101,7 @@ data class SolitaireGame(
     /* Todo: Accept a list of moves to enable optimizations. */
     override fun play(move: SolitaireGameMove): SolitaireGame {
         var newGame = this
-        if (!move.isValid(this)) return newGame
+//        if (!move.isValid(this)) return newGame --> Check removed due to undo/redo
 
 
         when (move) {
@@ -178,7 +178,8 @@ data class SolitaireGame(
                 newGame = newGame.copy(
                     deck = deck.toMutableList().apply {
                         add(move.index, move.card)
-                    }
+                    },
+                    deckPosition = deckPosition + 1
                 )
 
                 /* Remove card from source: */

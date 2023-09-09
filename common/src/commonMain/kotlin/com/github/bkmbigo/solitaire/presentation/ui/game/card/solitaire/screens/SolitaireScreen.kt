@@ -1,6 +1,7 @@
 package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -61,19 +62,31 @@ fun SolitaireGameScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { onAction(SolitaireAction.StartNewGame) }
+                        onClick = { onAction(SolitaireAction.StartNewGame) },
+                        shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
-                            text = "Start New Game"
+                            text = "New Game"
                         )
                     }
 
                     Button(
-                        onClick = { /*onAction(SolitaireGameAction.UndoLastMove())*/ },
-                        enabled = false
+                        onClick = { onAction(SolitaireAction.UndoLastMove) },
+                        enabled = state.canUndo,
+                        shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
                             text = "Undo"
+                        )
+                    }
+
+                    Button(
+                        onClick = { onAction(SolitaireAction.RedoLastMove) },
+                        enabled = state.canRedo,
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "Redo"
                         )
                     }
                 }

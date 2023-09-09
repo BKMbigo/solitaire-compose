@@ -75,8 +75,9 @@ sealed class SolitaireUserMove: SolitaireGameMove() {
                         if (cards.first().rank != CardRank.KING) return false
                     } else {
                         val firstCardInSelection = cards.first()
-                        val lastCardInStack = tableStack.lastCard!!
-                        if (firstCardInSelection.color == lastCardInStack.color ||
+                        val lastCardInStack = tableStack.lastCard
+                        if (lastCardInStack == null ||
+                            firstCardInSelection.color == lastCardInStack.color ||
                             !firstCardInSelection.rank.isImmediatelyLowerTo(lastCardInStack.rank)
                         ) return false
                     }

@@ -132,11 +132,12 @@ abstract class AbstractSolitaireScreenModel {
 
                     var newGame = _state.value.game
 
+                    newGame = newGame.play(reverseMove)
+
                     reverseAmendments.forEach { amendment ->
                         newGame = newGame.play(amendment)
                     }
 
-                    newGame = newGame.play(reverseMove)
 
                     redoMoves.removeLastOrNull()
 
