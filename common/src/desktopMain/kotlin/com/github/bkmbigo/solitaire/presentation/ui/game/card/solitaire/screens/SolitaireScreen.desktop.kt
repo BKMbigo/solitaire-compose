@@ -31,6 +31,8 @@ actual object SolitaireScreen: Screen {
                     is SolitaireAction.PlayMove -> { screenModel.play(action.move) }
                     SolitaireAction.StartNewGame -> { screenModel.createGame(VeryEasySolitaireGameProvider) }
                     SolitaireAction.Deal -> { screenModel.deal() }
+                    SolitaireAction.RedoLastMove -> { screenModel.redo() }
+                    SolitaireAction.UndoLastMove -> { screenModel.undo() }
                 }
             }
         )

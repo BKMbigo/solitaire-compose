@@ -7,9 +7,9 @@ sealed class SolitaireAction {
 
     data object StartNewGame: SolitaireAction()
 
-//    data object UndoLastMove: SolitaireGameAction()
+    data object UndoLastMove: SolitaireAction()
 
-//    data object RedoLastMove: SolitaireGameAction()
+    data object RedoLastMove: SolitaireAction()
 
 //    data object OfferHint: SolitaireGameAction()
 
