@@ -13,4 +13,8 @@ expect class SolitaireScreenModel {
     fun deal()
 
     fun play(move: SolitaireUserMove)
+
+    fun undo()
+
+    fun redo()
 }

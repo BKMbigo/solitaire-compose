@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 actual class SolitaireScreenModel(
     private val coroutineScope: CoroutineScope
-): ScreenModel, AbstractSolitaireScreenModel() {
+) : ScreenModel, AbstractSolitaireScreenModel() {
     init {
         createGame(VeryEasySolitaireGameProvider)
     }
@@ -32,4 +32,13 @@ actual class SolitaireScreenModel(
             performPlay(move)
         }
     }
+
+    actual fun undo() {
+        performUndo()
+    }
+
+    actual fun redo() {
+        performRedo()
+    }
+
 }

@@ -29,4 +29,12 @@ actual class SolitaireScreenModel: ScreenModel, AbstractSolitaireScreenModel() {
             performPlay(move)
         }
     }
+
+    actual fun undo() {
+        performUndo()
+    }
+
+    actual fun redo() {
+        performRedo()
+    }
 }
