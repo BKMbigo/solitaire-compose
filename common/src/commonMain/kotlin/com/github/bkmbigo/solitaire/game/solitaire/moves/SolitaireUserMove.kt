@@ -2,6 +2,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.moves
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyUpperTo
 import com.github.bkmbigo.solitaire.models.core.Card
@@ -10,6 +12,7 @@ import com.github.bkmbigo.solitaire.models.core.CardRank
 sealed class SolitaireUserMove: SolitaireGameMove() {
     data object Deal : SolitaireUserMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
+        override fun reversed(): SolitaireGameMove = Undeal
     }
 
     data class CardMove(
@@ -121,5 +124,42 @@ sealed class SolitaireUserMove: SolitaireGameMove() {
 
             return true
         }
+
+        override fun reversed(): SolitaireGameMove? {
+            when (from) {
+                is MoveSource.FromDeck -> {
+                    val returnToDeckSource = when (to) {
+                        MoveDestination.ToFoundation -> ReturnToDeckSource.FromFoundation
+                        is MoveDestination.ToTable -> ReturnToDeckSource.FromTable(to.tableStackEntry)
+                    }
+
+                    if (cards.size != 1) {
+                        return null
+                    }
+
+                    return ReturnToDeck(
+                        card = cards.first(),
+                        from = returnToDeckSource,
+                        index = from.index
+                    )
+                }
+                else -> {
+                    val reverseFrom = when (to) {
+                        MoveDestination.ToFoundation -> MoveSource.FromFoundation
+                        is MoveDestination.ToTable -> MoveSource.FromTable(to.tableStackEntry)
+                    }
+
+                    val reverseTo = when (from) {
+                        is MoveSource.FromDeck -> { return null }
+                        MoveSource.FromFoundation -> MoveDestination.ToFoundation
+                        is MoveSource.FromTable -> MoveDestination.ToTable(from.tableStackEntry)
+                    }
+
+                    return cards move reverseFrom to reverseTo
+                }
+            }
+        }
+
+
     }
 }

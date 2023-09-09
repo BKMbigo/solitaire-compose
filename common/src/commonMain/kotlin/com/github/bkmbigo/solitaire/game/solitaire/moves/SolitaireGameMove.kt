@@ -2,6 +2,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.moves
 
 import com.github.bkmbigo.solitaire.game.GameMove
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
@@ -12,6 +14,8 @@ sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
      * <p> The move should only be called by the system, not the user. </p>*/
     data object Undeal: SolitaireGameMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
+
+        override fun reversed(): SolitaireGameMove = SolitaireUserMove.Deal
     }
 
     /** Reveals the top-most hidden card on a table stack.*/
@@ -19,6 +23,8 @@ sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
         val tableStackEntry: TableStackEntry
     ): SolitaireGameMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
+
+        override fun reversed(): SolitaireGameMove = HideCard(tableStackEntry)
     }
 
     /** Hides the bottom-most revealed card on a table stack.*/
@@ -26,6 +32,8 @@ sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
         val tableStackEntry: TableStackEntry
     ): SolitaireGameMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
+
+        override fun reversed(): SolitaireGameMove = RevealCard(tableStackEntry)
     }
 
     /** Returns a card to the deck*/
@@ -35,5 +43,14 @@ sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
         val index: Int
     ): SolitaireGameMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
+
+        override fun reversed(): SolitaireGameMove {
+            val reverseTo = when (from) {
+                ReturnToDeckSource.FromFoundation -> MoveDestination.ToFoundation
+                is ReturnToDeckSource.FromTable -> MoveDestination.ToTable(from.tableStackEntry)
+            }
+
+            return card move MoveSource.FromDeck(index) to reverseTo
+        }
     }
 }
