@@ -9,7 +9,7 @@
         <ul>
             <li>Klondike</li>
         </ul>
-    You can follow its development at the <a href="https://github.com/BKMbigo/solitaire-compose">github repository</a>
+    The plugin is still in development. You can follow its development at the <a href="https://github.com/BKMbigo/solitaire-compose">github repository</a>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

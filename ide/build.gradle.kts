@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.composeMultiplatform)
@@ -9,9 +11,13 @@ version = "unspecified"
 
 intellij {
     pluginName.set("Solitaire Compose")
-    version.set("2023.1")
+    version.set("2022.3")
     type.set("IC")
 //    plugins.set(listOf(""))
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 repositories {
@@ -24,6 +30,7 @@ dependencies {
     implementation(compose.runtime)
     implementation(compose.desktop.common)
     implementation(compose.desktop.linux_x64)
+    implementation(compose.desktop.linux_arm64)
     implementation(compose.desktop.windows_x64)
     implementation(compose.desktop.macos_x64)
     implementation(compose.desktop.macos_arm64)
@@ -38,6 +45,9 @@ tasks.test {
 
 tasks {
     patchPluginXml {
-        version.set("0.0.0-beta.1")
+        version.set("0.0.0-beta.3")
+
+        sinceBuild.set("223")
+        untilBuild.set("232.*")
     }
 }
