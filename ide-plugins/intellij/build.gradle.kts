@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.composeMultiplatform)
@@ -13,7 +11,6 @@ intellij {
     pluginName.set("Solitaire Compose")
     version.set("2022.3")
     type.set("IC")
-//    plugins.set(listOf(""))
 }
 
 kotlin {
