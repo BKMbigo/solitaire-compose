@@ -13,10 +13,8 @@ kotlin {
     jvm("desktop")
     js(IR) {
         browser()
-        binaries.executable()
     }
     wasm {
-        moduleName = "game"
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
@@ -28,7 +26,6 @@ kotlin {
                 )
             }
         }
-        binaries.executable()
     }
     sourceSets {
         val commonMain by getting {
