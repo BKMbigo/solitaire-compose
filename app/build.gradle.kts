@@ -1,31 +1,8 @@
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeMultiplatform)
-}
-
-kotlin {
-    androidTarget()
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(project(":common"))
-
-                implementation(libs.androidx.core.ktx)
-                implementation(libs.androidx.activity.compose)
-
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.materialIconsExtended)
-                implementation(compose.material3)
-                implementation(compose.ui)
-                implementation(compose.animation)
-                implementation(compose.uiTooling)
-                implementation(compose.preview)
-            }
-        }
-    }
 }
 
 android {
@@ -68,6 +45,20 @@ android {
     }
 }
 dependencies {
+    implementation(project(":common"))
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation(compose.runtime)
+    implementation(compose.foundation)
+    implementation(compose.materialIconsExtended)
+    implementation(compose.material3)
+    implementation(compose.ui)
+    implementation(compose.animation)
+    implementation(compose.uiTooling)
+    implementation(compose.preview)
+
     testImplementation(libs.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
