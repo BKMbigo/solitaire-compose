@@ -9,6 +9,8 @@ import com.github.bkmbigo.solitaire.utils.Platform
 interface CardTheme {
     val platform: Platform
 
+    val generalResourcePath: String
+
     val isDark: Boolean
     val useMiniCards: Boolean
 

@@ -17,26 +17,38 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import com.github.bkmbigo.solitaire.presentation.ui.core.locals.cardtheme.LocalCardTheme
 import com.github.bkmbigo.solitaire.presentation.ui.core.utils.ResourcePath
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.LoadState
-import org.jetbrains.compose.resources.Resource
-import org.jetbrains.compose.resources.orEmpty
-import org.jetbrains.compose.resources.resource
+import com.github.bkmbigo.solitaire.utils.Platform
+import kotlinx.browser.document
+import org.jetbrains.compose.resources.*
 import org.jetbrains.compose.resources.vector.parseVectorRoot
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.Int8Array
 import org.w3c.dom.parsing.DOMParser
+import org.w3c.xhr.ARRAYBUFFER
+import org.w3c.xhr.XMLHttpRequest
+import org.w3c.xhr.XMLHttpRequestResponseType
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import org.w3c.dom.Element as DomElement
 import org.w3c.dom.Node as DomNode
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painter {
-    val fullResourcePath = "${resourcePath.directoryPath}/$res"
+    val cardTheme = LocalCardTheme.current
+    val generalResourcePath =
+        cardTheme.generalResourcePath.ifBlank { "" }
+
+
+    val fullResourcePath = "${generalResourcePath}${resourcePath.directoryPath}/$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {
         rememberVectorPainter(vectorCache[fullResourcePath]!!)
     } else {
-        val imageBitmap = resource(fullResourcePath).rememberImageVector(LocalDensity.current)
+        val imageBitmap = resource(fullResourcePath, cardTheme.platform).rememberImageVector(LocalDensity.current)
         return if (imageBitmap !is LoadState.Success<ImageVector>) {
             rememberVectorPainter(imageBitmap.orEmpty())
         } else {
@@ -61,6 +73,40 @@ private fun Resource.rememberImageVector(density: Density): LoadState<ImageVecto
     }
     return state.value
 }
+
+@ExperimentalResourceApi
+fun resource(path: String, platform: Platform): Resource = JSResourceImpl(path, platform)
+
+@ExperimentalResourceApi
+private class JSResourceImpl(path: String, val platform: Platform = Platform.JS) : AbstractResourceImpl(path) {
+    override suspend fun readBytes(): ByteArray {
+        return suspendCoroutine { continuation ->
+            val req = XMLHttpRequest()
+
+            /* Handles https://github.com/JetBrains/compose-multiplatform/issues/3413 The issue only affects vscode */
+            if (platform == Platform.VSCODE) {
+                req.open("GET", path, true)
+            } else {
+                req.open("GET", "/$path", true)
+            }
+
+            req.responseType = XMLHttpRequestResponseType.ARRAYBUFFER
+
+            req.onload = { event ->
+                val arrayBuffer = req.response
+
+                if (arrayBuffer is ArrayBuffer) {
+                    continuation.resume(arrayBuffer.toByteArray())
+                } else {
+                    continuation.resumeWithException(MissingResourceException(path))
+                }
+            }
+            req.send(null)
+        }
+    }
+}
+
+private fun ArrayBuffer.toByteArray() = Int8Array(this, 0, byteLength).unsafeCast<ByteArray>()
 
 private fun ByteArray.toImageVector(density: Density): ImageVector =
     parseXML(this).parseVectorRoot(density)

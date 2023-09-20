@@ -15,6 +15,8 @@ val LocalCardTheme = staticCompositionLocalOf<CardTheme> { DefaultCardTheme }
 val DefaultCardTheme = object: CardTheme {
     override val platform: Platform = Platform.DESKTOP
 
+    override val generalResourcePath: String = ""
+
     override val isDark: Boolean = false
     override val useMiniCards: Boolean = false
 
@@ -37,6 +39,7 @@ val DefaultCardTheme = object: CardTheme {
 fun rememberCardTheme(
     isDark: Boolean,
     platform: Platform,
+    generalResourcePath: String = "",
     andikaFont: FontFamily?,
     lobsterTwoFamily: FontFamily?,
     cardVectors: CardVectors = EmptyCardVectors
@@ -44,6 +47,7 @@ fun rememberCardTheme(
     object: CardTheme {
         override val platform: Platform = platform
         override val isDark: Boolean = isDark
+        override val generalResourcePath: String = generalResourcePath
         override val useMiniCards: Boolean = false
         override val cardFrontBackground: Color = if(isDark) Color.Black else Color.White
         override val cardBackBackground: Color = Color(0xFF552200)

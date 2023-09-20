@@ -9,7 +9,10 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import androidx.compose.ui.text.platform.Font as PlatformFont
 
 @OptIn(ExperimentalResourceApi::class)
-internal actual suspend fun LocalFont.provideFont(resourcePath: ResourcePath, platform: Platform) : Font = PlatformFont(
+internal actual suspend fun LocalFont.provideFont(
+    resourcePath: ResourcePath,
+    platform: Platform
+) : Font = PlatformFont(
     identity = identity,
     data = resource(path = "${resourcePath.directoryPath}/${filename}", platform = platform).readBytes(),
     weight = weight,
