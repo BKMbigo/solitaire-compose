@@ -23,7 +23,6 @@ actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painte
         val imageBitmap =
             resource(fullResourcePath, platform = cardTheme.platform).rememberImageVector(LocalDensity.current)
         return if (imageBitmap !is LoadState.Success<ImageVector>) {
-            val resource = resource(fullResourcePath)
             val bitmap = imageBitmap.orEmpty()
             rememberVectorPainter(bitmap)
         } else {

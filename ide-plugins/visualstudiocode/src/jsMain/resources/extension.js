@@ -39,7 +39,6 @@ function activate(context) {
 
 		let skikoSrc = panel.webview.asWebviewUri(skikoOnDiskPath);
 		let kotlinCodeSrc = panel.webview.asWebviewUri(kotlinOnDiskPath);
-		let commonSrc = panel.webview.asWebviewUri(context.extensionUri);
 		let loadingSrc = panel.webview.asWebviewUri(loadingOnDiskPath);
 		let animationSrc = panel.webview.asWebviewUri(animationOnDiskPath);
 

@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.Density
 import com.github.bkmbigo.solitaire.presentation.ui.core.locals.cardtheme.LocalCardTheme
 import com.github.bkmbigo.solitaire.presentation.ui.core.utils.ResourcePath
 import com.github.bkmbigo.solitaire.utils.Platform
-import kotlinx.browser.document
 import org.jetbrains.compose.resources.*
 import org.jetbrains.compose.resources.vector.parseVectorRoot
 import org.khronos.webgl.ArrayBuffer

@@ -6,7 +6,6 @@ import com.github.bkmbigo.solitaire.presentation.ui.core.utils.images.resource
 import com.github.bkmbigo.solitaire.presentation.ui.core.utils.fonts.localfonts.LocalFont
 import com.github.bkmbigo.solitaire.utils.Platform
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.resource
 import androidx.compose.ui.text.platform.Font as PlatformFont
 
 @OptIn(ExperimentalResourceApi::class)
