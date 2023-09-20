@@ -41,7 +41,7 @@ fun resource(path: String, platform: Platform): Resource = DesktopResourceImpl(p
 private class DesktopResourceImpl(path: String, val platform: Platform) : AbstractResourceImpl(path) {
     override suspend fun readBytes(): ByteArray {
         val classLoader = when (platform) {
-            Platform.IDE -> DesktopResourceImpl::class.java.classLoader
+            Platform.INTELLIJ -> DesktopResourceImpl::class.java.classLoader
             else -> Thread.currentThread().contextClassLoader ?: (::DesktopResourceImpl.javaClass.classLoader)
         }
         val resource = classLoader?.getResourceAsStream(path)

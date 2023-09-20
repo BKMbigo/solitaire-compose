@@ -35,7 +35,7 @@ class SimpleDialog(
 
         composePanel.setContent {
             SolitaireTheme(
-                platform = Platform.IDE
+                platform = Platform.INTELLIJ
             ) {
                 StartScreen()
             }

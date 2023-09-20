@@ -3,8 +3,9 @@ package com.github.bkmbigo.solitaire.utils
 enum class Platform {
     ANDROID,
     DESKTOP,
-    IDE,
+    INTELLIJ,
     JS,
+    VSCODE,
     WASM
 }
 
