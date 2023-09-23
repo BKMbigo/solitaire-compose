@@ -2,6 +2,7 @@ package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
@@ -14,13 +15,25 @@ abstract class AbstractSolitaireScreenModel {
     val state = _state.asStateFlow()
 
     private val pastMoves = mutableListOf<RecordedUserMove>()
-
     private val redoMoves = mutableListOf<RecordedGameMove>()
+
+    private val availableHints = mutableListOf<SolitaireUserMove>()
+    private var isHintProvided = false
+    private var hintIteration = 0
 
     protected suspend fun performCreateGame(provider: SolitaireGameProvider) {
         val newGame = provider.createGame()
         if (newGame.isValid()) {
+            // Amend game to reveal bottom-most cards
             val gameWithAmendments = amendGame(newGame)
+
+            // reset past and redo moves
+            pastMoves.clear()
+            redoMoves.clear()
+
+            // reset hints
+            resetHints()
+
             _state.value = SolitaireState(
                 game = gameWithAmendments.first
             )
@@ -41,6 +54,9 @@ abstract class AbstractSolitaireScreenModel {
 
             // Clear redoMoves
             redoMoves.clear()
+
+            // reset hints
+            resetHints()
 
             _state.value = _state.value.copy(
                 game = newGame,
@@ -74,6 +90,9 @@ abstract class AbstractSolitaireScreenModel {
 
             // Clear redoMoves
             redoMoves.clear()
+
+            // reset hints
+            resetHints()
 
             _state.value = _state.value.copy(
                 game = gameWithAmendments.first,
@@ -110,6 +129,9 @@ abstract class AbstractSolitaireScreenModel {
                         amendments = reverseAmendments
                     )
                 )
+
+                // reset hints
+                resetHints()
 
                 _state.value = _state.value.copy(
                     game = newGame,
@@ -148,6 +170,9 @@ abstract class AbstractSolitaireScreenModel {
                         )
                     )
 
+                    // reset hints
+                    resetHints()
+
                     _state.value = _state.value.copy(
                         game = newGame,
                         canUndo = pastMoves.isNotEmpty(),
@@ -158,6 +183,36 @@ abstract class AbstractSolitaireScreenModel {
                 }
             }
         }
+    }
+
+    protected fun performHint() {
+        if(!isHintProvided) {
+            availableHints.apply {
+                clear()
+                addAll(SolitaireHintProvider.provideHints(state.value.game).mapNotNull { it as? SolitaireUserMove })
+            }
+            isHintProvided = true
+        }
+
+        // If the game is currently showing a hint, increment the hint iterator in order to obtain the next hint
+        hintIteration = if(hintIteration >= availableHints.size - 1) 0 else hintIteration++
+
+        // Pass the hint to the state
+        _state.value = _state.value.copy(
+            hint = availableHints.getOrNull(hintIteration)
+        )
+    }
+
+    protected fun cancelProvidedHint() {
+        _state.value = _state.value.copy(hint = null)
+
+        hintIteration = if(hintIteration >= availableHints.size - 1) 0 else hintIteration++
+    }
+
+    private fun resetHints() {
+        availableHints.clear()
+        hintIteration = 0
+        isHintProvided = false
     }
 
     private fun amendGame(newGame: SolitaireGame): Pair<SolitaireGame, List<SolitaireGameMove>> {

@@ -82,10 +82,8 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         tableStacks.forEachIndexed { currentIndex, currentTableStack ->
             tableStacks.forEachIndexed { targetIndex, _ ->
                 if (currentIndex != targetIndex) {
-                    val move =
-                        currentTableStack.revealedCards move MoveSource.FromTable(TableStackEntry.entries[currentIndex]) to MoveDestination.ToTable(
+                    val move = currentTableStack.revealedCards move TableStackEntry.entries[currentIndex] to
                             TableStackEntry.entries[targetIndex]
-                        )
                     if (move.isValid(this) && currentTableStack.revealedCards.isNotEmpty() && !(currentTableStack.hiddenCards.isEmpty() && currentTableStack.firstRevealedCard?.rank == CardRank.KING)) {
                         moves.add(move)
                     }

@@ -17,4 +17,8 @@ expect class SolitaireScreenModel {
     fun undo()
 
     fun redo()
+
+    fun offerHint()
+
+    fun cancelHint()
 }

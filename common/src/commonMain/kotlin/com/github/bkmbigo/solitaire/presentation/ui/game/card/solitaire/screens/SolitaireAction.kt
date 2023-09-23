@@ -11,7 +11,9 @@ sealed class SolitaireAction {
 
     data object RedoLastMove: SolitaireAction()
 
-//    data object OfferHint: SolitaireGameAction()
+    data object OfferHint: SolitaireAction()
+
+    data object CancelHint: SolitaireAction()
 
     data object Deal: SolitaireAction()
 

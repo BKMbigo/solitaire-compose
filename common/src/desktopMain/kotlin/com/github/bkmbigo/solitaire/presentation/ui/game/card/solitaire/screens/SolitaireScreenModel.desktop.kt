@@ -41,4 +41,13 @@ actual class SolitaireScreenModel(
         performRedo()
     }
 
+    actual fun offerHint() {
+        performHint()
+    }
+
+    actual fun cancelHint() {
+        cancelProvidedHint()
+    }
+
+
 }

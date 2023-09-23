@@ -71,6 +71,15 @@ fun SolitaireGameScreenContent(
                     }
 
                     Button(
+                        onClick = { onAction(SolitaireAction.OfferHint) },
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "Offer Hint"
+                        )
+                    }
+
+                    Button(
                         onClick = { onAction(SolitaireAction.UndoLastMove) },
                         enabled = state.canUndo,
                         shape = RoundedCornerShape(4.dp)
