@@ -9,24 +9,32 @@ import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
+/** Processes a move from the deck.
+ * @param game The current playing game.
+ * @param card The card being moved.
+ *      <p> A Single card since a player can only move one card from the deck </p>
+ * @param offsetX The horizontal drag offset of the card
+ * @param offsetY The vertical drag offset of the card
+ * @param onMoveSuccess Callback called when the move is valid
+ * @param onMoveFailed Callback called when the move is invalid
+ * @return Unit */
 internal fun SolitairePlacer.processDeckMove(
     game: SolitaireGame,
     card: Card,
-    deckPosition: Int,
     offsetX: Float,
     offsetY: Float,
     onMoveSuccess: (SolitaireUserMove) -> Unit,
     onMoveFailed: () -> Unit
 ) {
 
-    val cardX = when (deckPosition) {
-        0 -> null
+    val cardX = when (game.deckPosition) {
+        0 -> null   // No valid move can occur when deckPosition is 0
         1 -> cardWidth + deckSeparation
         2 -> cardWidth + deckSeparation + cardOnDeckSeparation
         else -> cardWidth + deckSeparation + cardOnDeckSeparation * 2
     }
 
-    if(cardX != null) {
+    if (cardX != null) {
         val destination = generateMoveDestination(
             dragStart = IntOffset(
                 x = cardX,
@@ -37,7 +45,7 @@ internal fun SolitairePlacer.processDeckMove(
         )
 
         if (destination != null) {
-            val move = card move MoveSource.FromDeck(game.deck.size - deckPosition) to destination
+            val move = card move MoveSource.FromDeck(game.deck.size - game.deckPosition) to destination
             if (move.isValid(game)) {
                 onMoveSuccess(move)
             } else {
@@ -51,6 +59,15 @@ internal fun SolitairePlacer.processDeckMove(
     }
 }
 
+/** Processes a move from the deck.
+ * @param game The current playing game.
+ * @param card The card being moved.
+ *      <p> A Single card since a player can only move a single card from the foundation </p>
+ * @param offsetX The horizontal drag offset of the card
+ * @param offsetY The vertical drag offset of the card
+ * @param onMoveSuccess Callback called when the move is valid
+ * @param onMoveFailed Callback called when the move is invalid
+ * @return Unit */
 internal fun SolitairePlacer.processFoundationMove(
     game: SolitaireGame,
     card: Card,
@@ -83,6 +100,15 @@ internal fun SolitairePlacer.processFoundationMove(
     }
 }
 
+/** Processes a move from the deck.
+ * @param game The current playing game.
+ * @param tableStackEntry The [TableStackEntry] of the stack where the card is originating from.
+ * @param index The position of the top-most card being moved
+ * @param offsetX The horizontal drag offset of the card
+ * @param offsetY The vertical drag offset of the card
+ * @param onMoveSuccess Callback called when the move is valid
+ * @param onMoveFailed Callback called when the move is invalid
+ * @return Unit */
 internal fun SolitairePlacer.processTableStackMove(
     game: SolitaireGame,
     tableStackEntry: TableStackEntry,
@@ -93,7 +119,7 @@ internal fun SolitairePlacer.processTableStackMove(
     onMoveFailed: () -> Unit
 ) {
     val tableTopLeft = calculateTableStackPosition(tableStackEntry)
-    val cards = game.tableStack(tableStackEntry).revealedCards.filterIndexed { revealedIndex, card ->
+    val cards = game.tableStack(tableStackEntry).revealedCards.filterIndexed { revealedIndex, _ ->
         revealedIndex >= index
     }
 

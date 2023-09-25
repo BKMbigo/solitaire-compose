@@ -6,7 +6,38 @@ import androidx.compose.ui.unit.IntOffset
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
+import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.SolitaireGameLayout
 import kotlin.math.roundToInt
+
+/**
+ * This class performs two functions:
+ * 1. Places cards on [SolitaireGameLayout]
+ * 2. Generates a move destination for a move. */
+
+// In the future, the class will be responsible for determining the size of cards in the game
+
+/*
+* The structure of the class is:
+*   fun updatePlacementValues() -> Called to update the placement values
+*   fun generateMoveDestination() --> generates the move destination
+*
+*   calculatePositionOf() functions: IntOffset
+*       calculatePositionOfDeckCard()
+*       calculatePositionOfFoundation()
+*       calculatePositionOfTableStack()
+*   place() functions
+*       place()
+*       placeDeckCards()
+*       placeFoundationCards()
+*       placeTableStacks()
+* */
+
+/* Additionally, there are other extension functions:
+*   SolitaireMoveGenerator has the following functions:
+*       processDeckMove
+*       processFoundationMove
+*       processTableStackMove
+* */
 
 @Stable
 internal class SolitairePlacer {
@@ -97,6 +128,88 @@ internal class SolitairePlacer {
         this.optimalTableStackHeightSeparation = optimalTableStackHeightSeparation
     }
 
+    /** Uses calculated drag gestures to generate a move destination based on the final position of the drag.
+     * @param dragStart Start offset of the drag.
+     * @param offsetX Drag offset towards the X
+     * @param dragStart Drag offset towards Y. */
+    fun generateMoveDestination(
+        dragStart: IntOffset,
+        offsetX: Float,
+        offsetY: Float
+    ): MoveDestination? {
+        /* Destination can only be either to the foundation (In this case, I will consider the foundation in general(all suites)) or a specific table stack.
+        *       i) Calculate final drag position
+        *       ii) Check if is foundation:
+        *               Check if x is between foundationStart..gameWidth
+        *               Check if y is <= cardHeight
+        *       iii) Check if it is a table stack:
+        *               Check if y is >= cardHeight + heightSpacing
+        *               Check if x matches any table stack
+        * */
+        val finalDragX = (dragStart.x + offsetX).roundToInt()
+        val finalDragY = (dragStart.y + offsetY).roundToInt()
+
+        val foundationTolerance = cardWidth * 3 / 4
+
+        if (finalDragX in foundationStartPosition - foundationTolerance..gameWidth && finalDragY <= cardHeight) {
+            return MoveDestination.ToFoundation
+        }
+
+        if (finalDragY >= cardHeight + heightSpacing) {
+
+            val tolerance =
+                if (cardWidth > foundationSeparation)
+                    cardWidth / 2
+                else
+                    foundationSeparation / 2
+
+            when (finalDragX) {
+                in calculateTableStackXPosition(TableStackEntry.ONE) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.ONE
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.ONE)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.TWO) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.TWO
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.TWO)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.THREE) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.THREE
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.THREE)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.FOUR) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.FOUR
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.FOUR)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.FIVE) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.FIVE
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.FIVE)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.SIX) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.SIX
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.SIX)
+                }
+
+                in calculateTableStackXPosition(TableStackEntry.SEVEN) - tolerance..<calculateTableStackXPosition(
+                    TableStackEntry.SEVEN
+                ) + cardWidth -> {
+                    return MoveDestination.ToTable(TableStackEntry.SEVEN)
+                }
+            }
+        }
+
+        return null
+    }
 
     fun place(
         scope: Placeable.PlacementScope,
@@ -171,12 +284,18 @@ internal class SolitairePlacer {
                 2 -> {
                     val cards = placeables.size
                     placeables.forEachIndexed { index, cardPlaceable ->
-                        if (index == cards - 1) {
-                            cardPlaceable.place(cardWidth + deckSeparation, 0, 0.9f)
-                        } else if (index == cards - 2) {
-                            cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation, 0, 1f)
-                        } else {
-                            cardPlaceable.place(0, 0, 0.6f)
+                        when (index) {
+                            cards - 1 -> {
+                                cardPlaceable.place(cardWidth + deckSeparation, 0, 0.9f)
+                            }
+
+                            cards - 2 -> {
+                                cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation, 0, 1f)
+                            }
+
+                            else -> {
+                                cardPlaceable.place(0, 0, 0.6f)
+                            }
                         }
                     }
                 }
@@ -237,69 +356,6 @@ internal class SolitairePlacer {
                 calculateTableStackPosition(tableStackEntry)
             )
         }
-    }
-
-    /** Uses calculated drag gestures to generate a move destination based on the final position of the drag.
-     * @param dragStart Start offset of the drag.
-     * @param offsetX Drag offset towards the X
-     * @param dragStart Drag offset towards Y. */
-    fun generateMoveDestination(
-        dragStart: IntOffset,
-        offsetX: Float,
-        offsetY: Float
-    ): MoveDestination? {
-        /* Destination can only be either to the foundation (In this case, I will consider the foundation in general(all suites)) or a specific table stack.
-        *       i) Calculate final drag position
-        *       ii) Check if is foundation:
-        *               Check if x is between foundationStart..gameWidth
-        *               Check if y is <= cardHeight
-        *       iii) Check if it is a table stack:
-        *               Check if y is >= cardHeight + heightSpacing
-        *               Check if x matches any table stack
-        * */
-        val finalDragX = (dragStart.x + offsetX).roundToInt()
-        val finalDragY = (dragStart.y + offsetY).roundToInt()
-
-        val foundationTolerance = cardWidth * 3 / 4
-
-        if (finalDragX in foundationStartPosition - foundationTolerance..gameWidth && finalDragY <= cardHeight) {
-            return MoveDestination.ToFoundation
-        }
-
-        if (finalDragY >= cardHeight + heightSpacing) {
-
-            val tolerance =
-                if (cardWidth > foundationSeparation)
-                    cardWidth / 2
-                else
-                    foundationSeparation / 2
-
-            when (finalDragX) {
-                in calculateTableStackXPosition(TableStackEntry.ONE) - tolerance..<calculateTableStackXPosition(TableStackEntry.ONE) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.ONE)
-                }
-                in calculateTableStackXPosition(TableStackEntry.TWO) - tolerance..<calculateTableStackXPosition(TableStackEntry.TWO) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.TWO)
-                }
-                in calculateTableStackXPosition(TableStackEntry.THREE) - tolerance..<calculateTableStackXPosition(TableStackEntry.THREE) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.THREE)
-                }
-                in calculateTableStackXPosition(TableStackEntry.FOUR) - tolerance..<calculateTableStackXPosition(TableStackEntry.FOUR) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.FOUR)
-                }
-                in calculateTableStackXPosition(TableStackEntry.FIVE) - tolerance..<calculateTableStackXPosition(TableStackEntry.FIVE) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.FIVE)
-                }
-                in calculateTableStackXPosition(TableStackEntry.SIX) - tolerance..<calculateTableStackXPosition(TableStackEntry.SIX) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.SIX)
-                }
-                in calculateTableStackXPosition(TableStackEntry.SEVEN) - tolerance..<calculateTableStackXPosition(TableStackEntry.SEVEN) + cardWidth -> {
-                    return MoveDestination.ToTable(TableStackEntry.SEVEN)
-                }
-            }
-        }
-
-        return null
     }
 
     private fun Placeable.PlacementScope.placeIndividualTableStack(
