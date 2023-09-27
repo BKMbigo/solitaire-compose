@@ -13,8 +13,6 @@ sealed class SolitaireAction {
 
     data object OfferHint: SolitaireAction()
 
-    data object CancelHint: SolitaireAction()
-
     data object Deal: SolitaireAction()
 
     data class PlayMove(val move: SolitaireUserMove): SolitaireAction()

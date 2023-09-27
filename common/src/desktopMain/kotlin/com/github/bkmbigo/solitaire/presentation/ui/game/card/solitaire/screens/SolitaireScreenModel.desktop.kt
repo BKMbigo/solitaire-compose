@@ -33,21 +33,10 @@ actual class SolitaireScreenModel(
         }
     }
 
-    actual fun undo() {
-        performUndo()
-    }
+    actual fun undo() = performUndo()
 
-    actual fun redo() {
-        performRedo()
-    }
+    actual fun redo() = performRedo()
 
-    actual fun offerHint() {
-        performHint()
-    }
-
-    actual fun cancelHint() {
-        cancelProvidedHint()
-    }
-
+    actual fun offerHint() = performHint()
 
 }

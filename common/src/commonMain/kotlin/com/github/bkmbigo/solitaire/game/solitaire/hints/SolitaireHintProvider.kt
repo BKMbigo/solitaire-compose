@@ -34,7 +34,7 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         }
 
         // 2
-        game.deck.getOrNull(game.deckPosition)?.let { card ->
+        game.deck.getOrNull(game.deck.size - game.deckPosition)?.let { card ->
             val move = card move MoveSource.FromDeck(game.deck.size - game.deckPosition) to MoveDestination.ToFoundation
             if (move.isValid(game)) {
                 moves.add(move)

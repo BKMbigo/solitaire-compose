@@ -30,12 +30,11 @@ actual class SolitaireScreenModel: ScreenModel, AbstractSolitaireScreenModel() {
         }
     }
 
-    actual fun undo() {
-        performUndo()
-    }
+    actual fun undo() = performUndo()
 
-    actual fun redo() {
-        performRedo()
-    }
+    actual fun redo() = performRedo()
+
+    actual fun offerHint() = performHint()
+
 
 }

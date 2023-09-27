@@ -1,5 +1,6 @@
 package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.offset
@@ -13,8 +14,11 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
+import com.github.bkmbigo.solitaire.game.solitaire.TableStack
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
+import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.models.core.Card
@@ -27,12 +31,14 @@ import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.componen
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.utils.*
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens.SolitaireAction
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens.SolitaireState
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlin.math.roundToInt
 
 @Composable
 fun SolitaireGameLayout(
     state: SolitaireState,
+    hint: Flow<SolitaireUserMove>,
     onAction: (SolitaireAction) -> Unit,
     cardView: @Composable (card: Card, isHidden: Boolean, modifier: Modifier, isSelected: Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -42,21 +48,21 @@ fun SolitaireGameLayout(
 
     val solitairePlacer = remember { SolitairePlacer() }
 
+    var currentHint by remember { mutableStateOf<SolitaireUserMove?>(null) }
+
+    // Used as a flag to cancel any ongoing hint animations
+    var cancelHintAnimation: SolitaireHintAnimationCancellation? by remember { mutableStateOf(null) }
+
     /* I'm not satisfied with the amount of derivedStateOf calls. */
     val deck by derivedStateOf { state.game.deck }
 
-    val spadeFoundation by derivedStateOf { state.game.spadeFoundationStack }
-    val cloverFoundation by derivedStateOf { state.game.cloverFoundationStack }
-    val heartsFoundation by derivedStateOf { state.game.heartsFoundationStack }
-    val diamondFoundation by derivedStateOf { state.game.diamondFoundationStack }
-
-    val firstTableStack by derivedStateOf { state.game.firstTableStackState }
-    val secondTableStack by derivedStateOf { state.game.secondTableStackState }
-    val thirdTableStack by derivedStateOf { state.game.thirdTableStackState }
-    val fourthTableStack by derivedStateOf { state.game.fourthTableStackState }
-    val fifthTableStack by derivedStateOf { state.game.fifthTableStackState }
-    val sixthTableStack by derivedStateOf { state.game.sixthTableStackState }
-    val seventhTableStack by derivedStateOf { state.game.seventhTableStackState }
+    LaunchedEffect(Unit) {
+        hint.collect { move ->
+            if (currentHint == null) {
+                currentHint = move
+            }
+        }
+    }
 
     Layout(
         modifier = modifier,
@@ -82,8 +88,91 @@ fun SolitaireGameLayout(
             deck.forEachIndexed { index, card ->
 
                 var isDragging by remember { mutableStateOf(false) }
-                var offsetX by remember { mutableStateOf(0f) }
-                var offsetY by remember { mutableStateOf(0f) }
+                var deckIsAnimating by remember { mutableStateOf(false) }
+
+                val animateOffsetX = remember { Animatable(0f) }
+                val animateOffsetY = remember { Animatable(0f) }
+
+                LaunchedEffect(cancelHintAnimation) {
+                    if (cancelHintAnimation != null && deckIsAnimating) {
+                        // Cancel any ongoing animations
+
+                        when (cancelHintAnimation) {
+                            SolitaireHintAnimationCancellation.AnimateBack -> {
+                                val xBackAnim = async { animateOffsetX.animateTo(0f) }
+                                val yBackAnim = async { animateOffsetY.animateTo(0f) }
+                                awaitAll(xBackAnim, yBackAnim)
+                            }
+
+                            SolitaireHintAnimationCancellation.StopInPlace -> {
+                                animateOffsetX.stop()
+                                animateOffsetY.stop()
+                            }
+
+                            else -> {}
+                        }
+
+                        deckIsAnimating = false
+                        currentHint = null
+                        cancelHintAnimation = null
+                    }
+                }
+
+
+                LaunchedEffect(state, currentHint) {
+                    // Change should only affect the playable card
+                    if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
+                        // Ensure that the current hint is from deck
+                        if (currentHint is SolitaireUserMove.CardMove) {
+                            val moveHint = currentHint as SolitaireUserMove.CardMove
+                            if (moveHint.from is MoveSource.FromDeck) {
+                                // Calculate the position of the card
+                                val startPosition = with(solitairePlacer) {
+                                    when (state.game.deckPosition) {
+                                        0 -> null
+                                        1 -> cardWidth + deckSeparation
+                                        2 -> cardWidth + deckSeparation + cardOnDeckSeparation
+                                        else -> cardWidth + deckSeparation + cardOnDeckSeparation * 2
+                                    }
+                                }
+
+                                if (startPosition != null) {
+                                    when (moveHint.to) {
+                                        // If move is to foundation, animate the x position of the card
+                                        MoveDestination.ToFoundation -> {
+                                            deckIsAnimating = true
+                                            moveHint.cards.firstOrNull()?.suite?.let {
+                                                animateOffsetX.animateTo(
+                                                    solitairePlacer.calculateFoundationXPosition(it).toFloat() -
+                                                            startPosition
+                                                )
+                                                cancelHintAnimation = SolitaireHintAnimationCancellation.AnimateBack
+                                            }
+                                        }
+
+                                        is MoveDestination.ToTable -> {
+                                            deckIsAnimating = true
+                                            moveHint.cards.firstOrNull()?.let { card ->
+                                                val topLeft =
+                                                    solitairePlacer.calculateTableStackPosition(moveHint.to.tableStackEntry)
+
+                                                val xAnim =
+                                                    async { animateOffsetX.animateTo(topLeft.x.toFloat() - startPosition) }
+                                                val yAnim = async {
+                                                    animateOffsetY.animateTo(
+                                                        topLeft.y.toFloat() + state.game.tableStack(moveHint.to.tableStackEntry).size * solitairePlacer.individualTableStackYSeparation.toFloat()
+                                                    )
+                                                }
+                                                awaitAll(xAnim, yAnim)
+                                                cancelHintAnimation = SolitaireHintAnimationCancellation.AnimateBack
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 cardView(
                     card,
@@ -93,17 +182,17 @@ fun SolitaireGameLayout(
                         .layoutId(SolitaireLayoutId.DECK_CARD)
                         .offset {
                             IntOffset(
-                                x = offsetX.roundToInt(),
-                                y = offsetY.roundToInt()
+                                x = animateOffsetX.value.roundToInt(),
+                                y = animateOffsetY.value.roundToInt()
                             )
                         }
                         .then(
                             when {
+                                deckIsAnimating -> Modifier.zIndex(DraggingZIndex)
                                 isDragging -> Modifier.zIndex(DraggingZIndex)
                                 else -> Modifier
                             }
                         )
-
                         .pointerInput(state.game) {
                             if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
                                 detectTapGestures(
@@ -111,9 +200,7 @@ fun SolitaireGameLayout(
                                         val move =
                                             card move MoveSource.FromDeck(state.game.deck.size - state.game.deckPosition) to MoveDestination.ToFoundation
                                         if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
+                                            onAction(SolitaireAction.PlayMove(move))
                                         }
                                     }
                                 )
@@ -124,32 +211,40 @@ fun SolitaireGameLayout(
                                 detectDragGestures(
                                     onDragStart = {
                                         isDragging = true
+                                        if (deckIsAnimating) {
+                                            cancelHintAnimation = SolitaireHintAnimationCancellation.StopInPlace
+                                        }
                                     },
                                     onDragEnd = {
                                         coroutineScope.launch {
                                             solitairePlacer.processDeckMove(
                                                 game = state.game,
                                                 card = card,
-                                                deckPosition = state.game.deckPosition,
-                                                offsetX = offsetX,
-                                                offsetY = offsetY,
+                                                offsetX = animateOffsetX.value,
+                                                offsetY = animateOffsetY.value,
                                                 onMoveSuccess = {
                                                     onAction(SolitaireAction.PlayMove(it))
                                                     isDragging = false
-                                                    offsetX = 0f
-                                                    offsetY = 0f
+                                                    coroutineScope.launch {
+                                                        animateOffsetX.snapTo(0f)
+                                                        animateOffsetY.snapTo(0f)
+                                                    }
                                                 },
                                                 onMoveFailed = {
                                                     isDragging = false
-                                                    offsetX = 0f
-                                                    offsetY = 0f
+                                                    coroutineScope.launch {
+                                                        animateOffsetX.snapTo(0f)
+                                                        animateOffsetY.snapTo(0f)
+                                                    }
                                                 }
                                             )
                                         }
                                     }
                                 ) { change, dragAmount ->
-                                    offsetX += dragAmount.x
-                                    offsetY += dragAmount.y
+                                    coroutineScope.launch {
+                                        animateOffsetX.snapTo(animateOffsetX.value + dragAmount.x)
+                                        animateOffsetY.snapTo(animateOffsetY.value + dragAmount.y)
+                                    }
                                 }
                             }
                         },
@@ -183,956 +278,190 @@ fun SolitaireGameLayout(
                     .layoutId(SolitaireLayoutId.EMPTY_FOUNDATION_DIAMOND)
             )
 
-            var spadeTopIsDragging by remember { mutableStateOf(false) }
-            var spadeTopOffsetX by remember { mutableStateOf(0f) }
-            var spadeTopOffsetY by remember { mutableStateOf(0f) }
+            FoundationPlacement(
+                suite = CardSuite.SPADE,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
-            // cards on game's Foundation
-            spadeFoundation.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOUNDATION_SPADE)
-                        .then(
-                            when {
-                                spadeTopIsDragging ->
-                                    Modifier.zIndex(DraggingZIndex)
+            FoundationPlacement(
+                suite = CardSuite.CLOVER,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            if (spadeTopIsDragging && index == spadeFoundation.size - 1) {
-                                Modifier.offset {
-                                    IntOffset(
-                                        x = spadeTopOffsetX.roundToInt(),
-                                        y = spadeTopOffsetY.roundToInt()
-                                    )
-                                }
-                            } else
-                                Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == spadeFoundation.size - 1) {
-                                detectDragGestures(
-                                    onDragStart = {
-                                        spadeTopIsDragging = true
-                                    },
-                                    onDragEnd = {
-                                        coroutineScope.launch {
-                                            solitairePlacer.processFoundationMove(
-                                                game = state.game,
-                                                card = card,
-                                                offsetX = spadeTopOffsetX,
-                                                offsetY = spadeTopOffsetY,
-                                                onMoveSuccess = {
-                                                    onAction(SolitaireAction.PlayMove(it))
-                                                    spadeTopIsDragging = false
-                                                    spadeTopOffsetX = 0f
-                                                    spadeTopOffsetY = 0f
-                                                },
-                                                onMoveFailed = {
-                                                    spadeTopIsDragging = false
-                                                    spadeTopOffsetX = 0f
-                                                    spadeTopOffsetY = 0f
-                                                }
-                                            )
-                                        }
-                                    }
-                                ) { change, dragAmount ->
-                                    spadeTopOffsetX += dragAmount.x
-                                    spadeTopOffsetY += dragAmount.y
-                                }
-                            }
-                        },
-                    false
-                )
-            }
+            FoundationPlacement(
+                suite = CardSuite.HEARTS,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
-            var cloverTopIsDragging by remember { mutableStateOf(false) }
-            var cloverTopOffsetX by remember { mutableStateOf(0f) }
-            var cloverTopOffsetY by remember { mutableStateOf(0f) }
-
-            cloverFoundation.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOUNDATION_CLOVER)
-                        .then(
-                            when {
-                                cloverTopIsDragging ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            if (cloverTopIsDragging && index == cloverFoundation.size - 1) {
-                                Modifier.offset {
-                                    IntOffset(
-                                        x = cloverTopOffsetX.roundToInt(),
-                                        y = cloverTopOffsetY.roundToInt()
-                                    )
-                                }
-                            } else
-                                Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == cloverFoundation.size - 1) {
-                                detectDragGestures(
-                                    onDragStart = {
-                                        cloverTopIsDragging = true
-                                    },
-                                    onDragEnd = {
-                                        coroutineScope.launch {
-                                            solitairePlacer.processFoundationMove(
-                                                game = state.game,
-                                                card = card,
-                                                offsetX = cloverTopOffsetX,
-                                                offsetY = cloverTopOffsetY,
-                                                onMoveSuccess = {
-                                                    onAction(SolitaireAction.PlayMove(it))
-                                                    cloverTopIsDragging = false
-                                                    cloverTopOffsetX = 0f
-                                                    cloverTopOffsetY = 0f
-                                                },
-                                                onMoveFailed = {
-                                                    cloverTopIsDragging = false
-                                                    cloverTopOffsetX = 0f
-                                                    cloverTopOffsetY = 0f
-                                                }
-                                            )
-                                        }
-                                    }
-                                ) { change, dragAmount ->
-                                    cloverTopOffsetX += dragAmount.x
-                                    cloverTopOffsetY += dragAmount.y
-                                }
-                            }
-                        },
-                    false
-                )
-            }
-
-            var heartsTopIsDragging by remember { mutableStateOf(false) }
-            var heartsTopOffsetX by remember { mutableStateOf(0f) }
-            var heartsTopOffsetY by remember { mutableStateOf(0f) }
-
-            heartsFoundation.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOUNDATION_HEARTS)
-                        .then(
-                            when {
-                                heartsTopIsDragging ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            if (heartsTopIsDragging && index == heartsFoundation.size - 1) {
-                                Modifier.offset {
-                                    IntOffset(
-                                        x = heartsTopOffsetX.roundToInt(),
-                                        y = heartsTopOffsetY.roundToInt()
-                                    )
-                                }
-                            } else
-                                Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == heartsFoundation.size - 1) {
-                                detectDragGestures(
-                                    onDragStart = {
-                                        heartsTopIsDragging = true
-                                    },
-                                    onDragEnd = {
-                                        coroutineScope.launch {
-                                            solitairePlacer.processFoundationMove(
-                                                game = state.game,
-                                                card = card,
-                                                offsetX = heartsTopOffsetX,
-                                                offsetY = heartsTopOffsetY,
-                                                onMoveSuccess = {
-                                                    onAction(SolitaireAction.PlayMove(it))
-                                                    heartsTopIsDragging = false
-                                                    heartsTopOffsetX = 0f
-                                                    heartsTopOffsetY = 0f
-                                                },
-                                                onMoveFailed = {
-                                                    heartsTopIsDragging = false
-                                                    heartsTopOffsetX = 0f
-                                                    heartsTopOffsetY = 0f
-                                                }
-                                            )
-                                        }
-                                    }
-                                ) { change, dragAmount ->
-                                    heartsTopOffsetX += dragAmount.x
-                                    heartsTopOffsetY += dragAmount.y
-                                }
-                            }
-                        },
-                    false
-                )
-            }
-
-
-            var diamondTopIsDragging by remember { mutableStateOf(false) }
-            var diamondTopOffsetX by remember { mutableStateOf(0f) }
-            var diamondTopOffsetY by remember { mutableStateOf(0f) }
-
-            diamondFoundation.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOUNDATION_DIAMOND)
-                        .then(
-                            when {
-                                diamondTopIsDragging ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            if (diamondTopIsDragging && index == diamondFoundation.size - 1) {
-                                Modifier.offset {
-                                    IntOffset(
-                                        x = diamondTopOffsetX.roundToInt(),
-                                        y = diamondTopOffsetY.roundToInt()
-                                    )
-                                }
-                            } else
-                                Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == diamondFoundation.size - 1) {
-                                detectDragGestures(
-                                    onDragStart = {
-                                        diamondTopIsDragging = true
-                                    },
-                                    onDragEnd = {
-                                        coroutineScope.launch {
-                                            solitairePlacer.processFoundationMove(
-                                                game = state.game,
-                                                card = card,
-                                                offsetX = diamondTopOffsetX,
-                                                offsetY = diamondTopOffsetY,
-                                                onMoveSuccess = {
-                                                    onAction(SolitaireAction.PlayMove(it))
-                                                    diamondTopIsDragging = false
-                                                    diamondTopOffsetX = 0f
-                                                    diamondTopOffsetY = 0f
-                                                },
-                                                onMoveFailed = {
-                                                    diamondTopIsDragging = false
-                                                    diamondTopOffsetX = 0f
-                                                    diamondTopOffsetY = 0f
-                                                }
-                                            )
-                                        }
-                                    }
-                                ) { change, dragAmount ->
-                                    diamondTopOffsetX += dragAmount.x
-                                    diamondTopOffsetY += dragAmount.y
-                                }
-                            }
-                        },
-                    false
-                )
-            }
-
-            // cards from game's table stacks
-
-            /* The drag events are consumed by the card being dragged, this means that the cards below the card on the stack do not catch the drag event.
-            *   The offset calculated from the drag event is then stored together with the index of the card being dragged.
-            *   The offset is then applied to the card being dragged and all cards with a higher index to represent the stack being dragged. */
+            FoundationPlacement(
+                suite = CardSuite.DIAMOND,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
             // First TableStack
-            var firstTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var firstTableOffsetX by remember { mutableStateOf(0f) }
-            var firstTableOffsetY by remember { mutableStateOf(0f) }
-
-            firstTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FIRST_TABLE_STACK),
-                    false
-                )
-            }
-            firstTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FIRST_TABLE_STACK)
-                        .then(
-                            when {
-                                firstTableOffsetIndex != null && firstTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            firstTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = firstTableOffsetX.roundToInt(),
-                                            y = firstTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.firstTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.ONE) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    firstTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    coroutineScope.launch {
-                                        solitairePlacer.processTableStackMove(
-                                            game = state.game,
-                                            tableStackEntry = TableStackEntry.ONE,
-                                            index = index,
-                                            offsetX = firstTableOffsetX,
-                                            offsetY = firstTableOffsetY,
-                                            onMoveSuccess = {
-                                                onAction(SolitaireAction.PlayMove(it))
-                                                firstTableOffsetIndex = null
-                                                firstTableOffsetX = 0f
-                                                firstTableOffsetY = 0f
-                                            },
-                                            onMoveFailed = {
-                                                firstTableOffsetIndex = null
-                                                firstTableOffsetX = 0f
-                                                firstTableOffsetY = 0f
-                                            }
-                                        )
-                                    }
-                                }
-                            ) { change, dragAmount ->
-                                firstTableOffsetX += dragAmount.x
-                                firstTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
+            StackPlacement(
+                tableStackEntry = TableStackEntry.ONE,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
             // Second TableStack
-
-            var secondTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var secondTableOffsetX by remember { mutableStateOf(0f) }
-            var secondTableOffsetY by remember { mutableStateOf(0f) }
-
-            secondTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SECOND_TABLE_STACK),
-                    false
-                )
-            }
-            secondTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SECOND_TABLE_STACK)
-                        .then(
-                            when {
-                                secondTableOffsetIndex != null && secondTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            secondTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = secondTableOffsetX.roundToInt(),
-                                            y = secondTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.secondTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.TWO) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    secondTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    coroutineScope.launch {
-                                        solitairePlacer.processTableStackMove(
-                                            game = state.game,
-                                            tableStackEntry = TableStackEntry.TWO,
-                                            index = index,
-                                            offsetX = secondTableOffsetX,
-                                            offsetY = secondTableOffsetY,
-                                            onMoveSuccess = {
-                                                onAction(SolitaireAction.PlayMove(it))
-                                                secondTableOffsetIndex = null
-                                                secondTableOffsetX = 0f
-                                                secondTableOffsetY = 0f
-                                            },
-                                            onMoveFailed = {
-                                                secondTableOffsetIndex = null
-                                                secondTableOffsetX = 0f
-                                                secondTableOffsetY = 0f
-                                            }
-                                        )
-                                    }
-                                }
-                            ) { change, dragAmount ->
-                                secondTableOffsetX += dragAmount.x
-                                secondTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
+            StackPlacement(
+                tableStackEntry = TableStackEntry.TWO,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
             // Third TableStack
-
-            var thirdTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var thirdTableOffsetX by remember { mutableStateOf(0f) }
-            var thirdTableOffsetY by remember { mutableStateOf(0f) }
-
-            thirdTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.THIRD_TABLE_STACK),
-                    false
-                )
-            }
-            thirdTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.THIRD_TABLE_STACK)
-                        .then(
-                            when {
-                                thirdTableOffsetIndex != null && thirdTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            thirdTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = thirdTableOffsetX.roundToInt(),
-                                            y = thirdTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.thirdTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.THREE) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    thirdTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    solitairePlacer.processTableStackMove(
-                                        game = state.game,
-                                        tableStackEntry = TableStackEntry.THREE,
-                                        index = index,
-                                        offsetX = thirdTableOffsetX,
-                                        offsetY = thirdTableOffsetY,
-                                        onMoveSuccess = {
-                                            onAction(SolitaireAction.PlayMove(it))
-                                            thirdTableOffsetIndex = null
-                                            thirdTableOffsetX = 0f
-                                            thirdTableOffsetY = 0f
-                                        },
-                                        onMoveFailed = {
-                                            thirdTableOffsetIndex = null
-                                            thirdTableOffsetX = 0f
-                                            thirdTableOffsetY = 0f
-                                        }
-                                    )
-                                }
-                            ) { change, dragAmount ->
-                                thirdTableOffsetX += dragAmount.x
-                                thirdTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
+            StackPlacement(
+                tableStackEntry = TableStackEntry.THREE,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
             // Fourth TableStack
+            StackPlacement(
+                tableStackEntry = TableStackEntry.FOUR,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
-            var fourthTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var fourthTableOffsetX by remember { mutableStateOf(0f) }
-            var fourthTableOffsetY by remember { mutableStateOf(0f) }
-
-            fourthTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOURTH_TABLE_STACK),
-                    false
-                )
-            }
-            fourthTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FOURTH_TABLE_STACK)
-                        .then(
-                            when {
-                                fourthTableOffsetIndex != null && fourthTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            fourthTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = fourthTableOffsetX.roundToInt(),
-                                            y = fourthTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.fourthTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.FOUR) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    fourthTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    solitairePlacer.processTableStackMove(
-                                        game = state.game,
-                                        tableStackEntry = TableStackEntry.FOUR,
-                                        index = index,
-                                        offsetX = fourthTableOffsetX,
-                                        offsetY = fourthTableOffsetY,
-                                        onMoveSuccess = {
-                                            onAction(SolitaireAction.PlayMove(it))
-                                            fourthTableOffsetIndex = null
-                                            fourthTableOffsetX = 0f
-                                            fourthTableOffsetY = 0f
-                                        },
-                                        onMoveFailed = {
-                                            fourthTableOffsetIndex = null
-                                            fourthTableOffsetX = 0f
-                                            fourthTableOffsetY = 0f
-                                        }
-                                    )
-                                }
-                            ) { change, dragAmount ->
-                                fourthTableOffsetX += dragAmount.x
-                                fourthTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
 
             // Fifth TableStack
+            StackPlacement(
+                tableStackEntry = TableStackEntry.FIVE,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
-            var fifthTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var fifthTableOffsetX by remember { mutableStateOf(0f) }
-            var fifthTableOffsetY by remember { mutableStateOf(0f) }
-
-            fifthTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FIFTH_TABLE_STACK),
-                    false
-                )
-            }
-            fifthTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.FIFTH_TABLE_STACK)
-                        .then(
-                            when {
-                                fifthTableOffsetIndex != null && fifthTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            fifthTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = fifthTableOffsetX.roundToInt(),
-                                            y = fifthTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.fifthTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.FIVE) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    fifthTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    solitairePlacer.processTableStackMove(
-                                        game = state.game,
-                                        tableStackEntry = TableStackEntry.FIVE,
-                                        index = index,
-                                        offsetX = fifthTableOffsetX,
-                                        offsetY = fifthTableOffsetY,
-                                        onMoveSuccess = {
-                                            onAction(SolitaireAction.PlayMove(it))
-                                            fifthTableOffsetIndex = null
-                                            fifthTableOffsetX = 0f
-                                            fifthTableOffsetY = 0f
-                                        },
-                                        onMoveFailed = {
-                                            fifthTableOffsetIndex = null
-                                            fifthTableOffsetX = 0f
-                                            fifthTableOffsetY = 0f
-                                        }
-                                    )
-                                }
-                            ) { change, dragAmount ->
-                                fifthTableOffsetX += dragAmount.x
-                                fifthTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
 
             // Sixth TableStack
-
-            var sixthTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var sixthTableOffsetX by remember { mutableStateOf(0f) }
-            var sixthTableOffsetY by remember { mutableStateOf(0f) }
-
-            sixthTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SIXTH_TABLE_STACK),
-                    false
-                )
-            }
-            sixthTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SIXTH_TABLE_STACK)
-                        .then(
-                            when {
-                                sixthTableOffsetIndex != null && sixthTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            sixthTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = sixthTableOffsetX.roundToInt(),
-                                            y = sixthTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.sixthTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.SIX) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    sixthTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    solitairePlacer.processTableStackMove(
-                                        game = state.game,
-                                        tableStackEntry = TableStackEntry.SIX,
-                                        index = index,
-                                        offsetX = sixthTableOffsetX,
-                                        offsetY = sixthTableOffsetY,
-                                        onMoveSuccess = {
-                                            onAction(SolitaireAction.PlayMove(it))
-                                            sixthTableOffsetIndex = null
-                                            sixthTableOffsetX = 0f
-                                            sixthTableOffsetY = 0f
-                                        },
-                                        onMoveFailed = {
-                                            sixthTableOffsetIndex = null
-                                            sixthTableOffsetX = 0f
-                                            sixthTableOffsetY = 0f
-                                        }
-                                    )
-                                }
-                            ) { change, dragAmount ->
-                                sixthTableOffsetX += dragAmount.x
-                                sixthTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
+            StackPlacement(
+                tableStackEntry = TableStackEntry.SIX,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
             // Seventh TableStack
-
-            var seventhTableOffsetIndex by remember { mutableStateOf<Int?>(null) }
-            var seventhTableOffsetX by remember { mutableStateOf(0f) }
-            var seventhTableOffsetY by remember { mutableStateOf(0f) }
-
-            seventhTableStack.hiddenCards.forEach { card ->
-                cardView(
-                    card,
-                    true,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SEVENTH_TABLE_STACK),
-                    false
-                )
-            }
-            seventhTableStack.revealedCards.forEachIndexed { index, card ->
-                cardView(
-                    card,
-                    false,
-                    Modifier
-                        .size(cardTheme.cardSize)
-                        .layoutId(SolitaireLayoutId.SEVENTH_TABLE_STACK)
-                        .then(
-                            when {
-                                seventhTableOffsetIndex != null && seventhTableOffsetIndex!! <= index ->
-                                    Modifier.zIndex(DraggingZIndex)
-
-                                else -> Modifier
-                            }
-                        )
-                        .then(
-                            // the dragOffset is not null and the index is lower than or equal to the cards index
-                            seventhTableOffsetIndex?.let { offsetIndex ->
-                                if (offsetIndex <= index) {
-                                    Modifier.offset {
-                                        IntOffset(
-                                            x = seventhTableOffsetX.roundToInt(),
-                                            y = seventhTableOffsetY.roundToInt()
-                                        )
-                                    }
-                                } else
-                                    Modifier
-                            } ?: Modifier
-                        )
-                        .pointerInput(state.game) {
-                            if (index == state.game.seventhTableStackState.revealedCards.size - 1) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromTable(TableStackEntry.SEVEN) to MoveDestination.ToFoundation
-                                        if (move.isValid(state.game)) {
-                                            onAction(
-                                                SolitaireAction.PlayMove(move)
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .pointerInput(state.game) {
-                            detectDragGestures(
-                                onDragStart = {
-                                    seventhTableOffsetIndex = index
-                                },
-                                onDragEnd = {
-                                    solitairePlacer.processTableStackMove(
-                                        game = state.game,
-                                        tableStackEntry = TableStackEntry.SEVEN,
-                                        index = index,
-                                        offsetX = seventhTableOffsetX,
-                                        offsetY = seventhTableOffsetY,
-                                        onMoveSuccess = {
-                                            onAction(SolitaireAction.PlayMove(it))
-                                            seventhTableOffsetIndex = null
-                                            seventhTableOffsetX = 0f
-                                            seventhTableOffsetY = 0f
-                                        },
-                                        onMoveFailed = {
-                                            seventhTableOffsetIndex = null
-                                            seventhTableOffsetX = 0f
-                                            seventhTableOffsetY = 0f
-                                        }
-                                    )
-                                }
-                            ) { change, dragAmount ->
-                                seventhTableOffsetX += dragAmount.x
-                                seventhTableOffsetY += dragAmount.y
-
-                                change.consume()
-                            }
-                        },
-                    false
-                )
-            }
+            StackPlacement(
+                tableStackEntry = TableStackEntry.SEVEN,
+                state = state,
+                currentHint = currentHint,
+                solitairePlacer = solitairePlacer,
+                cardView = cardView,
+                cancelHintAnimation = cancelHintAnimation,
+                onAction = onAction,
+                onCancelHintAnimationChange = {
+                    cancelHintAnimation = it
+                },
+                onCurrentHintChange = {
+                    currentHint = it
+                }
+            )
 
         }
     ) { measurables, constraints ->
@@ -1163,7 +492,6 @@ fun SolitaireGameLayout(
         val fifthTableMeasurables = measurablesByLayoutId[SolitaireLayoutId.FIFTH_TABLE_STACK] ?: emptyList()
         val sixthTableMeasurables = measurablesByLayoutId[SolitaireLayoutId.SIXTH_TABLE_STACK] ?: emptyList()
         val seventhTableMeasurables = measurablesByLayoutId[SolitaireLayoutId.SEVENTH_TABLE_STACK] ?: emptyList()
-
 
         val cardWidth = cardTheme.cardSize.width.roundToPx()
         val cardHeight = cardTheme.cardSize.height.roundToPx()
@@ -1261,10 +589,425 @@ fun SolitaireGameLayout(
     }
 }
 
+@Composable
+private fun FoundationPlacement(
+    suite: CardSuite,
+    state: SolitaireState,
+    currentHint: SolitaireUserMove?,
+    solitairePlacer: SolitairePlacer,
+    cardView: @Composable (card: Card, isHidden: Boolean, modifier: Modifier, isSelected: Boolean) -> Unit,
+    cancelHintAnimation: SolitaireHintAnimationCancellation?,
+    onAction: (SolitaireAction) -> Unit,
+    onCancelHintAnimationChange: (SolitaireHintAnimationCancellation?) -> Unit,
+    onCurrentHintChange: (SolitaireUserMove?) -> Unit
+) {
+    val cardTheme = LocalCardTheme.current
+    val coroutineScope = rememberCoroutineScope()
+
+    val foundationCards by derivedStateOf { state.game.foundationStack(suite) }
+
+    val layoutId = remember(suite) {
+        when (suite) {
+            CardSuite.SPADE -> SolitaireLayoutId.FOUNDATION_SPADE
+            CardSuite.CLOVER -> SolitaireLayoutId.FOUNDATION_CLOVER
+            CardSuite.HEARTS -> SolitaireLayoutId.FOUNDATION_HEARTS
+            CardSuite.DIAMOND -> SolitaireLayoutId.FOUNDATION_DIAMOND
+        }
+    }
+
+    var foundationTopIsAnimating by remember { mutableStateOf(false) }
+    var foundationTopIsDragging by remember { mutableStateOf(false) }
+
+    val foundationTopAnimationOffsetX = remember { Animatable(0f) }
+    val foundationTopAnimationOffsetY = remember { Animatable(0f) }
+
+    LaunchedEffect(cancelHintAnimation) {
+        if (cancelHintAnimation != null && foundationTopIsAnimating) {
+            // Cancel any ongoing animations
+
+            when (cancelHintAnimation) {
+                SolitaireHintAnimationCancellation.AnimateBack -> {
+                    val xBackAnim = async { foundationTopAnimationOffsetX.animateTo(0f) }
+                    val yBackAnim = async { foundationTopAnimationOffsetY.animateTo(0f) }
+                    awaitAll(xBackAnim, yBackAnim)
+                }
+
+                SolitaireHintAnimationCancellation.StopInPlace -> {
+                    foundationTopAnimationOffsetX.stop()
+                    foundationTopAnimationOffsetY.stop()
+                }
+
+                else -> {}
+            }
+
+            onCancelHintAnimationChange(null)
+            foundationTopIsAnimating = false
+            onCurrentHintChange(null)
+        }
+    }
+
+    LaunchedEffect(state, currentHint) {
+        // Ensure that the current hint is from foundation, is only one card and specifically from the spade foundation
+        if (currentHint is SolitaireUserMove.CardMove && currentHint.from == MoveSource.FromFoundation && currentHint.cards.size == 1) {
+            val animatingCard = currentHint.cards.first()
+            if (animatingCard.suite == suite) {
+                val startXPosition = solitairePlacer.calculateFoundationXPosition(suite)
+
+                when (currentHint.to) {
+                    MoveDestination.ToFoundation -> {
+                        /* noop: Reason being that a card that cannot move from foundation to foundation */
+                    }
+
+                    is MoveDestination.ToTable -> {
+                        foundationTopIsAnimating = true
+                        currentHint.cards.firstOrNull()?.let { card ->
+                            val topLeft =
+                                solitairePlacer.calculateTableStackPosition(currentHint.to.tableStackEntry)
+
+                            val xAnim =
+                                async { foundationTopAnimationOffsetX.animateTo(topLeft.x.toFloat() - startXPosition) }
+                            val yAnim = async {
+                                foundationTopAnimationOffsetY.animateTo(
+                                    topLeft.y.toFloat() + state.game.tableStack(currentHint.to.tableStackEntry).size * solitairePlacer.individualTableStackYSeparation.toFloat()
+                                )
+                            }
+                            awaitAll(xAnim, yAnim)
+                            onCancelHintAnimationChange(SolitaireHintAnimationCancellation.AnimateBack)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // cards on game's Foundation
+    foundationCards.forEachIndexed { index, card ->
+        cardView(
+            card,
+            false,
+            Modifier
+                .size(cardTheme.cardSize)
+                .layoutId(layoutId)
+                .then(
+                    when {
+                        foundationTopIsAnimating -> Modifier.zIndex(DraggingZIndex)
+                        foundationTopIsDragging -> Modifier.zIndex(DraggingZIndex)
+
+                        else -> Modifier
+                    }
+                )
+                .then(
+                    if ((foundationTopIsDragging || foundationTopIsAnimating) && index == foundationCards.size - 1) {
+                        Modifier.offset {
+                            IntOffset(
+                                x = foundationTopAnimationOffsetX.value.roundToInt(),
+                                y = foundationTopAnimationOffsetY.value.roundToInt()
+                            )
+                        }
+                    } else
+                        Modifier
+                )
+                .pointerInput(state.game) {
+                    if (index == foundationCards.size - 1) {
+                        detectDragGestures(
+                            onDragStart = {
+                                foundationTopIsDragging = true
+                                if (foundationTopIsAnimating) {
+                                    onCancelHintAnimationChange(SolitaireHintAnimationCancellation.StopInPlace)
+                                }
+                            },
+                            onDragEnd = {
+                                coroutineScope.launch {
+                                    solitairePlacer.processFoundationMove(
+                                        game = state.game,
+                                        card = card,
+                                        offsetX = foundationTopAnimationOffsetX.value,
+                                        offsetY = foundationTopAnimationOffsetY.value,
+                                        onMoveSuccess = {
+                                            onAction(SolitaireAction.PlayMove(it))
+                                            foundationTopIsDragging = false
+                                            coroutineScope.launch {
+                                                foundationTopAnimationOffsetX.snapTo(0f)
+                                                foundationTopAnimationOffsetY.snapTo(0f)
+                                            }
+                                        },
+                                        onMoveFailed = {
+                                            foundationTopIsDragging = false
+                                            coroutineScope.launch {
+                                                foundationTopAnimationOffsetX.snapTo(0f)
+                                                foundationTopAnimationOffsetY.snapTo(0f)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        ) { change, dragAmount ->
+                            coroutineScope.launch {
+                                foundationTopAnimationOffsetX.snapTo(foundationTopAnimationOffsetX.value + dragAmount.x)
+                                foundationTopAnimationOffsetY.snapTo(foundationTopAnimationOffsetY.value + dragAmount.y)
+                            }
+                        }
+                    }
+                },
+            false
+        )
+    }
+}
+
+@Composable
+private fun StackPlacement(
+    tableStackEntry: TableStackEntry,
+    state: SolitaireState,
+    currentHint: SolitaireUserMove?,
+    solitairePlacer: SolitairePlacer,
+    cardView: @Composable (card: Card, isHidden: Boolean, modifier: Modifier, isSelected: Boolean) -> Unit,
+    cancelHintAnimation: SolitaireHintAnimationCancellation?,
+    onAction: (SolitaireAction) -> Unit,
+    onCancelHintAnimationChange: (SolitaireHintAnimationCancellation?) -> Unit,
+    onCurrentHintChange: (SolitaireUserMove?) -> Unit
+) {
+    val cardTheme = LocalCardTheme.current
+    val coroutineScope = rememberCoroutineScope()
+
+    /* The drag events are consumed by the card being dragged, this means that the cards below the card on the stack do not catch the drag event.
+    *   The offset calculated from the drag event is then stored together with the index of the card being dragged.
+    *   The offset is then applied to the card being dragged and all cards with a higher index to represent the stack being dragged. */
+
+    var tableStackAnimatingIndex by remember { mutableStateOf<Int?>(null) }
+    var tableStackDraggingIndex by remember { mutableStateOf<Int?>(null) }
+
+    val tableStack by derivedStateOf { state.game.tableStack(tableStackEntry) }
+
+    val layoutId = remember(tableStackEntry) {
+        when (tableStackEntry) {
+            TableStackEntry.ONE -> SolitaireLayoutId.FIRST_TABLE_STACK
+            TableStackEntry.TWO -> SolitaireLayoutId.SECOND_TABLE_STACK
+            TableStackEntry.THREE -> SolitaireLayoutId.THIRD_TABLE_STACK
+            TableStackEntry.FOUR -> SolitaireLayoutId.FOURTH_TABLE_STACK
+            TableStackEntry.FIVE -> SolitaireLayoutId.FIFTH_TABLE_STACK
+            TableStackEntry.SIX -> SolitaireLayoutId.SIXTH_TABLE_STACK
+            TableStackEntry.SEVEN -> SolitaireLayoutId.SEVENTH_TABLE_STACK
+        }
+    }
+
+    val tableStackAnimationOffsetX = remember { Animatable(0f) }
+    val tableStackAnimationOffsetY = remember { Animatable(0f) }
+
+    LaunchedEffect(cancelHintAnimation) {
+        if (cancelHintAnimation != null && tableStackAnimatingIndex != null) {
+            // Cancel any ongoing animations
+
+            when (cancelHintAnimation) {
+                SolitaireHintAnimationCancellation.AnimateBack -> {
+                    val xBackAnim = async { tableStackAnimationOffsetX.animateTo(0f) }
+                    val yBackAnim = async { tableStackAnimationOffsetY.animateTo(0f) }
+                    awaitAll(xBackAnim, yBackAnim)
+                }
+
+                SolitaireHintAnimationCancellation.StopInPlace -> {
+                    tableStackAnimationOffsetX.stop()
+                    tableStackAnimationOffsetY.stop()
+                }
+
+                else -> {}
+            }
+
+            onCancelHintAnimationChange(null)
+            onCurrentHintChange(null)
+            tableStackAnimatingIndex = null
+        }
+    }
+
+    LaunchedEffect(state, currentHint) {
+        // Ensure that the current hint is from foundation, is only one card and specifically from the spade foundation
+        if (
+            currentHint is SolitaireUserMove.CardMove &&
+            currentHint.from is MoveSource.FromTable &&
+            currentHint.from.tableStackEntry == tableStackEntry
+        ) {
+
+            val cardIndex = tableStack.revealedCards.size - currentHint.cards.size
+            val startPosition = solitairePlacer.calculateTableStackPosition(tableStackEntry)
+
+            when (currentHint.to) {
+                MoveDestination.ToFoundation -> {
+                    // Ensure that there is only one card as only one card can be moved to foundation
+                    if (currentHint.cards.size == 1) {
+                        currentHint.cards.firstOrNull()?.let { card ->
+                            tableStackAnimatingIndex = cardIndex
+                            val targetXPosition = solitairePlacer.calculateFoundationXPosition(card.suite)
+
+                            val xAnim =
+                                async { tableStackAnimationOffsetX.animateTo(targetXPosition - startPosition.x.toFloat()) }
+                            val yAnim = async {
+                                tableStackAnimationOffsetY.animateTo(
+                                    0 - (startPosition.y.toFloat() + (tableStack.size - 1) * solitairePlacer.individualTableStackYSeparation.toFloat())
+                                )
+                            }
+                            awaitAll(xAnim, yAnim)
+                            onCancelHintAnimationChange(SolitaireHintAnimationCancellation.AnimateBack)
+                        }
+                    } else {
+                        onCancelHintAnimationChange(SolitaireHintAnimationCancellation.AnimateBack)
+                    }
+                }
+
+                is MoveDestination.ToTable -> {
+                    tableStackAnimatingIndex = cardIndex
+
+                    val targetTopLeftPosition =
+                        solitairePlacer.calculateTableStackPosition(currentHint.to.tableStackEntry)
+
+                    val xAnim =
+                        async { tableStackAnimationOffsetX.animateTo(targetTopLeftPosition.x.toFloat() - startPosition.x.toFloat()) }
+                    val yAnim = async {
+                        tableStackAnimationOffsetY.animateTo(
+                            (targetTopLeftPosition.y.toFloat() + state.game.tableStack(currentHint.to.tableStackEntry).size * solitairePlacer.individualTableStackYSeparation.toFloat()) -
+                                    (startPosition.y.toFloat() + (tableStack.hiddenCards.size + cardIndex) * solitairePlacer.individualTableStackYSeparation.toFloat())
+                        )
+                    }
+                    awaitAll(xAnim, yAnim)
+                    onCancelHintAnimationChange(SolitaireHintAnimationCancellation.AnimateBack)
+                }
+
+            }
+        }
+    }
+
+    tableStack.hiddenCards.forEach { card ->
+        cardView(
+            card,
+            true,
+            Modifier
+                .size(cardTheme.cardSize)
+                .layoutId(layoutId),
+            false
+        )
+    }
+
+    tableStack.revealedCards.forEachIndexed { index, card ->
+        cardView(
+            card,
+            false,
+            Modifier
+                .size(cardTheme.cardSize)
+                .layoutId(layoutId)
+                .then(
+                    when {
+                        tableStackAnimatingIndex != null && tableStackAnimatingIndex!! <= index ->
+                            Modifier.zIndex(DraggingZIndex)
+
+                        tableStackDraggingIndex != null && tableStackDraggingIndex!! <= index ->
+                            Modifier.zIndex(DraggingZIndex)
+
+                        else -> Modifier
+                    }
+                )
+                .then(
+                    // the draggingIndex and animatingIndex is not null and the index is lower than or equal to the cards index
+                    if (tableStackAnimatingIndex != null || tableStackDraggingIndex != null) {
+                        if (tableStackAnimatingIndex != null && tableStackDraggingIndex != null) {
+                            // This should not happen, however I cannot dismiss the possibility of it occurring especially during state changes
+                            if (tableStackAnimatingIndex == tableStackDraggingIndex) {
+                                tableStackAnimatingIndex = null
+
+                                Modifier.offset {
+                                    IntOffset(
+                                        x = tableStackAnimationOffsetX.value.roundToInt(),
+                                        y = tableStackAnimationOffsetY.value.roundToInt()
+                                    )
+                                }
+                            } else {
+                                tableStackAnimatingIndex = null
+                                tableStackDraggingIndex = null
+
+                                coroutineScope.launch {
+                                    val x = async { tableStackAnimationOffsetX.snapTo(0f) }
+                                    val y = async { tableStackAnimationOffsetY.snapTo(0f) }
+                                    awaitAll(x, y)
+                                }
+
+                                Modifier
+                            }
+                        } else {
+                            (tableStackAnimatingIndex ?: tableStackDraggingIndex)?.let { topIndex ->
+                                if (index >= topIndex) {
+                                    Modifier.offset {
+                                        IntOffset(
+                                            x = tableStackAnimationOffsetX.value.roundToInt(),
+                                            y = tableStackAnimationOffsetY.value.roundToInt()
+                                        )
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            } ?: Modifier
+                        }
+
+                    } else
+                        Modifier
+                )
+                .pointerInput(state.game) {
+                    if (index == tableStack.revealedCards.size - 1) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                val move = card move tableStackEntry to MoveDestination.ToFoundation
+                                if (move.isValid(state.game)) {
+                                    onAction(SolitaireAction.PlayMove(move))
+                                }
+                            }
+                        )
+                    }
+                }
+                .pointerInput(state.game) {
+                    detectDragGestures(
+                        onDragStart = {
+                            tableStackAnimatingIndex?.let {
+                                onCancelHintAnimationChange(SolitaireHintAnimationCancellation.StopInPlace)
+                            }
+                            tableStackDraggingIndex = index
+                        },
+                        onDragEnd = {
+                            coroutineScope.launch {
+                                solitairePlacer.processTableStackMove(
+                                    game = state.game,
+                                    tableStackEntry = tableStackEntry,
+                                    index = index,
+                                    offsetX = tableStackAnimationOffsetX.value,
+                                    offsetY = tableStackAnimationOffsetY.value,
+                                    onMoveSuccess = {
+                                        onAction(SolitaireAction.PlayMove(it))
+                                        tableStackDraggingIndex = null
+                                        coroutineScope.launch {
+                                            tableStackAnimationOffsetX.snapTo(0f)
+                                            tableStackAnimationOffsetY.snapTo(0f)
+                                        }
+                                    },
+                                    onMoveFailed = {
+                                        tableStackDraggingIndex = null
+                                        coroutineScope.launch {
+                                            tableStackAnimationOffsetX.snapTo(0f)
+                                            tableStackAnimationOffsetY.snapTo(0f)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    ) { change, dragAmount ->
+                        coroutineScope.launch {
+                            tableStackAnimationOffsetX.snapTo(tableStackAnimationOffsetX.value + dragAmount.x)
+                            tableStackAnimationOffsetY.snapTo(tableStackAnimationOffsetY.value + dragAmount.y)
+                        }
+
+                        change.consume()
+                    }
+                },
+            false
+        )
+    }
+}
 
 private val HeightSpacing = 32.dp
 
 private const val DraggingZIndex = 5.0f
 private const val NormalZIndex = 1.0f
-
-

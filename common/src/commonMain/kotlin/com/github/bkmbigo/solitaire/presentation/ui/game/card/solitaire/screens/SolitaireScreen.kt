@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
+import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
@@ -21,6 +22,7 @@ import com.github.bkmbigo.solitaire.presentation.ui.game.card.core.layouts.Linea
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.SolitaireDeckLayout
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.SolitaireFoundationLayout
 import com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.layouts.SolitaireGameLayout
+import kotlinx.coroutines.flow.Flow
 
 
 expect object SolitaireScreen
@@ -28,6 +30,7 @@ expect object SolitaireScreen
 @Composable
 fun SolitaireGameScreenContent(
     state: SolitaireState,
+    hint: Flow<SolitaireUserMove>,
     onAction: (SolitaireAction) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -105,6 +108,7 @@ fun SolitaireGameScreenContent(
 
             SolitaireGameLayout(
                 state = state,
+                hint = hint,
                 onAction = onAction,
                 cardView = { card, isHidden, modifier, isSelected ->
                    CardView(

@@ -7,12 +7,17 @@ import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 
 abstract class AbstractSolitaireScreenModel {
     private val _state = MutableStateFlow(SolitaireState())
     val state = _state.asStateFlow()
+
+    private val _hint = Channel<SolitaireUserMove>()
+    val hint = _hint.receiveAsFlow()
 
     private val pastMoves = mutableListOf<RecordedUserMove>()
     private val redoMoves = mutableListOf<RecordedGameMove>()
@@ -189,24 +194,17 @@ abstract class AbstractSolitaireScreenModel {
         if(!isHintProvided) {
             availableHints.apply {
                 clear()
-                addAll(SolitaireHintProvider.provideHints(state.value.game).mapNotNull { it as? SolitaireUserMove })
+                val hints = SolitaireHintProvider.provideHints(state.value.game).mapNotNull { it as? SolitaireUserMove }
+                addAll(hints)
             }
             isHintProvided = true
+        } else {
+            // If the game is currently showing a hint, increment the hint iterator in order to obtain the next hint
+            hintIteration = if (hintIteration >= availableHints.size - 1) 0 else hintIteration + 1
         }
 
-        // If the game is currently showing a hint, increment the hint iterator in order to obtain the next hint
-        hintIteration = if(hintIteration >= availableHints.size - 1) 0 else hintIteration++
-
         // Pass the hint to the state
-        _state.value = _state.value.copy(
-            hint = availableHints.getOrNull(hintIteration)
-        )
-    }
-
-    protected fun cancelProvidedHint() {
-        _state.value = _state.value.copy(hint = null)
-
-        hintIteration = if(hintIteration >= availableHints.size - 1) 0 else hintIteration++
+        availableHints.getOrNull(hintIteration)?.let { _hint.trySend(it) }
     }
 
     private fun resetHints() {

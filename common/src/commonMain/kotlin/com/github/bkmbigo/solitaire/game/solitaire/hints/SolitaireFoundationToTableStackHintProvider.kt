@@ -25,10 +25,10 @@ internal object SolitaireFoundationToTableStackHintProvider {
                 tableStacks.forEachIndexed { targetIndex, targetTableStack ->
                     if (currentIndex != targetIndex) {
                         val current = currentTableStack.firstRevealedCard
-                        if (current != null && !(currentTableStack.hiddenCards.isEmpty() && currentTableStack.firstRevealedCard?.rank == CardRank.KING) && canFitInTableStack(
-                                current,
-                                targetTableStack
-                            )
+                        if (
+                            current != null &&
+                            !(currentTableStack.hiddenCards.isEmpty() && currentTableStack.firstRevealedCard?.rank == CardRank.KING) &&
+                            canFitInTableStack(current, targetTableStack)
                         ) {
                             val fittingCardSpecs = getFittingCards(current, targetTableStack.lastCard!!)
                             allFittingCardsOnFoundation(game, fittingCardSpecs)?.let { fittingCards ->
@@ -51,7 +51,7 @@ internal object SolitaireFoundationToTableStackHintProvider {
     /** Checks if [card] can fit in [target] */
     internal fun canFitInTableStack(card: Card, target: TableStack): Boolean {
         val topCard = target.lastCard ?: return false
-        val rankDifference = topCard.ordinal - card.rank.ordinal
+        val rankDifference = topCard.rank.ordinal - card.rank.ordinal
         return if (rankDifference % 2 == 0) {
             topCard.color == card.color
         } else {

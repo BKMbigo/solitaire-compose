@@ -25,6 +25,7 @@ actual object SolitaireScreen: Screen {
 
         SolitaireGameScreenContent(
             state = state,
+            hint = screenModel.hint,
             onNavigateBack = { navigator?.pop() },
             onAction = { action ->
                 when (action) {
@@ -33,7 +34,6 @@ actual object SolitaireScreen: Screen {
                     SolitaireAction.Deal -> { screenModel.deal() }
                     SolitaireAction.RedoLastMove -> { screenModel.redo() }
                     SolitaireAction.UndoLastMove -> { screenModel.undo() }
-                    SolitaireAction.CancelHint -> { screenModel.cancelHint() }
                     SolitaireAction.OfferHint -> { screenModel.offerHint() }
                 }
             }
