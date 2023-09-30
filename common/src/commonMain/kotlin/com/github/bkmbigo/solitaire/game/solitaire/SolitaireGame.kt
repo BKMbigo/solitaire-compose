@@ -472,7 +472,8 @@ data class SolitaireGame(
         if (findFoundationToTableStackMoves().isNotEmpty()) return false
         if (SolitaireAdvancedTableStackToFoundationHintProvider(this).isNotEmpty()) return false
         if (findRemainingDeckMoves().isNotEmpty()) return false
-        return true
+        // A game can only be drawn if valid --> Will be removed later
+        return isValid()
     }
 
     fun withFoundationStack(suite: CardSuite, cards: List<Card>): SolitaireGame =

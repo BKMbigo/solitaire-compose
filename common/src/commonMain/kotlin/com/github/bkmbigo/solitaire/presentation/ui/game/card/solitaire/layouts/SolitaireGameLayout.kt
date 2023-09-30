@@ -126,7 +126,7 @@ fun SolitaireGameLayout(
                             if (moveHint.from is MoveSource.FromDeck) {
                                 // Calculate the position of the card
                                 val startPosition = with(solitairePlacer) {
-                                    when (state.game.deckPositions.last()) {
+                                    when (state.game.deckPositions.size) {
                                         0 -> null
                                         1 -> cardWidth + deckSeparation
                                         2 -> cardWidth + deckSeparation + cardOnDeckSeparation

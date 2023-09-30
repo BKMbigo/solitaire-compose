@@ -2,7 +2,6 @@ package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
-import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
@@ -32,8 +31,11 @@ abstract class AbstractSolitaireScreenModel {
     private var isHintProvided = false
     private var hintIteration = 0
 
-    protected suspend fun performCreateGame(provider: SolitaireGameProvider) {
-        val newGame = provider.createGame(SolitaireGameConfiguration(SolitaireCardsPerDeal.THREE))
+    protected suspend fun performCreateGame(
+        provider: SolitaireGameProvider,
+        configuration: SolitaireGameConfiguration
+    ) {
+        val newGame = provider.createGame(configuration)
         if (newGame.isValid()) {
             // Amend game to reveal bottom-most cards
             val gameWithAmendments = amendGame(newGame)
@@ -52,77 +54,72 @@ abstract class AbstractSolitaireScreenModel {
     }
 
     protected fun performDeal() {
-        if (!_state.value.isDrawn && !_state.value.isWon) {
-            val pastDealOffset = currentDealOffset
-            val newGame = _state.value.game.play(SolitaireUserMove.Deal(pastDealOffset))
+        val pastDealOffset = currentDealOffset
+        val newGame = _state.value.game.play(SolitaireUserMove.Deal(pastDealOffset))
 
-            if (newGame.deckPositions.isEmpty()) {
-                currentDealOffset = SolitaireDealOffset.NONE
-            }
-
-            // record moves made in iteration
-            pastMoves.add(
-                RecordedUserMove(
-                    userMove = SolitaireUserMove.Deal(pastDealOffset),
-                    amendments = emptyList()
-                )
-            )
-
-            // Clear redoMoves
-            redoMoves.clear()
-
-            // reset hints
-            resetHints()
-
-            _state.value = _state.value.copy(
-                game = newGame,
-                canUndo = pastMoves.isNotEmpty(),
-                canRedo = redoMoves.isNotEmpty(),
-                isWon = newGame.isWon(),
-                isDrawn = newGame.isDrawn()
-            )
+        if (newGame.deckPositions.isEmpty()) {
+            currentDealOffset = SolitaireDealOffset.NONE
         }
+
+        // record moves made in iteration
+        pastMoves.add(
+            RecordedUserMove(
+                userMove = SolitaireUserMove.Deal(pastDealOffset),
+                amendments = emptyList()
+            )
+        )
+
+        // Clear redoMoves
+        redoMoves.clear()
+
+        // reset hints
+        resetHints()
+
+        _state.value = _state.value.copy(
+            game = newGame,
+            canUndo = pastMoves.isNotEmpty(),
+            canRedo = redoMoves.isNotEmpty(),
+            isWon = newGame.isWon(),
+            isDrawn = newGame.isDrawn()
+        )
     }
 
     protected fun performPlay(move: SolitaireUserMove) {
-        if (!_state.value.isDrawn && !_state.value.isWon) {
+        if (!move.isValid(_state.value.game)) return
 
-            if (!move.isValid(_state.value.game)) return
+        val newGame = _state.value.game.play(move)
 
-            val newGame = _state.value.game.play(move)
-
-            // If card moved from deck, increase the currentDealOffset
-            if (move is SolitaireUserMove.CardMove && move.from is MoveSource.FromDeck) {
-                currentDealOffset = currentDealOffset.increase()
-            }
-
-            val gameWithAmendments = amendGame(newGame)
-
-            // Validate current game
-            if (!gameWithAmendments.first.isValid()) return
-
-            // record moves made in iteration
-            pastMoves.add(
-                RecordedUserMove(
-                    userMove = move,
-                    amendments = gameWithAmendments.second
-                )
-            )
-
-            // Clear redoMoves
-            redoMoves.clear()
-
-            // reset hints
-            resetHints()
-
-            _state.value = _state.value.copy(
-                game = gameWithAmendments.first,
-                canUndo = pastMoves.isNotEmpty(),
-                canRedo = redoMoves.isNotEmpty(),
-                isWon = gameWithAmendments.first.isWon(),
-                isDrawn = gameWithAmendments.first.isDrawn()
-            )
+        // If card moved from deck, increase the currentDealOffset
+        if (move is SolitaireUserMove.CardMove && move.from is MoveSource.FromDeck) {
+            currentDealOffset = currentDealOffset.increase()
         }
+
+        val gameWithAmendments = amendGame(newGame)
+
+        // Validate current game
+        if (!gameWithAmendments.first.isValid()) return
+
+        // record moves made in iteration
+        pastMoves.add(
+            RecordedUserMove(
+                userMove = move,
+                amendments = gameWithAmendments.second
+            )
+        )
+
+        // Clear redoMoves
+        redoMoves.clear()
+
+        // reset hints
+        resetHints()
+
+        _state.value = _state.value.copy(
+            game = gameWithAmendments.first,
+            canUndo = pastMoves.isNotEmpty(),
+            canRedo = redoMoves.isNotEmpty(),
+            isWon = gameWithAmendments.first.isWon(),
+            isDrawn = gameWithAmendments.first.isDrawn()
+        )
     }
 
     protected fun performUndo() {
@@ -217,7 +214,7 @@ abstract class AbstractSolitaireScreenModel {
     }
 
     protected fun performHint() {
-        if(!isHintProvided) {
+        if (!isHintProvided) {
             availableHints.apply {
                 clear()
                 val hints = SolitaireHintProvider.provideHints(state.value.game).mapNotNull { it as? SolitaireUserMove }

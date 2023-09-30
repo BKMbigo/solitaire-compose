@@ -27,17 +27,18 @@ import com.github.bkmbigo.solitaire.presentation.ui.core.locals.cardtheme.LocalC
 @Composable
 fun DialogLayout(
     onDismissRequest: (() -> Unit)?,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val cardTheme = LocalCardTheme.current
 
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .widthIn(min = 300.dp)
             .width(IntrinsicSize.Min)
             .height(IntrinsicSize.Max),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.background,
+        color = cardTheme.gameBackground,
         shadowElevation = 16.dp
     ) {
         Column {

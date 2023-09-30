@@ -271,13 +271,21 @@ internal class SolitairePlacer {
                 }
 
                 1 -> {
-                    val cardIndex = deckPositions.first()
+                    val cardIndexes = deckPositions.map { placeables.size - it }
 
                     placeables.forEachIndexed { index, cardPlaceable ->
-                        if (index == placeables.size - cardIndex) {
-                            cardPlaceable.place(cardWidth + deckSeparation, 0)
-                        } else {
-                            cardPlaceable.place(0, 0, 0.6f)
+                        when {
+                            index == cardIndexes[0] -> {
+                                cardPlaceable.place(cardWidth + deckSeparation, 0, 0.9f)
+                            }
+
+                            index > cardIndexes[0] -> {
+                                cardPlaceable.place(0, 0, 0.2f)
+                            }
+
+                            else -> {
+                                cardPlaceable.place(0, 0, 0.6f)
+                            }
                         }
                     }
                 }
@@ -286,13 +294,17 @@ internal class SolitairePlacer {
                     val cardIndexes = deckPositions.map { placeables.size - it }
 
                     placeables.forEachIndexed { index, cardPlaceable ->
-                        when (index) {
-                            cardIndexes[0] -> {
+                        when {
+                            index == cardIndexes[0] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation, 0, 0.9f)
                             }
 
-                            cardIndexes[1] -> {
+                            index == cardIndexes[1] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation, 0, 1f)
+                            }
+
+                            index > cardIndexes[1] -> {
+                                cardPlaceable.place(0, 0, 0.2f)
                             }
 
                             else -> {
