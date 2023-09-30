@@ -2,11 +2,12 @@ package com.github.bkmbigo.solitaire.game.solitaire.providers
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.models.core.Card
 
 /** A game provider that  */
 data object VeryEasySolitaireGameProvider: SolitaireGameProvider() {
-    override suspend fun createGame(): SolitaireGame {
+    override suspend fun createGame(configuration: SolitaireGameConfiguration): SolitaireGame {
         /* The game provided should be easy to win if the player places all cards on their respective foundation stacks in order.
         *  Therefore, the game will place the lower ranked cards (Aces, Twos and Threes) in easily accessible slots such as the deck and the lowest card on all table stacks. The highest card should contain highest ranking cards (Kings, Queens and Judges)
         *
@@ -36,6 +37,7 @@ data object VeryEasySolitaireGameProvider: SolitaireGameProvider() {
         val list5 = cardList.takeAndRemove(6).shuffled().toMutableList()
 
         return SolitaireGame(
+            configuration = configuration,
             deck = list1.takeAndRemove(24),
             spadeFoundationStack = emptyList(),
             cloverFoundationStack = emptyList(),

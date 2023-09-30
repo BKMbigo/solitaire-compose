@@ -2,13 +2,15 @@ package com.github.bkmbigo.solitaire.game.solitaire.providers
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.models.core.Card
 
 data object RandomSolitaireGameProvider: SolitaireGameProvider() {
-    override suspend fun createGame(): SolitaireGame {
+    override suspend fun createGame(configuration: SolitaireGameConfiguration): SolitaireGame {
         val cards = Card.entries.shuffled().toMutableList()
 
         return SolitaireGame(
+            configuration = configuration,
             deck = cards.takeAndRemove(24),
             spadeFoundationStack = emptyList(),
             cloverFoundationStack = emptyList(),

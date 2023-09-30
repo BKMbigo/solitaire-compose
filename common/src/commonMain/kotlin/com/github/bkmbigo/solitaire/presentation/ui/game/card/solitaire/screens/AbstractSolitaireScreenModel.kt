@@ -2,10 +2,14 @@ package com.github.bkmbigo.solitaire.presentation.ui.game.card.solitaire.screens
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider
+import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
+import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +19,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 abstract class AbstractSolitaireScreenModel {
     private val _state = MutableStateFlow(SolitaireState())
     val state = _state.asStateFlow()
+
+    private var currentDealOffset = SolitaireDealOffset.NONE
 
     private val _hint = Channel<SolitaireUserMove>()
     val hint = _hint.receiveAsFlow()
@@ -27,7 +33,7 @@ abstract class AbstractSolitaireScreenModel {
     private var hintIteration = 0
 
     protected suspend fun performCreateGame(provider: SolitaireGameProvider) {
-        val newGame = provider.createGame()
+        val newGame = provider.createGame(SolitaireGameConfiguration(SolitaireCardsPerDeal.THREE))
         if (newGame.isValid()) {
             // Amend game to reveal bottom-most cards
             val gameWithAmendments = amendGame(newGame)
@@ -45,14 +51,19 @@ abstract class AbstractSolitaireScreenModel {
         }
     }
 
-    protected suspend fun performDeal() {
+    protected fun performDeal() {
         if (!_state.value.isDrawn && !_state.value.isWon) {
-            val newGame = _state.value.game.play(SolitaireUserMove.Deal)
+            val pastDealOffset = currentDealOffset
+            val newGame = _state.value.game.play(SolitaireUserMove.Deal(pastDealOffset))
+
+            if (newGame.deckPositions.isEmpty()) {
+                currentDealOffset = SolitaireDealOffset.NONE
+            }
 
             // record moves made in iteration
             pastMoves.add(
                 RecordedUserMove(
-                    userMove = SolitaireUserMove.Deal,
+                    userMove = SolitaireUserMove.Deal(pastDealOffset),
                     amendments = emptyList()
                 )
             )
@@ -73,12 +84,17 @@ abstract class AbstractSolitaireScreenModel {
         }
     }
 
-    protected suspend fun performPlay(move: SolitaireUserMove) {
+    protected fun performPlay(move: SolitaireUserMove) {
         if (!_state.value.isDrawn && !_state.value.isWon) {
 
             if (!move.isValid(_state.value.game)) return
 
             val newGame = _state.value.game.play(move)
+
+            // If card moved from deck, increase the currentDealOffset
+            if (move is SolitaireUserMove.CardMove && move.from is MoveSource.FromDeck) {
+                currentDealOffset = currentDealOffset.increase()
+            }
 
             val gameWithAmendments = amendGame(newGame)
 
@@ -126,6 +142,11 @@ abstract class AbstractSolitaireScreenModel {
 
                 newGame = newGame.play(reverseMove)
 
+                // If card moved to deck, decrease the currentDealOffset
+                if (reverseMove is SolitaireGameMove.ReturnToDeck) {
+                    currentDealOffset = currentDealOffset.decrease()
+                }
+
                 pastMoves.removeLastOrNull()
 
                 redoMoves.add(
@@ -160,6 +181,11 @@ abstract class AbstractSolitaireScreenModel {
                     var newGame = _state.value.game
 
                     newGame = newGame.play(reverseMove)
+
+                    // If card moved from deck, increase the currentDealOffset
+                    if (reverseMove is SolitaireUserMove.CardMove && reverseMove.from is MoveSource.FromDeck) {
+                        currentDealOffset = currentDealOffset.increase()
+                    }
 
                     reverseAmendments.forEach { amendment ->
                         newGame = newGame.play(amendment)

@@ -1,10 +1,13 @@
 package com.github.bkmbigo.solitaire.game.solitaire
 
 import com.github.bkmbigo.solitaire.game.Game
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.logic.allIndexed
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isFullyValid
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
 import com.github.bkmbigo.solitaire.game.solitaire.moves.*
+import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
@@ -12,8 +15,11 @@ import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
 /** A solitaire game */
 data class SolitaireGame(
-    /** The current deck position. Please Note that the current card in display is actually deckSize - deckPosition */
-    val deckPosition: Int = 0,
+    val configuration: SolitaireGameConfiguration,
+
+    /** The index of cards in the current deck. Please Note that the current card in display is actually deckSize - deckPosition */
+    val deckPositions: List<Int> = emptyList(),
+
     val deck: List<Card>,
 
     val spadeFoundationStack: List<Card>,
@@ -68,6 +74,7 @@ data class SolitaireGame(
 
     companion object {
         val ALL_CARDS_IN_DECK = SolitaireGame(
+            configuration = SolitaireGameConfiguration(SolitaireCardsPerDeal.ONE),
             deck = Card.entries.toList(),
             spadeFoundationStack = emptyList(),
             cloverFoundationStack = emptyList(),
@@ -83,6 +90,7 @@ data class SolitaireGame(
         )
 
         val EMPTY_GAME = SolitaireGame(
+            configuration = SolitaireGameConfiguration(SolitaireCardsPerDeal.ONE),
             deck = emptyList(),
             spadeFoundationStack = emptyList(),
             cloverFoundationStack = emptyList(),
@@ -101,14 +109,102 @@ data class SolitaireGame(
     /* Todo: Accept a list of moves to enable optimizations. */
     override fun play(move: SolitaireGameMove): SolitaireGame {
         var newGame = this
-//        if (!move.isValid(this)) return newGame --> Check removed due to undo/redo
-
 
         when (move) {
-            SolitaireUserMove.Deal -> {
-                newGame = newGame.copy(
-                    deckPosition = if (newGame.deckPosition < newGame.deck.size) deckPosition + 1 else 0
-                )
+            is SolitaireUserMove.Deal -> {
+                when (configuration.cardsPerDeal) {
+                    SolitaireCardsPerDeal.ONE -> {
+                        val isNotThrough = if (newGame.deckPositions.isNotEmpty()) {
+                            newGame.deckPositions.last() < newGame.deck.size
+                        } else newGame.deck.isNotEmpty()
+
+                        val newDeckPositions = if (!isNotThrough) {
+                            emptyList()
+                        } else {
+                            val size = newGame.deckPositions.size
+
+                            val lastElement = newGame.deckPositions.getOrNull(size - 1)
+                            val secondLastElement = newGame.deckPositions.getOrNull(size - 2)
+
+                            val list = mutableListOf<Int>()
+
+                            secondLastElement?.let {
+                                list.add(it)
+                            }
+                            lastElement?.let {
+                                list.add(it)
+                            }
+                            if (lastElement != null) {
+                                list.add(lastElement + 1)
+                            } else {
+                                // The deckPositions list is empty, initialize it with the first card
+                                list.add(1)
+                            }
+
+                            list
+                        }
+
+                        newGame = newGame.copy(
+                            deckPositions = newDeckPositions
+                        )
+                    }
+
+                    SolitaireCardsPerDeal.THREE -> {
+                        // Case 1: The deck is empty
+                        if (newGame.deckPositions.isEmpty()) {
+                            // Handle instance where the deck has less than 3 cards
+                            newGame = newGame.copy(
+                                deckPositions = when (newGame.deck.size) {
+                                    0 -> emptyList()
+                                    1 -> listOf(1)
+                                    2 -> listOf(1, 2)
+                                    else -> listOf(1, 2, 3)
+                                }
+                            )
+                        } else {
+                            /* There are three instances to handle:
+                            * 1. There are no remaining unrevealed cards -> produce an emptyList()
+                            * 2. There are remaining cards and their number is greater than or equal to three
+                            *       For instance, previous deckPositions is (1, 2, 3) and there are 24 cards on deck -> produce (4, 5, 6)
+                            * 3. There are remaining cards, but they are less than 3
+                            *       In such instances, the last draw should contain three cards, including already shown cards
+                            *           For instance, the previous deckPositions has (19, 20, 21) and the deckSize is 22, the next iteration should be (20, 21, 22)*/
+
+                            val last = newGame.deckPositions.last()
+
+                            val isThrough = last >= newGame.deck.size // There are no remaining cards
+                            if (isThrough) {
+                                newGame = newGame.copy(
+                                    deckPositions = emptyList()
+                                )
+                            } else {
+                                /* Check if there are enough remaining cards to fill the deck */
+                                val canFill = last + 3 <= newGame.deck.size
+
+                                if (canFill) {
+                                    newGame = newGame.copy(
+                                        deckPositions = listOf(last + 1, last + 2, last + 3)
+                                    )
+                                } else {
+                                    when (newGame.deck.size) {
+                                        last + 2 -> {
+                                            newGame = newGame.copy(
+                                                deckPositions = listOf(last, last + 1, last + 2)
+                                            )
+                                        }
+
+                                        last + 1 -> {
+                                            newGame = newGame.copy(
+                                                deckPositions = listOf(last - 1, last, last + 1)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
             }
 
             is SolitaireUserMove.CardMove -> {
@@ -117,7 +213,20 @@ data class SolitaireGame(
                     is MoveSource.FromDeck -> {
                         newGame = newGame.copy(
                             deck = newGame.deck.toMutableList().apply { remove(move.cards.first()) },
-                            deckPosition = newGame.deckPosition - 1
+                            deckPositions = newGame.deckPositions.toMutableList().apply {
+                                if (isNotEmpty()) {
+                                    if (size > 1) {
+                                        removeLast()
+                                    } else {
+                                        val position = first()
+                                        removeLast()
+                                        if (position > 1) {
+                                            // If possible, replace the last element
+                                            add(position - 1)
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
 
@@ -175,11 +284,28 @@ data class SolitaireGame(
             }
 
             is SolitaireGameMove.ReturnToDeck -> {
+                val size = newGame.deckPositions.size
+
+                val newDeckPositions = mutableListOf<Int>()
+
+                val lastElement = newGame.deckPositions.getOrNull(size - 1)
+                val secondLastElement = newGame.deckPositions.getOrNull(size - 2)
+
+                secondLastElement?.let { newDeckPositions.add(it) }
+                lastElement?.let { newDeckPositions.add(it) }
+
+                // Add the new index
+                if (lastElement != null) {
+                    newDeckPositions.add(lastElement + 1)
+                } else {
+                    newDeckPositions.add(1)
+                }
+
                 newGame = newGame.copy(
                     deck = deck.toMutableList().apply {
                         add(move.index, move.card)
                     },
-                    deckPosition = deckPosition + 1
+                    deckPositions = newDeckPositions
                 )
 
                 /* Remove card from source: */
@@ -203,10 +329,62 @@ data class SolitaireGame(
                 }
             }
 
-            SolitaireGameMove.Undeal -> {
-                newGame = newGame.copy(
-                    deckPosition = if (newGame.deckPosition == 0) deck.size else deckPosition - 1
-                )
+            is SolitaireGameMove.Undeal -> {
+                /* when deckPositions is empty, just show the last cards (maximum of three) */
+                val newDeckPositions = if (newGame.deckPositions.isEmpty()) {
+                    when (val size = newGame.deck.size) {
+                        0 -> emptyList()
+                        1 -> listOf(1)
+                        2 -> listOf(1, 2)
+                        else -> listOf(size - 2, size - 1, size)
+                    }
+                } else {
+                    when (configuration.cardsPerDeal) {
+                        SolitaireCardsPerDeal.ONE -> {
+                            when (val lastPosition = newGame.deckPositions.last()) {
+                                0 -> emptyList()
+                                1 -> emptyList()
+                                2 -> listOf(1)
+                                3 -> listOf(1, 2)
+                                else -> listOf(lastPosition - 3, lastPosition - 2, lastPosition - 1)
+                            }
+                        }
+
+                        SolitaireCardsPerDeal.THREE -> {
+                            if (newGame.deckPositions.last() <= 3) {
+                                // Where the list consists of numbers lower or equal to 3, return an empty list
+                                emptyList()
+                            } else {
+                                val first = newGame.deckPositions.first()
+                                val firstOffset = when (first % 3) {
+                                    0 -> SolitaireDealOffset.ONE
+                                    1 -> SolitaireDealOffset.NONE
+                                    else -> SolitaireDealOffset.TWO
+                                }
+
+                                when(firstOffset) {
+                                    SolitaireDealOffset.NONE -> when(move.offset) {
+                                        SolitaireDealOffset.NONE -> listOf(first - 3, first - 2, first - 1)
+                                        SolitaireDealOffset.ONE -> listOf(first - 1, first, first + 1)
+                                        SolitaireDealOffset.TWO -> listOf(first - 2, first - 1, first)
+                                    }
+                                    SolitaireDealOffset.ONE -> when(move.offset) {
+                                        SolitaireDealOffset.NONE -> listOf(first - 2, first - 1, first)
+                                        SolitaireDealOffset.ONE -> listOf(first - 3, first - 2, first - 1)
+                                        SolitaireDealOffset.TWO -> listOf(first - 1, first, first + 1)
+                                    }
+                                    SolitaireDealOffset.TWO -> when(move.offset) {
+                                        SolitaireDealOffset.NONE -> listOf(first - 1, first, first + 1)
+                                        SolitaireDealOffset.ONE -> listOf(first - 2, first - 1, first)
+                                        SolitaireDealOffset.TWO -> listOf(first - 3, first - 2, first - 1)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                newGame = newGame.copy(deckPositions = newDeckPositions)
             }
         }
 

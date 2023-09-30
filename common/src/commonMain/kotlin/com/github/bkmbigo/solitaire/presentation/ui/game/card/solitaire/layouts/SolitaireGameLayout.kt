@@ -14,8 +14,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
-import com.github.bkmbigo.solitaire.game.solitaire.TableStack
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
@@ -121,14 +119,14 @@ fun SolitaireGameLayout(
 
                 LaunchedEffect(state, currentHint) {
                     // Change should only affect the playable card
-                    if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
+                    if (state.game.deckPositions.isNotEmpty() && state.game.deckPositions.last() == deck.size - index) {
                         // Ensure that the current hint is from deck
                         if (currentHint is SolitaireUserMove.CardMove) {
                             val moveHint = currentHint as SolitaireUserMove.CardMove
                             if (moveHint.from is MoveSource.FromDeck) {
                                 // Calculate the position of the card
                                 val startPosition = with(solitairePlacer) {
-                                    when (state.game.deckPosition) {
+                                    when (state.game.deckPositions.last()) {
                                         0 -> null
                                         1 -> cardWidth + deckSeparation
                                         2 -> cardWidth + deckSeparation + cardOnDeckSeparation
@@ -176,7 +174,7 @@ fun SolitaireGameLayout(
 
                 cardView(
                     card,
-                    (state.game.deckPosition < deck.size - index),
+                    !(state.game.deckPositions.isNotEmpty() && state.game.deckPositions.contains(deck.size - index)),
                     Modifier
                         .size(cardTheme.cardSize)
                         .layoutId(SolitaireLayoutId.DECK_CARD)
@@ -194,11 +192,11 @@ fun SolitaireGameLayout(
                             }
                         )
                         .pointerInput(state.game) {
-                            if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
+                            if (state.game.deckPositions.isNotEmpty() && state.game.deckPositions.last() == deck.size - index) {
                                 detectTapGestures(
                                     onDoubleTap = {
                                         val move =
-                                            card move MoveSource.FromDeck(state.game.deck.size - state.game.deckPosition) to MoveDestination.ToFoundation
+                                            card move MoveSource.FromDeck(index) to MoveDestination.ToFoundation
                                         if (move.isValid(state.game)) {
                                             onAction(SolitaireAction.PlayMove(move))
                                         }
@@ -207,7 +205,7 @@ fun SolitaireGameLayout(
                             }
                         }
                         .pointerInput(state.game) {
-                            if (state.game.deckPosition > 0 && state.game.deckPosition == deck.size - index) {
+                            if (state.game.deckPositions.isNotEmpty() && state.game.deckPositions.last() == deck.size - index) {
                                 detectDragGestures(
                                     onDragStart = {
                                         isDragging = true
@@ -521,14 +519,17 @@ fun SolitaireGameLayout(
         val emptyDeckPlaceable = emptyDeckMeasurable?.measure(cardConstraints)
         val overlayDeckPlaceable = overlayDeckMeasurable?.measure(cardConstraints)
         val cardsOnDeckPlaceable = cardsOnDeckMeasurables.map { it.measure(cardConstraints) }
+
         val emptySpadeFoundationPlaceable = emptySpadeFoundationMeasurable?.measure(cardConstraints)
         val emptyCloverFoundationPlaceable = emptyCloverFoundationMeasurable?.measure(cardConstraints)
         val emptyHeartsFoundationPlaceable = emptyHeartsFoundationMeasurable?.measure(cardConstraints)
         val emptyDiamondFoundationPlaceable = emptyDiamondFoundationMeasurable?.measure(cardConstraints)
+
         val spadesFoundationCardsPlaceables = spadesFoundationMeasurables.map { it.measure(cardConstraints) }
         val cloverFoundationCardsPlaceables = cloverFoundationMeasurables.map { it.measure(cardConstraints) }
         val heartsFoundationCardsPlaceables = heartsFoundationMeasurables.map { it.measure(cardConstraints) }
         val diamondFoundationCardsPlaceables = diamondFoundationMeasurables.map { it.measure(cardConstraints) }
+
         val firstTableStackPlaceables = firstTableMeasurables.map { it.measure(cardConstraints) }
         val secondTableStackPlaceables = secondTableMeasurables.map { it.measure(cardConstraints) }
         val thirdTableStackPlaceables = thirdTableMeasurables.map { it.measure(cardConstraints) }
@@ -543,7 +544,7 @@ fun SolitaireGameLayout(
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             /* First, let's place the deck */
-            solitairePlacer.placeDeckCards(this, cardsOnDeckPlaceable, state.game.deckPosition)
+            solitairePlacer.placeDeckCards(this, cardsOnDeckPlaceable, state.game.deckPositions)
             emptyDeckPlaceable?.let { placeable ->
                 solitairePlacer.place(this, placeable, SolitaireLayoutId.EMPTY_DECK)
             }
@@ -636,8 +637,6 @@ private fun FoundationPlacement(
                     foundationTopAnimationOffsetX.stop()
                     foundationTopAnimationOffsetY.stop()
                 }
-
-                else -> {}
             }
 
             onCancelHintAnimationChange(null)
@@ -808,8 +807,6 @@ private fun StackPlacement(
                     tableStackAnimationOffsetX.stop()
                     tableStackAnimationOffsetY.stop()
                 }
-
-                else -> {}
             }
 
             onCancelHintAnimationChange(null)

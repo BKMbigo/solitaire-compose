@@ -260,10 +260,10 @@ internal class SolitairePlacer {
     fun placeDeckCards(
         scope: Placeable.PlacementScope,
         placeables: List<Placeable>,
-        deckPosition: Int,
+        deckPositions: List<Int>,
     ) {
         with(scope) {
-            when (deckPosition) {
+            when (deckPositions.size) {
                 0 -> {
                     placeables.forEach {
                         it.place(0, 0, 0.6f)
@@ -271,9 +271,10 @@ internal class SolitairePlacer {
                 }
 
                 1 -> {
-                    val cards = placeables.size
+                    val cardIndex = deckPositions.first()
+
                     placeables.forEachIndexed { index, cardPlaceable ->
-                        if (index == cards - 1) {
+                        if (index == placeables.size - cardIndex) {
                             cardPlaceable.place(cardWidth + deckSeparation, 0)
                         } else {
                             cardPlaceable.place(0, 0, 0.6f)
@@ -282,14 +283,15 @@ internal class SolitairePlacer {
                 }
 
                 2 -> {
-                    val cards = placeables.size
+                    val cardIndexes = deckPositions.map { placeables.size - it }
+
                     placeables.forEachIndexed { index, cardPlaceable ->
                         when (index) {
-                            cards - 1 -> {
+                            cardIndexes[0] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation, 0, 0.9f)
                             }
 
-                            cards - 2 -> {
+                            cardIndexes[1] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation, 0, 1f)
                             }
 
@@ -301,23 +303,23 @@ internal class SolitairePlacer {
                 }
 
                 else -> {
-                    val topCardIndex = placeables.size - deckPosition
+                    val cardIndexes = deckPositions.map { placeables.size - it }
 
                     placeables.forEachIndexed { index, cardPlaceable ->
                         when {
-                            index == topCardIndex + 2 -> {
+                            index == cardIndexes[0] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation, 0, 0.8f)
                             }
 
-                            index == topCardIndex + 1 -> {
+                            index == cardIndexes[1] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation, 0, 0.9f)
                             }
 
-                            index == topCardIndex -> {
+                            index == cardIndexes[2] -> {
                                 cardPlaceable.place(cardWidth + deckSeparation + cardOnDeckSeparation * 2, 0, 1.0f)
                             }
 
-                            index > topCardIndex -> {
+                            index > cardIndexes[2] -> {
                                 cardPlaceable.place(0, 0, 0.2f)
                             }
 

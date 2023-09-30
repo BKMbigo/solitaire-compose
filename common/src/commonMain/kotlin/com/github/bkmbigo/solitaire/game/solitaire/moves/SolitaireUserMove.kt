@@ -4,17 +4,23 @@ import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyUpperTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardRank
 
-sealed class SolitaireUserMove: SolitaireGameMove() {
-    data object Deal : SolitaireUserMove() {
+sealed class SolitaireUserMove : SolitaireGameMove() {
+    /** Deal new cards from the deck */
+    // The offset is only used to find the corresponding reverse move
+    data class Deal(
+        val offset: SolitaireDealOffset = SolitaireDealOffset.NONE
+    ) : SolitaireUserMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
-        override fun reversed(): SolitaireGameMove = Undeal
+        override fun reversed(): SolitaireGameMove = Undeal(offset)
     }
 
+    /** Make a card move  */
     data class CardMove(
         val cards: List<Card>,
         val from: MoveSource,
@@ -144,6 +150,7 @@ sealed class SolitaireUserMove: SolitaireGameMove() {
                         index = from.index
                     )
                 }
+
                 else -> {
                     val reverseFrom = when (to) {
                         MoveDestination.ToFoundation -> MoveSource.FromFoundation
@@ -151,7 +158,10 @@ sealed class SolitaireUserMove: SolitaireGameMove() {
                     }
 
                     val reverseTo = when (from) {
-                        is MoveSource.FromDeck -> { return null }
+                        is MoveSource.FromDeck -> {
+                            return null
+                        }
+
                         MoveSource.FromFoundation -> MoveDestination.ToFoundation
                         is MoveSource.FromTable -> MoveDestination.ToTable(from.tableStackEntry)
                     }

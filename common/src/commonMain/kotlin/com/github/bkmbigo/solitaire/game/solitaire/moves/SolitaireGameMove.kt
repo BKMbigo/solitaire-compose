@@ -4,6 +4,7 @@ import com.github.bkmbigo.solitaire.game.GameMove
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
@@ -12,10 +13,12 @@ sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
 
     /** Reverses a [SolitaireUserMove.Deal] move
      * <p> The move should only be called by the system, not the user. </p>*/
-    data object Undeal: SolitaireGameMove() {
+    data class Undeal(
+        val offset: SolitaireDealOffset
+    ): SolitaireGameMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
 
-        override fun reversed(): SolitaireGameMove = SolitaireUserMove.Deal
+        override fun reversed(): SolitaireGameMove = SolitaireUserMove.Deal(offset)
     }
 
     /** Reveals the top-most hidden card on a table stack.*/

@@ -27,7 +27,7 @@ internal fun SolitairePlacer.processDeckMove(
     onMoveFailed: () -> Unit
 ) {
 
-    val cardX = when (game.deckPosition) {
+    val cardX = when (game.deckPositions.size) {
         0 -> null   // No valid move can occur when deckPosition is 0
         1 -> cardWidth + deckSeparation
         2 -> cardWidth + deckSeparation + cardOnDeckSeparation
@@ -45,7 +45,7 @@ internal fun SolitairePlacer.processDeckMove(
         )
 
         if (destination != null) {
-            val move = card move MoveSource.FromDeck(game.deck.size - game.deckPosition) to destination
+            val move = card move MoveSource.FromDeck(game.deck.size - game.deckPositions.last()) to destination
             if (move.isValid(game)) {
                 onMoveSuccess(move)
             } else {

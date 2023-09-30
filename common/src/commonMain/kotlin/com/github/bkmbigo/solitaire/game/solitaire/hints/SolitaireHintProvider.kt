@@ -34,10 +34,12 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         }
 
         // 2
-        game.deck.getOrNull(game.deck.size - game.deckPosition)?.let { card ->
-            val move = card move MoveSource.FromDeck(game.deck.size - game.deckPosition) to MoveDestination.ToFoundation
-            if (move.isValid(game)) {
-                moves.add(move)
+        game.deckPositions.lastOrNull()?.let { lastDeckPosition ->
+            game.deck.getOrNull(game.deck.size - lastDeckPosition)?.let { card ->
+                val move = card move MoveSource.FromDeck(game.deck.size - lastDeckPosition) to MoveDestination.ToFoundation
+                if (move.isValid(game)) {
+                    moves.add(move)
+                }
             }
         }
 
@@ -63,11 +65,15 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         val moves = mutableListOf<SolitaireGameMove>()
 
         TableStackEntry.entries.forEach { tableStackEntry ->
-            deck.getOrNull(deck.size - deckPosition)?.let { card ->
-                val move =
-                    card move MoveSource.FromDeck(deck.size - deckPosition) to MoveDestination.ToTable(tableStackEntry)
-                if (move.isValid(this)) {
-                    moves.add(move)
+            deckPositions.lastOrNull()?.let { lastDeckPosition ->
+                deck.getOrNull(deck.size - lastDeckPosition)?.let { card ->
+                    val move =
+                        card move MoveSource.FromDeck(deck.size - lastDeckPosition) to MoveDestination.ToTable(
+                            tableStackEntry
+                        )
+                    if (move.isValid(this)) {
+                        moves.add(move)
+                    }
                 }
             }
         }
