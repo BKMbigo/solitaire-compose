@@ -3,6 +3,13 @@ package com.github.bkmbigo.solitaire.game.solitaire
 import com.github.bkmbigo.solitaire.game.Game
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireAdvancedTableStackToFoundationHintProvider
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findDeckToFoundationMoves
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findDeckToTableStackMoves
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findFoundationToTableStackMoves
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findTableStackPossibleMoves
+import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findTableStackToFoundationMoves
+import com.github.bkmbigo.solitaire.game.solitaire.logic.SolitaireDeckDrawDeterminer.findRemainingDeckMoves
 import com.github.bkmbigo.solitaire.game.solitaire.logic.allIndexed
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isFullyValid
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
@@ -458,8 +465,14 @@ data class SolitaireGame(
     }
 
     override fun isDrawn(): Boolean {
-        return false
-        // TODO("Not yet implemented")
+        if (findDeckToTableStackMoves().isNotEmpty()) return false
+        if (findDeckToFoundationMoves().isNotEmpty()) return false
+        if (findTableStackToFoundationMoves().isNotEmpty()) return false
+        if (findTableStackPossibleMoves().isNotEmpty()) return false
+        if (findFoundationToTableStackMoves().isNotEmpty()) return false
+        if (SolitaireAdvancedTableStackToFoundationHintProvider(this).isNotEmpty()) return false
+        if (findRemainingDeckMoves().isNotEmpty()) return false
+        return true
     }
 
     fun withFoundationStack(suite: CardSuite, cards: List<Card>): SolitaireGame =

@@ -6,6 +6,7 @@ import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireFoundationToTa
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
+import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.models.core.CardRank
@@ -24,24 +25,10 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         val moves = mutableListOf<SolitaireGameMove>()
 
         // 1
-        for (tableStackEntry in TableStackEntry.entries) {
-            game.tableStack(tableStackEntry).lastCard?.let { card ->
-                val move = card move MoveSource.FromTable(tableStackEntry) to MoveDestination.ToFoundation
-                if (move.isValid(game)) {
-                    moves.add(move)
-                }
-            }
-        }
+        moves.addAll(game.findTableStackToFoundationMoves())
 
         // 2
-        game.deckPositions.lastOrNull()?.let { lastDeckPosition ->
-            game.deck.getOrNull(game.deck.size - lastDeckPosition)?.let { card ->
-                val move = card move MoveSource.FromDeck(game.deck.size - lastDeckPosition) to MoveDestination.ToFoundation
-                if (move.isValid(game)) {
-                    moves.add(move)
-                }
-            }
-        }
+        moves.addAll(game.findDeckToFoundationMoves())
 
         // 3
         moves.addAll(game.findTableStackPossibleMoves())
@@ -60,8 +47,41 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         return moves
     }
 
+    /** Finds all possible moves from tableStack to Deck */
+    internal fun SolitaireGame.findTableStackToFoundationMoves(): List<SolitaireGameMove> {
+        val moves = mutableListOf<SolitaireUserMove>()
+
+        for (tableStackEntry in TableStackEntry.entries) {
+            tableStack(tableStackEntry).lastCard?.let { card ->
+                val move = card move MoveSource.FromTable(tableStackEntry) to MoveDestination.ToFoundation
+                if (move.isValid(this)) {
+                    moves.add(move)
+                }
+            }
+        }
+
+        return moves
+    }
+
+    internal fun SolitaireGame.findDeckToFoundationMoves(): List<SolitaireUserMove> {
+        val moves = mutableListOf<SolitaireUserMove>()
+
+        deckPositions.lastOrNull()?.let { lastDeckPosition ->
+            deck.getOrNull(deck.size - lastDeckPosition)?.let { card ->
+                val move = card move MoveSource.FromDeck(deck.size - lastDeckPosition) to MoveDestination.ToFoundation
+                if (move.isValid(this)) {
+                    moves.add(move)
+                }
+            }
+        }
+
+        return moves
+    }
+
+
+
     /** Finds all possible moves from Deck To Table */
-    private fun SolitaireGame.findDeckToTableStackMoves(): List<SolitaireGameMove> {
+    internal fun SolitaireGame.findDeckToTableStackMoves(): List<SolitaireGameMove> {
         val moves = mutableListOf<SolitaireGameMove>()
 
         TableStackEntry.entries.forEach { tableStackEntry ->
@@ -82,7 +102,7 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
     }
 
     /** Find all possible TableStack to TableStack moves */
-    private fun SolitaireGame.findTableStackPossibleMoves(): List<SolitaireGameMove> {
+    internal fun SolitaireGame.findTableStackPossibleMoves(): List<SolitaireGameMove> {
         val moves = mutableListOf<SolitaireGameMove>()
 
         tableStacks.forEachIndexed { currentIndex, currentTableStack ->
