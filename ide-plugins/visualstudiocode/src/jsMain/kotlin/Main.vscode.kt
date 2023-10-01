@@ -1,5 +1,5 @@
-import com.github.bkmbigo.solitaire.presentation.ui.core.screens.StartScreen
-import com.github.bkmbigo.solitaire.presentation.ui.core.theme.SolitaireTheme
+import com.github.bkmbigo.solitaire.presentation.core.screens.StartScreen
+import com.github.bkmbigo.solitaire.presentation.core.theme.SolitaireTheme
 import com.github.bkmbigo.solitaire.utils.Platform
 import kotlinx.browser.document
 import org.jetbrains.skiko.wasm.onWasmReady

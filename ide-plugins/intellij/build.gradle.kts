@@ -42,9 +42,9 @@ tasks.test {
 
 tasks {
     patchPluginXml {
-        version.set("0.0.0-beta.3")
+        version.set("0.0.0-beta.4")
 
         sinceBuild.set("223")
-        untilBuild.set("232.*")
+        untilBuild.set("233.*")
     }
 }

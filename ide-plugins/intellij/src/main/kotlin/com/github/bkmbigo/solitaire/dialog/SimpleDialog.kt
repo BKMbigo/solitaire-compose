@@ -1,8 +1,8 @@
 package com.github.bkmbigo.solitaire.dialog
 
 import androidx.compose.ui.awt.ComposePanel
-import com.github.bkmbigo.solitaire.presentation.ui.core.screens.StartScreen
-import com.github.bkmbigo.solitaire.presentation.ui.core.theme.SolitaireTheme
+import com.github.bkmbigo.solitaire.presentation.core.screens.StartScreen
+import com.github.bkmbigo.solitaire.presentation.core.theme.SolitaireTheme
 import com.github.bkmbigo.solitaire.utils.Platform
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
