@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
 }
 
-group = "com.github.bkmbigo.solitaire.visualstudiocode"
+group = "com.github.bkmbigo.solitaire.webapp.jsApp"
 version = "unspecified"
 
 val copyJsResources = tasks.create("copyJsResourcesWorkaround", Copy::class.java) {
@@ -17,12 +17,11 @@ afterEvaluate {
 
 kotlin {
     js(IR) {
-        moduleName = "solitaire"
         browser()
         binaries.executable()
     }
     sourceSets {
-        val commonMain by getting {
+        val jsMain by getting {
             dependencies {
                 implementation(project(":common"))
 
@@ -36,9 +35,7 @@ kotlin {
 
 compose {
     experimental {
-        web {
-            application {}
-        }
+        web.application {}
     }
     kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")

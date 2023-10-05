@@ -32,6 +32,6 @@ compose {
             }
         }
     }
-    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.wasm)
+    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
 }

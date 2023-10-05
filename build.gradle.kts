@@ -37,7 +37,7 @@ allprojects {
                 useVersion(libs.versions.kotlinx.coroutines.wasm.get())
             }
             if(requested.module.name.contains("kotlinx-datetime") && isWasm) {
-                useVersion("0.4.0-wasm1")
+                useVersion(libs.versions.kotlinx.datetime.wasm.get())
             }
         }
     }

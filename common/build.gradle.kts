@@ -14,7 +14,7 @@ kotlin {
     js(IR) {
         browser()
     }
-    wasm {
+    wasmJs {
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
@@ -41,7 +41,7 @@ kotlin {
                 implementation(compose.components.resources)
 
                 implementation(libs.kotlinx.coroutines)
-                implementation(libs.kotlinx.datetime)
+                //implementation(libs.kotlinx.datetime)
             }
         }
 
@@ -58,10 +58,9 @@ kotlin {
             }
         }
 
-        val wasmMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(libs.kotlinx.atomicfu.wasm)
-                implementation(libs.multiplatform.uuid)
             }
         }
 
@@ -101,6 +100,9 @@ android {
     buildFeatures {
         compose = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.2"
+    }
     dependencies {
 
         //debugImplementation(libs.compose.ui.tooling)
@@ -109,10 +111,9 @@ android {
 
 compose {
     experimental {
-        web {
-            application {}
-        }
+        web.application {}
     }
-    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.wasm)
+    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
 }
+

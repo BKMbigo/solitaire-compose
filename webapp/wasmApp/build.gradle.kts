@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -6,31 +5,20 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
 }
 
-group = "com.github.bkmbigo.solitaire.webapp"
-version = "1.0-SNAPSHOT"
-
-val copyJsResources = tasks.create("copyJsResourcesWorkaround", Copy::class.java) {
-    from(project(":common").file("src/commonMain/resources"))
-    into("build/processedResources/js/main")
-}
+group = "com.github.bkmbigo.solitaire.webapp.wasmApp"
+version = "unspecified"
 
 val copyWasmResources = tasks.create("copyWasmResourcesWorkaround", Copy::class.java) {
     from(project(":common").file("src/commonMain/resources"))
-    into("build/processedResources/wasm/main")
+    into("build/processedResources/wasmJs/main")
 }
 
 afterEvaluate {
-//    project.tasks.getByName("jsProcessResources").finalizedBy(copyJsResources)
-//    project.tasks.getByName("wasmProcessResources").finalizedBy(copyWasmResources)
+//    project.tasks.getByName("wasmJsProcessResources").finalizedBy(copyWasmResources)
 }
 
-
 kotlin {
-    js(IR) {
-        browser()
-        binaries.executable()
-    }
-    wasm {
+    wasmJs {
         moduleName = "game"
         browser {
             commonWebpackConfig {
@@ -39,14 +27,14 @@ kotlin {
                         "app" to mapOf(
                             "name" to "google-chrome",
                         )
-                    ),
+                    )
                 )
             }
         }
         binaries.executable()
     }
     sourceSets {
-        val commonMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(project(":common"))
 
@@ -58,12 +46,20 @@ kotlin {
     }
 }
 
+
+
 compose {
     experimental {
-        web {
-            application {}
-        }
+        web.application {}
     }
-    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.wasm)
+    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
+}
+
+
+project.tasks.getByName("wasmJsDevelopmentExecutableCompileSync").doLast {
+    val f = project.buildDir.resolve("../../../build/js/packages/game/kotlin/game.uninstantiated.mjs")
+        .normalize()
+    val t = f.readText().replace("'skia': imports['skia'] ?? await import('skia'),", "'skia': imports['skia'],")
+    f.writeText(t)
 }

@@ -48,3 +48,13 @@ tasks {
         untilBuild.set("233.*")
     }
 }
+
+compose {
+    experimental {
+        web {
+            application {}
+        }
+    }
+    kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
+    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
+}
