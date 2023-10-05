@@ -12,6 +12,7 @@
 /build
 /captures
 /resources
+/chrome-extension
 .externalNativeBuild
 .cxx
 local.properties
