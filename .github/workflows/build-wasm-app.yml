@@ -42,7 +42,7 @@ jobs:
         run: ./gradlew :webapp:wasmApp:wasmJsBrowserDevelopmentExecutableDistribution
 
       - name: Copy common resources
-        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/productionExecutable/
+        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable/
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v1
