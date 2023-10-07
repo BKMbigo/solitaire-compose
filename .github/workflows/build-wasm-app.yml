@@ -39,7 +39,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Create Deployment Folder
-        run: mkdir ${{ github.workspace }}/build/deployment
+        run: mkdir -p ${{ github.workspace }}/build/deployment
 
       - name: Copy Welcome screen to Deployment Folder
         run: cp -a ${{ github.workspace }}/webapp/welcomeScreen/. ${{ github.workspace }}/build/deployment/
