@@ -3,12 +3,15 @@ package com.github.bkmbigo.solitaire.game.solitaire.fakes
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGameTestObject
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 
 /** Tests for validity. Has invalid foundation stack */
 val SolitaireGameFour = SolitaireGameTestObject(
     game = SolitaireGame(
+        configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
         deck = emptyList(),
         spadeFoundationStack = Card.getAllCards(CardSuite.SPADE).reversed(),
         cloverFoundationStack = Card.getAllCards(CardSuite.CLOVER),

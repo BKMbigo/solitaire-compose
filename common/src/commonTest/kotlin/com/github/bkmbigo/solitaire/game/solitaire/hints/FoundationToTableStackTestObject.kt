@@ -2,6 +2,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.hints
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource.FromFoundation
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
@@ -29,7 +31,7 @@ class FoundationToTableStackTestObject(
 val foundationToTableStackTestObjects = listOf(
     FoundationToTableStackTestObject(
         game = SolitaireGame(
-            deckPosition = 0,
+            configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
             deck = listOf(),
             spadeFoundationStack = listOf(
                 ACE of SPADE,
@@ -73,7 +75,7 @@ val foundationToTableStackTestObjects = listOf(
             FOUR of DIAMOND move TableStackEntry.TWO to TableStackEntry.ONE
         ),
         resultingGame = SolitaireGame(
-            deckPosition = 0,
+            configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
             deck = listOf(),
             spadeFoundationStack = listOf(
                 ACE of SPADE,
@@ -106,7 +108,7 @@ val foundationToTableStackTestObjects = listOf(
     ),
     FoundationToTableStackTestObject(
         game = SolitaireGame(
-            deckPosition = 0,
+            configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
             deck = listOf(),
             spadeFoundationStack = listOf(
                 ACE of SPADE,
@@ -180,7 +182,7 @@ val foundationToTableStackTestObjects = listOf(
             ACE of CLOVER move TableStackEntry.TWO to TableStackEntry.ONE
         ),
         resultingGame = SolitaireGame(
-            deckPosition = 0,
+            configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
             deck = listOf(),
             spadeFoundationStack = listOf(
                 ACE of SPADE,

@@ -3,6 +3,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.fakes
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGameTestObject
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.models.core.CardRank.ACE
 import com.github.bkmbigo.solitaire.models.core.CardRank.EIGHT
 import com.github.bkmbigo.solitaire.models.core.CardRank.FIVE
@@ -25,6 +27,7 @@ import com.github.bkmbigo.solitaire.models.core.utils.of
 /** Represents a game where the user has managed to arrange all cards on the table in four stacks. */
 val SolitaireGameThree = SolitaireGameTestObject(
     game = SolitaireGame(
+        configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
         deck = emptyList(),
         spadeFoundationStack = emptyList(),
         cloverFoundationStack = emptyList(),

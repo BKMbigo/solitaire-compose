@@ -3,6 +3,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.fakes
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGameTestObject
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 
@@ -10,6 +12,7 @@ import com.github.bkmbigo.solitaire.models.core.CardSuite
 /** Represents a game where the user has managed to arrange all cards on the foundation stacks. */
 val SolitaireGameTwo = SolitaireGameTestObject(
     game = SolitaireGame(
+        configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
         deck = emptyList(),
         spadeFoundationStack = Card.getAllCards(CardSuite.SPADE),
         cloverFoundationStack = Card.getAllCards(CardSuite.CLOVER),

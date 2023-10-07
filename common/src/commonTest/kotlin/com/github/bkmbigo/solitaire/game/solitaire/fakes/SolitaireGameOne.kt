@@ -3,6 +3,8 @@ package com.github.bkmbigo.solitaire.game.solitaire.fakes
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGameTestObject
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
+import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination.*
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource.*
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.*
@@ -12,6 +14,7 @@ import com.github.bkmbigo.solitaire.models.core.utils.of
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
 private val originalGame = SolitaireGame(
+    configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
     deck = listOf(
         ACE of SPADE,
         THREE of SPADE,
