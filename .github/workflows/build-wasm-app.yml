@@ -47,20 +47,14 @@ jobs:
       - name: Build WebAssembly site
         run: ./gradlew :webapp:wasmApp:wasmJsBrowserDevelopmentExecutableDistribution
 
-      - name: Copy common resources to Webassembly resources
-        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable/
-
       - name: Copy Webassembly to Deployment Folder
         run: cp -a ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable/. ${{ github.workspace }}/build/deployment/wasm/
 
       - name: Build JavaScript site
         run: ./gradlew :webapp:jsApp:jsBrowserDevelopmentExecutableDistribution
 
-      - name: Copy common resources to Javascript resources
-        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/jsApp/build/dist/js/developmentExecutable/
-
-      - name: Copy Javascript to Deployment Folder
-        run: cp -a ${{ github.workspace }}/webapp/jsApp/build/dist/js/developmentExecutable/. ${{ github.workspace }}/build/deployment/js/
+      - name: Copy common resources to Deployment Folder
+        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/build/deployment/
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v1
