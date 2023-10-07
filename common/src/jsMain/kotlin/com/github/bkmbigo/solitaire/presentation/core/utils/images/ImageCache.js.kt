@@ -37,7 +37,6 @@ actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painte
     val generalResourcePath =
         cardTheme.generalResourcePath.ifBlank { "" }
 
-
     val fullResourcePath = "${generalResourcePath}${resourcePath.directoryPath}/$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {

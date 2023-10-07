@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.LocalCardTheme
 import com.github.bkmbigo.solitaire.presentation.core.utils.ResourcePath
 import org.jetbrains.compose.resources.*
 import org.jetbrains.compose.resources.vector.parseVectorRoot
@@ -23,7 +24,11 @@ import org.w3c.dom.Node as DomNode
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painter {
-    val fullResourcePath = "${resourcePath.directoryPath}/$res"
+    val cardTheme = LocalCardTheme.current
+
+    val generalResourcePath = cardTheme.generalResourcePath.ifBlank { "" }
+
+    val fullResourcePath = "${generalResourcePath}${resourcePath.directoryPath}/$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {
         rememberVectorPainter(vectorCache[fullResourcePath]!!)

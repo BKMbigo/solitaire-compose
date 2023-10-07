@@ -6,10 +6,11 @@ import com.github.bkmbigo.solitaire.presentation.core.utils.fonts.localfonts.Loc
 import com.github.bkmbigo.solitaire.utils.Platform
 
 suspend fun LocalFontFamily.provideFontFamily(
+    generalResourcePath: String = "",
     resourcePath: ResourcePath = ResourcePath.FONT_DIRECTORY,
     platform: Platform
 ) = FontFamily(
     fonts.map { localFont ->
-        localFont.provideFont(resourcePath, platform)
+        localFont.provideFont(generalResourcePath, resourcePath, platform)
     }
 )

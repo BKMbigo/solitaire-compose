@@ -10,11 +10,13 @@ import androidx.compose.ui.text.platform.Font as PlatformFont
 
 @OptIn(ExperimentalResourceApi::class)
 internal actual suspend fun LocalFont.provideFont(
+    generalResourcePath: String,
     resourcePath: ResourcePath,
     platform: Platform
 ): Font = PlatformFont(
     identity = identity,
-    data = resource("${resourcePath.directoryPath}/${filename}", platform).readBytes(),
+    data = resource("${generalResourcePath}${resourcePath.directoryPath}/${filename}", platform).readBytes(),
     weight = weight,
     style = style
 )
+

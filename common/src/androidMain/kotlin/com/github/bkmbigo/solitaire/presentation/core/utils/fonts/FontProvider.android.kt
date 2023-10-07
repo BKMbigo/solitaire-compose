@@ -6,6 +6,7 @@ import com.github.bkmbigo.solitaire.presentation.core.utils.ResourcePath
 import com.github.bkmbigo.solitaire.utils.Platform
 
 internal actual suspend fun LocalFont.provideFont(
+    generalResourcePath: String,
     resourcePath: ResourcePath,
     platform: Platform
 ): Font = Font(
