@@ -1,5 +1,5 @@
 # Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy WebAssembly application
+name: Deploy Website
 
 on:
   # Runs on pushes targeting the default branch
@@ -18,7 +18,7 @@ permissions:
 jobs:
   # Build job
   build:
-    name: Build and Deploy Wasm App
+    name: Build and Deploy Website
     runs-on: ubuntu-latest
 
     steps:
@@ -38,16 +38,34 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Create Deployment Folder
+        run: mkdir ${{ github.workspace }}/build/deployment
+
+      - name: Copy Welcome screen to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/welcomeScreen/. ${{ github.workspace }}/build/deployment/
+
+      - name: Build WebAssembly site
         run: ./gradlew :webapp:wasmApp:wasmJsBrowserDevelopmentExecutableDistribution
 
-      - name: Copy common resources
+      - name: Copy common resources to Webassembly resources
         run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable/
+
+      - name: Copy Webassembly to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable/. ${{ github.workspace }}/build/deployment/wasm/
+
+      - name: Build JavaScript site
+        run: ./gradlew :webapp:jsApp:jsBrowserDevelopmentExecutableDistribution
+
+      - name: Copy common resources to Javascript resources
+        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/webapp/jsApp/build/dist/js/developmentExecutable/
+
+      - name: Copy Javascript to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/jsApp/build/dist/js/developmentExecutable/. ${{ github.workspace }}/build/deployment/js/
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/developmentExecutable
+          path: ${{ github.workspace }}/build/deployment
 
       - name: Deploy to GitHub Pages
         id: deployment
