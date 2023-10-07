@@ -53,6 +53,9 @@ jobs:
       - name: Build JavaScript site
         run: ./gradlew :webapp:jsApp:jsBrowserDevelopmentExecutableDistribution
 
+      - name: Copy JavaScript to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/jsApp/build/dist/js/developmentExecutable/. ${{ github.workspace }}/build/deployment/js/
+
       - name: Copy common resources to Deployment Folder
         run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/build/deployment/
 
