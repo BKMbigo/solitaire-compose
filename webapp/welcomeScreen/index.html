@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solitaire</title>
+
+    <!-- Styling the page. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Andika">
+    <link rel="stylesheet" href="home.css"/>
+
+</head>
+<body>
+    <div class="content">
+
+        <h3>Solitaire</h3>
+
+        <p>Welcome to Solitaire. How would you like to play the game?</p>
+
+        <div class="main-actions-holder">
+            <div class="main-action container" onclick="location.href='/js';">
+                <h5><a href="/js">Play Web Version (JavaScript)</a></h5>
+            </div>
+
+            <div class="main-action container" onclick="location.href='/wasm';">
+                <h5><a href="/wasm">Play Web Version (WebAssembly)</a></h5>
+            </div>
+
+            <div class="main-action container" onclick="location.href='https://plugins.jetbrains.com/plugin/22697-solitaire';">
+                <h5><a href="https://plugins.jetbrains.com/plugin/22697-solitaire">Install in IntelliJ IDE</a></h5>
+            </div>
+        </div>
+
+        <div class="side-actions-holder">
+            <div class="container" onclick="location.href='https://www.github.com/BKMbigo/solitaire-compose';">
+                <h5><a href="https://www.github.com/BKMbigo/solitaire-compose">Open Github Repository</a></h5>
+            </div>
+        </div>
+
+        <p>The game is developed using <a href="https://kotlinlang.org/docs/multiplatform.html">Kotlin Multiplatform</a> and <a href="https://jetbrains.com/lp/compose-multiplatform">Compose Multiplatform</a></p>
+    </div>
+</body>
+</html>
