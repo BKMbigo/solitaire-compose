@@ -13,5 +13,6 @@ if (te == null) {
     document.getElementById("loading").style.display="none";
     document.getElementById("loading").style.visibility="hidden";
 } else {
-    throw te;
+    document.getElementById("waiting").style.display = "none";
+    document.getElementById("no-wasm-gc").style.display = "block";
 }

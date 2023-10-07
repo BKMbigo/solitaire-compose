@@ -56,9 +56,24 @@
     text-align: center;
 }
 
-.welcome {
+.instruction-text {
     font-weight: 400;
     font-size: 20px;
+}
+
+.no-wasm-gc {
+    display: none;
+}
+
+.instruction p {
+    width: 95%;
+
+    margin-left: 4px;
+    margin-right: 4px;
+
+    font-family: 'Andika', serif;
+    font-style: normal;
+    text-align: center;
 }
 
 .loading {

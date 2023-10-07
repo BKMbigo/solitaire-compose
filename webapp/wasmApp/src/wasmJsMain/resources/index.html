@@ -2,16 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- http://localhost:80 -->
-    <meta http-equiv="origin-trial" content="AjytAe1FWUIWH/RzqsOWlXYw7kGwt11ejbvR/ArmAU4QbXIPg69wzpniDhPByiOZ9pdNqsdMsXsoxggVtfGhwwMAAABOeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwIiwiZmVhdHVyZSI6IldlYkFzc2VtYmx5R0MiLCJleHBpcnkiOjE2OTg5Njk1OTl9">
-    <!-- http://localhost:8080 -->
-    <meta http-equiv="origin-trial" content="AtSRFRWKTCcQHDFUUQL1VaVz9mjmsK1xm5k0S8etkmvMLa5TsiNeQsle/eDgdZVkm1PM1WmrSMx52kI8yAP2UgEAAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJmZWF0dXJlIjoiV2ViQXNzZW1ibHlHQyIsImV4cGlyeSI6MTY5ODk2OTU5OX0=">
-    <!-- http://localhost:8081 -->
-    <meta http-equiv="origin-trial" content="AspyK9xe4tO2aIvJWnr5HTRT9GqpGJID2qZjj+0OvhKHp9JrUP+92PF+Rt11Tyi7cKSEB7OFFGdeVs7Ns5TMhAUAAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODEiLCJmZWF0dXJlIjoiV2ViQXNzZW1ibHlHQyIsImV4cGlyeSI6MTY5ODk2OTU5OX0=">
-    <!-- http://localhost:8082 -->
-    <meta http-equiv="origin-trial" content="AoPGqwBGEQW3twSDYvXt1JHz5zg7Z4o+Orwr8NxdVoXJ68zjwOi2C8/0w4xFYW6UUH8w97eIjykGOa/+jIBfTQMAAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODIiLCJmZWF0dXJlIjoiV2ViQXNzZW1ibHlHQyIsImV4cGlyeSI6MTY5ODk2OTU5OX0=">
-    <!-- http://localhost:8083 -->
-    <meta http-equiv="origin-trial" content="AvV2HYiHMw7lpIVcmGMSVmm6xC0Gzu4W5xBnZExmfHtE5zyNKFszcyNGm5IfCFQ6swnMotbn16lS1ozkJ0QzEAEAAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODMiLCJmZWF0dXJlIjoiV2ViQXNzZW1ibHlHQyIsImV4cGlyeSI6MTY5ODk2OTU5OX0=">
 
     <title>Solitaire</title>
 
@@ -31,15 +21,20 @@
             background-color: white;
             overflow: hidden;
         }
-        </style>
+    </style>
 </head>
 <body>
 <div class="loading" id="loading">
     <h2>Solitaire</h2>
     <div class="instruction">
-        <p class="welcome">Welcome to Solitaire WebAssembly version. The game will begin shortly after WebAssembly component has been initialized.</p>
-        <div class = "animation">
-            <div class="ring"></div>
+        <div id="waiting">
+            <p class="instruction-text">Welcome to Solitaire WebAssembly version. The game will begin shortly after WebAssembly component has been initialized.</p>
+            <div class="animation">
+                <div class="ring"></div>
+            </div>
+        </div>
+        <div class="no-wasm-gc" id="no-wasm-gc">
+            <p class="instruction-text">Oops! Failed to load Wasm-GC. Please follow these <a href="https://kotlinlang.org/docs/wasm-get-started.html#troubleshooting" >instructions</a> to enable wasm-gc in your browser, or use the <a href="../js">js</a> site</p>
         </div>
     </div>
     <h6>Developed using <a href="https://kotl.in/wasm">Kotlin/Wasm</a> and
