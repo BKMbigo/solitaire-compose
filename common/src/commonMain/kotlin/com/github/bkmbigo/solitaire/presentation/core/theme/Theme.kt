@@ -26,8 +26,14 @@ fun SolitaireTheme(
 
     LaunchedEffect(Unit) {
         launch {
-            andikaFont = LocalFontFamily.ANDIKA.provideFontFamily(platform = platform)
-            lobsterTwoFont = LocalFontFamily.LOBSTER_TWO.provideFontFamily(platform = platform)
+            andikaFont = LocalFontFamily.ANDIKA.provideFontFamily(
+                generalResourcePath = generalResourcePath,
+                platform = platform
+            )
+            lobsterTwoFont = LocalFontFamily.LOBSTER_TWO.provideFontFamily(
+                generalResourcePath = generalResourcePath,
+                platform = platform
+            )
         }
     }
 
