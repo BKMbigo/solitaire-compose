@@ -1,17 +1,17 @@
 [versions]
 agp = "8.1.0"
-kotlin = "1.9.20-Beta"
+kotlin = "1.9.20-Beta2"
 gradleIntelliJPlugin = "1.15.0"
 
 androidx-core = "1.12.0"
-androidx-activity = "1.7.2"
+androidx-activity = "1.8.0"
 androidx-lifecycle = "2.6.2"
 
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 
-compose-bom = "2023.09.02"
+compose-bom = "2023.10.00"
 compose-multiplatform-stable = "1.5.2"
 compose-multiplatform-compiler = "1.5.2.1-Beta"
 compose-multiplatform-wasm = "1.5.1-dev-wasm01"
