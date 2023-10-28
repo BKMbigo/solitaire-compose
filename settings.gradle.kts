@@ -13,6 +13,7 @@ rootProject.name = "Solitaire"
 include(":app")
 include(":common")
 include(":desktop")
+include(":extensions:chrome")
 include(":ide-plugins:intellij")
 include("ide-plugins:visualstudiocode")
 include(":webapp:wasmApp")

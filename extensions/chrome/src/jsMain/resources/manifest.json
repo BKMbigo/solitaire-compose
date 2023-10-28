@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Solitaire Compose",
+  "description": "Play Solitaire in your browser",
+  "version": "0.0.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "solitaire_icon.png"
+  },
+  "sandbox": {
+    "pages": ["game.html"]
+  }
+}

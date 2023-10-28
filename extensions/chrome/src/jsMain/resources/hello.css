@@ -1,0 +1,30 @@
+body {
+    width: 300px;
+    max-width: 100%;
+    font-size: 14px;
+
+    background-color: #15360F;
+    color: #FFFFFF;
+    font-family: "Andika", serif;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+button {
+    background-color: #9747FF;
+    color: white;
+
+    width: 75px;
+    height: 30px;
+
+    border: #9747FF;
+
+    padding: 2px;
+}
+
