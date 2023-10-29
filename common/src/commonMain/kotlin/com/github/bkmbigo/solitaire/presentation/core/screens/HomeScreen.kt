@@ -98,84 +98,97 @@ private fun GameItem(
 ) {
     val cardTheme = LocalCardTheme.current
 
-    OutlinedCard(
+    Box(
         modifier = Modifier
             .size(250.dp)
-            .padding(all = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.outlinedCardElevation(
-            defaultElevation = 12.dp,
-            hoveredElevation = 4.dp
-        ),
-        colors = CardDefaults.outlinedCardColors(containerColor = cardTheme.gameBackground),
-        onClick = {
-            onGameOpened()
-        }
+            .padding(all = 4.dp)
     ) {
-        Column(
+        // Workaround for loading the back image prior to the game screen
+        Image(
+            painter = vectorResourceCached(com.github.bkmbigo.solitaire.models.core.Card.cardBackFilename),
+            contentDescription = null,
             modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .size(cardTheme.cardSize)
+                .align(Alignment.Center)
+        )
+
+        OutlinedCard(
+            modifier = Modifier.fillMaxSize(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.outlinedCardElevation(
+                defaultElevation = 12.dp,
+                hoveredElevation = 4.dp
+            ),
+            colors = CardDefaults.outlinedCardColors(containerColor = cardTheme.gameBackground),
+            onClick = {
+                onGameOpened()
+            }
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .weight(1f, true)
-                    .fillMaxWidth()
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .weight(1f, true)
+                        .fillMaxWidth()
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Image(
-                            painter = vectorResourceCached(res = CardSuite.SPADE.imageFilename),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(8.dp)
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = vectorResourceCached(res = CardSuite.SPADE.imageFilename),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(8.dp)
+                            )
 
-                        Image(
-                            painter = vectorResourceCached(res = CardSuite.HEARTS.imageFilename),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(8.dp)
-                        )
-                    }
+                            Image(
+                                painter = vectorResourceCached(res = CardSuite.HEARTS.imageFilename),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(8.dp)
+                            )
+                        }
 
-                    Row(
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = vectorResourceCached(res = CardSuite.DIAMOND.imageFilename),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(8.dp)
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = vectorResourceCached(res = CardSuite.DIAMOND.imageFilename),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(8.dp)
+                            )
 
-                        Image(
-                            painter = vectorResourceCached(res = CardSuite.CLOVER.imageFilename),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(8.dp)
-                        )
+                            Image(
+                                painter = vectorResourceCached(res = CardSuite.CLOVER.imageFilename),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(8.dp)
+                            )
+                        }
                     }
                 }
-            }
 
-            Text(
-                text = gameName,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+                Text(
+                    text = gameName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
     }
 }
