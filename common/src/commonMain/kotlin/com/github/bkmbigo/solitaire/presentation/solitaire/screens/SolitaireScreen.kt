@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.presentation.core.components.card.MiniCard
+import com.github.bkmbigo.solitaire.presentation.core.components.card.CardView
 import com.github.bkmbigo.solitaire.presentation.core.layouts.DialogScreen
 import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.LocalCardTheme
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameCreationDialog
@@ -183,7 +183,7 @@ fun SolitaireGameScreenContent(
                     hint = hint,
                     onAction = onAction,
                     cardView = { card, isHidden, modifier, isSelected ->
-                        MiniCard(
+                        CardView(
                             card,
                             isHidden,
                             modifier,
