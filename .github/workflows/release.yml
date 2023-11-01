@@ -31,4 +31,4 @@ jobs:
             automatic_release_tag: "latest"
             prerelease: false
             files: |
-              ide-plugins/intellij/build/releases/Solitaire Compose.zip
+              ide-plugins/intellij/build/distributions/Solitaire Compose.zip
