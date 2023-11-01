@@ -3,14 +3,9 @@ on:
     types: [created]
 name: Release Artifacts
 jobs:
-    release:
-      name: Release
-      strategy:
-        fail-fast: false
-        matrix:
-          os: [ macos-latest, ubuntu-latest, windows-latest ]
-      runs-on: ${{ matrix.os }}
-      if: startsWith(github.ref, 'refs/tags/')
+    release-ide:
+      name: Release IDE Plugin
+      runs-on: ubuntu-latest
       steps:
         - name: Checkout
           uses: actions/checkout@v2
@@ -22,43 +17,15 @@ jobs:
   
         - name: Validate gradle wrapper
           uses: gradle/wrapper-validation-action@v1
-  
-        - name: Checkout Gradle Build Cache
-          uses: actions/cache@v2
+
+        - name: Build IDE Plugin
+          run: ./gradlew :ide-plugins:intellij:buildPlugin
+
+        - name: Upload IDE Plugin
+          uses: "marvinpinto/action-automatic-releases@latest"
           with:
-            path: |
-              ~/.gradle/caches
-              ~/.gradle/wrapper
-              !~/.gradle/wrapper/dists/**/gradle*.zip
-            key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-            restore-keys: |
-              gradle-${{ runner.os }}-
-  
-        - name: Build Debug
-          run: ./gradlew build -x test
-  
-        - name: Build Release App
-          run: |
-            ./gradlew :desktop:packageUberJarForCurrentOS
-            ./gradlew :desktop:package
-  
-        - name: Archive Artifacts
-          uses: actions/upload-artifact@v2
-          with:
-            name: distributable-${{ matrix.os }}
-            if-no-files-found: ignore
-            path: |
-              build/**/*.deb
-              build/**/*.msi
-              build/compose/jars/*.jar
-  
-        - name: Release
-          uses: softprops/action-gh-release@91409e712cf565ce9eff10c87a8d1b11b81757ae
-          with:
-            prerelease: ${{ contains(github.event.inputs.version, '-rc') || contains(github.event.inputs.version, '-b') || contains(github.event.inputs.version, '-a') }}
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            automatic_release_tag: "latest"
+            prerelease: false
             files: |
-              build/**/*.deb
-              build/**/*.msi
-              build/compose/jars/*.jar
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              ide-plugins/intellij/build/releases/Solitaire Compose.zip
