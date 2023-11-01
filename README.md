@@ -1,5 +1,35 @@
 # Solitaire Compose
-A simple solitaire game developed in Jetpack Compose. The game currently has 5 targets, but only the IntelliJ Plugin and desktop application are in beta phase. Other targets, namely Javascript website, WebAssembly website, Visual Studio Code Plugin and android application are considered experimental (Not much focus is given to the targets and they might be dropped in the future).
 
-## IntelliJ Plugin
+A simple solitaire game developed using Compose.
+
+## Targets
+
+| Target                                                                   | Platform | Status                       |
+|--------------------------------------------------------------------------|----------|------------------------------|
+| Android                                                                  | Android  | In-development               |
+| Desktop                                                                  | JVM      | Ready                        |
+| [IntelliJ Plugin](https://plugins.jetbrains.com/plugin/22697-solitaire)  | JVM      | Released                     |
+| [Kotlin/JS Website](https://bkmbigo.github.io/solitaire-compose/js)      | JS       | Deployed                     |
+| [Kotlin/Wasm Website](https://bkmbigo.github.io/solitaire-compose/wasm/) | Wasm     | Deployed                     |
+| Chrome Extension                                                         | JS       | Ready (To be deployed later) |
+
+> **Note**  
+> A firefox extension will be added in future
+
+> **Note**  
+> The project has a VS Code extension. Although the extension works, there are significant performance issues that
+> affect the target. Therefore, the target will not be deployed.
+
+#### IntelliJ Plugin
 You can download the IntelliJ plugin from [Jetbrains Marketplace](https://plugins.jetbrains.com/plugin/22697-solitaire) or by simply opening the plugins settings on your IDE and searching for Solitaire. After installing, You can open the plugin by clicking on the Menu Item `Solitaire` found in the Tools menu.
+
+## Libraries
+
+The project can only use a limited number of Kotlin libraries due to having a Wasm target. Libraries used are:
+
+- Compose Multiplatform
+- Voyager (Custom implementation on Wasm target).
+
+## Contribution
+
+Feel free to fork and create a pull request. Ensure you merge into the `development` branch 
