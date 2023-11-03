@@ -30,9 +30,6 @@ allprojects {
             if (isComposeGroup && !isComposeCompiler && !isWasm && !isJs) {
                 useVersion(libs.versions.compose.multiplatform.stable.get())
             }
-            if (requested.module.name.startsWith("kotlin-stdlib")) {
-                useVersion(libs.versions.kotlin.get())
-            }
             if(requested.module.name.contains("kotlinx-coroutines-core") && isWasm) {
                 useVersion(libs.versions.kotlinx.coroutines.wasm.get())
             }

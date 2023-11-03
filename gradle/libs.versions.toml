@@ -1,6 +1,6 @@
 [versions]
 agp = "8.1.0"
-kotlin = "1.9.20-RC"
+kotlin = "1.9.20"
 gradleIntelliJPlugin = "1.15.0"
 
 androidx-core = "1.12.0"
@@ -12,15 +12,15 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 
 compose-bom = "2023.10.01"
-compose-multiplatform-stable = "1.5.2"
-compose-multiplatform-compiler = "1.5.2.1-Beta"
-compose-multiplatform-wasm = "1.5.1-dev-wasm01"
+compose-multiplatform-stable = "1.5.3"
+compose-multiplatform-compiler = "1.5.3"
+compose-multiplatform-wasm = "1.5.10-dev-wasm02"
 
-kotlinx-coroutines = "1.7.2"
-kotlinx-coroutines-wasm = "1.7.2-wasm1"
+kotlinx-coroutines = "1.7.3"
+kotlinx-coroutines-wasm = "1.7.2-wasm3"
 
-kotlinx-datetime = "0.4.0"
-kotlinx-datetime-wasm = "0.4.0-wasm2"
+kotlinx-datetime = "0.4.1"
+kotlinx-datetime-wasm = "0.4.1-wasm1"
 
 kotlinx-atomicfu-wasm = "0.22.0-wasm1"
 multiplatform-uuid = "0.8.0"
