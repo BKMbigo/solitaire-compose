@@ -16,7 +16,7 @@ plugins {
 
     // Other gradle plugins
 
-    id("org.jetbrains.kotlin") version "1.9.20"
+    id("org.jetbrains.kotlin.multiplatform") version "1.9.20"
     id("org.jetbrains.compose") version "1.5.10-dev-wasm02" // Take note of the compose version
 }
 
