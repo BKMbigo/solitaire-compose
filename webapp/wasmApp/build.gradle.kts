@@ -55,11 +55,3 @@ compose {
     kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
 }
-
-
-project.tasks.getByName("wasmJsDevelopmentExecutableCompileSync").doLast {
-    val f = project.buildDir.resolve("../../../build/js/packages/game/kotlin/game.uninstantiated.mjs")
-        .normalize()
-    val t = f.readText().replace("'skia': imports['skia'] ?? await import('skia'),", "'skia': imports['skia'],")
-    f.writeText(t)
-}

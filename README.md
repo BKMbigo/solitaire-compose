@@ -28,9 +28,11 @@ You can download the IntelliJ plugin from [Jetbrains Marketplace](https://plugin
 
 ## Documentation
 
-There are several documentation
-covering [the anatomy of a game](docs/anatomy_of_the_game.md), [multplatform targets](docs/multiplatform_targets.md) and
-others to come later
+- [How to add compose for web Wasm-based target](docs/multiplatform_targets.md#configure-your-project-for-compose-and-kotlinwasm)
+
+###### Project-specific
+
+- [Understand the game](docs/anatomy_of_the_game.md)
 
 ## Libraries
 
