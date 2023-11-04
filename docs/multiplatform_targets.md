@@ -13,41 +13,50 @@ Add the Wasm target in the module's build.gradle.kts file
 
 ```kotlin
 plugins {
+
+    // Other gradle plugins
+
     id("org.jetbrains.kotlin") version "1.9.20"
     id("org.jetbrains.compose") version "1.5.10-dev-wasm02" // Take note of the compose version
-    ...
 }
 
 kotlin {
 
-    ... // Other Target-Platforms
+    // Other Target-Platforms
 
     wasmJs {
         moduleName = "game"  // Used in load.mjs file
         browser {
-
-            /** Instructs webpack to open the website in Google Chrome */
             commonWebpackConfig {
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
-                    open = mapOf(
-                        "app" to mapOf(
-                            "name" to "google-chrome",
-                        )
-                    )
-                )
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    /* Instructs webpack to open the website in a different browser than the system default */
+//                    open = mapOf(
+//                        "app" to mapOf(
+//                            "name" to "google-chrome",
+//                        )
+//                    )
+
+                    /* This section can be ommited */
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.rootDir.path)
+                        add(project.rootDir.path + "/common/")
+                        add(project.rootDir.path + "/webapp/wasmApp/")
+                    }
+                }
             }
-
-
         }
         binaries.executable()
     }
     sourceSets {
 
-        ... // Other SourceSets
+        // Other SourceSets
 
         val wasmJsMain by getting {
             dependencies {
-                implementation(compose.material3)  // Place compose dependencies
+                // Place compose-multiplatform dependencies
+
+                implementation(compose.material3)
             }
         }
     }
@@ -61,9 +70,9 @@ compose {
 }
 ```
 
-Add the following line to your gradle.properties
-
 ###### [gradle.properties](../gradle.properties)
+
+Add the following line to your gradle.properties
 
 ```
 org.jetbrains.compose.experimental.jscanvas.enabled=true
@@ -75,7 +84,7 @@ org.jetbrains.compose.experimental.jscanvas.enabled=true
 pluginManagement {
     repositories {
 
-        ... // Other Repositories
+        // Other Repositories
 
         maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
 
@@ -128,11 +137,12 @@ try {
 
 if (te == null) {
 
-    // Wasm-GC has been initialized successfully
+    // Wasm-GC has been initialized successfully. You can now hide your loading screen
 
 } else {
 
     // Problem instantiating Wasm-GC. Probably the user's browser does not support Wasm-GC
+    // You can direct the user on how to activate wasm-gc on thier browser
 
 }
 ```

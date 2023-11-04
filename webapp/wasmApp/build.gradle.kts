@@ -22,13 +22,19 @@ kotlin {
         moduleName = "game"
         browser {
             commonWebpackConfig {
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     open = mapOf(
                         "app" to mapOf(
                             "name" to "google-chrome",
                         )
                     )
-                )
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.rootDir.path)
+                        add(project.rootDir.path + "/common/")
+                        add(project.rootDir.path + "/webapp/wasmApp/")
+                    }
+                }
             }
         }
         binaries.executable()

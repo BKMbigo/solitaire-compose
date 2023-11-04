@@ -7,8 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontFamily
 import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.LocalCardTheme
 import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.rememberCardTheme
-import com.github.bkmbigo.solitaire.presentation.core.locals.resourceprovider.DefaultResourceProvider
-import com.github.bkmbigo.solitaire.presentation.core.locals.resourceprovider.LocalResourceProvider
 import com.github.bkmbigo.solitaire.presentation.core.utils.fonts.localfonts.LocalFontFamily
 import com.github.bkmbigo.solitaire.presentation.core.utils.fonts.provideFontFamily
 import com.github.bkmbigo.solitaire.utils.Platform
@@ -44,8 +42,7 @@ fun SolitaireTheme(
             generalResourcePath = generalResourcePath,
             andikaFont = andikaFont,
             lobsterTwoFamily = lobsterTwoFont
-        ),
-        LocalResourceProvider provides DefaultResourceProvider
+        )
     ) {
         MaterialTheme {
             ProvideTextStyle(
