@@ -28,7 +28,9 @@ You can download the IntelliJ plugin from [Jetbrains Marketplace](https://plugin
 
 ## Documentation
 
-There are several documentation covering [the anatomy of a game](docs/anatomy_of_the_game.md) and others to come later
+There are several documentation
+covering [the anatomy of a game](docs/anatomy_of_the_game.md), [multplatform targets](docs/multiplatform_targets.md) and
+others to come later
 
 ## Libraries
 
