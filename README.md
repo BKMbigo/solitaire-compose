@@ -7,14 +7,14 @@ A simple solitaire game developed using Compose.
 
 ## Targets
 
-| Target                                                                   | Platform | Status                       |
-|--------------------------------------------------------------------------|----------|------------------------------|
-| Android                                                                  | Android  | In-development 🔨            |
-| Desktop                                                                  | JVM      | Ready for deployment         |
-| [IntelliJ Plugin](https://plugins.jetbrains.com/plugin/22697-solitaire)  | JVM      | Released                     |
-| [Kotlin/JS Website](https://bkmbigo.github.io/solitaire-compose/js)      | JS       | Deployed                     |
-| [Kotlin/Wasm Website](https://bkmbigo.github.io/solitaire-compose/wasm/) | Wasm     | Deployed                     |
-| Chrome Extension                                                         | JS       | In-development 🔨            |
+| Target                                                                   | Platform | Status              |
+|--------------------------------------------------------------------------|----------|---------------------|
+| Android                                                                  | Android  | In-development 🔨   |
+| Desktop                                                                  | JVM      | Awaiting Deployment |
+| [IntelliJ Plugin](https://plugins.jetbrains.com/plugin/22697-solitaire)  | JVM      | Released            |
+| [Kotlin/JS Website](https://bkmbigo.github.io/solitaire-compose/js)      | JS       | Deployed            |
+| [Kotlin/Wasm Website](https://bkmbigo.github.io/solitaire-compose/wasm/) | Wasm     | Deployed            |
+| Chrome Extension                                                         | --       | In-development 🔨   |
 
 > **Note**  
 > A firefox extension will be added in future
@@ -25,6 +25,10 @@ Currently, the chrome extension is written in javascript.
 
 #### IntelliJ Plugin
 You can download the IntelliJ plugin from [Jetbrains Marketplace](https://plugins.jetbrains.com/plugin/22697-solitaire) or by simply opening the plugins settings on your IDE and searching for Solitaire. After installing, You can open the plugin by clicking on the Menu Item `Solitaire` found in the Tools menu.
+
+## Documentation
+
+There are several documentation covering [the anatomy of a game](docs/anatomy_of_the_game.md) and others to come later
 
 ## Libraries
 
