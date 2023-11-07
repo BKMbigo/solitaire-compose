@@ -17,9 +17,13 @@ actual object SolitaireScreen : Screen {
         val screenModel = rememberScreenModel { SolitaireScreenModel(coroutineScope) }
 
         val state by screenModel.state.collectAsState()
+        val gameTime by screenModel.gameTime.collectAsState()
+        val score by screenModel.score.collectAsState()
 
         SolitaireGameScreenContent(
             state = state,
+            gameTime = gameTime,
+            score = score,
             hint = screenModel.hint,
             onNavigateBack = { navigator?.pop() },
             onAction = { action ->

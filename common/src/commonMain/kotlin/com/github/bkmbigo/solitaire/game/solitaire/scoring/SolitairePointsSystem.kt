@@ -1,7 +1,6 @@
 package com.github.bkmbigo.solitaire.game.solitaire.scoring
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
-import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.providers.RandomSolitaireGameProvider
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
 import com.github.bkmbigo.solitaire.game.solitaire.providers.VeryEasySolitaireGameProvider
@@ -57,10 +56,9 @@ import kotlin.time.Duration
 * */
 
 /** Manages the score for a single [SolitaireGame] */
-internal class SolitairePointsSystem(
-    private val provider: SolitaireGameProvider,
-    private val configuration: SolitaireGameConfiguration
-) {
+internal class SolitairePointsSystem {
+    private var savedProvider: SolitaireGameProvider = VeryEasySolitaireGameProvider
+
     private val _points = MutableStateFlow(0)
     val points: StateFlow<Int> = _points
 
@@ -74,12 +72,12 @@ internal class SolitairePointsSystem(
 
     fun awardOutcomePoints(outcome: SolitaireOutcome) {
         val outcomePoints = when (outcome) {
-            SolitaireOutcome.Won -> when (provider) {
+            SolitaireOutcome.Won -> when (savedProvider) {
                 VeryEasySolitaireGameProvider -> 600
                 RandomSolitaireGameProvider -> 1500
             }
 
-            SolitaireOutcome.Drawn -> when (provider) {
+            SolitaireOutcome.Drawn -> when (savedProvider) {
                 VeryEasySolitaireGameProvider -> 0
                 RandomSolitaireGameProvider -> 600
             }
@@ -88,12 +86,15 @@ internal class SolitairePointsSystem(
         updatePoints(outcomePoints)
     }
 
-    fun awardInitializationPoints() {
+    fun awardInitializationPoints(provider: SolitaireGameProvider) {
         val initializationPoints = when (provider) {
             VeryEasySolitaireGameProvider -> 150
             RandomSolitaireGameProvider -> 300
         }
 
+        savedProvider = provider
+
+        _points.value = 0
         updatePoints(initializationPoints)
     }
 
@@ -172,6 +173,8 @@ internal class SolitairePointsSystem(
             SolitaireGameTimeOption.TEN_MINUTES -> 750
             SolitaireGameTimeOption.TWENTY_MINUTES -> 1000
         }
+
+        deductPoints(gameTimePoints)
     }
 
 }

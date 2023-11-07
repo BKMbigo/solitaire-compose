@@ -23,7 +23,7 @@ internal fun SolitairePlacer.processDeckMove(
     card: Card,
     offsetX: Float,
     offsetY: Float,
-    onMoveSuccess: (SolitaireUserMove) -> Unit,
+    onMoveSuccess: (SolitaireUserMove.CardMove) -> Unit,
     onMoveFailed: () -> Unit
 ) {
 
@@ -74,7 +74,7 @@ internal fun SolitairePlacer.processFoundationMove(
     card: Card,
     offsetX: Float,
     offsetY: Float,
-    onMoveSuccess: (SolitaireUserMove) -> Unit,
+    onMoveSuccess: (SolitaireUserMove.CardMove) -> Unit,
     onMoveFailed: () -> Unit
 ) {
     val dragStart = IntOffset(
@@ -116,7 +116,7 @@ internal fun SolitairePlacer.processTableStackMove(
     index: Int,
     offsetX: Float,
     offsetY: Float,
-    onMoveSuccess: (SolitaireUserMove) -> Unit,
+    onMoveSuccess: (SolitaireUserMove.CardMove) -> Unit,
     onMoveFailed: () -> Unit
 ) {
     val tableTopLeft = calculateTableStackPosition(tableStackEntry)

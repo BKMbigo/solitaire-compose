@@ -10,9 +10,7 @@ import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
 import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlin.time.Duration
 
 /*
@@ -31,7 +29,7 @@ import kotlin.time.Duration
 *           -> Called when a user requests for a hint
 *                   NOTE: A hint should not be penalized more than once!!
 *       awardMovePoints
-*           -> Called in every move
+*           -> Called in every move (card move)
 *       awardFromDeckPoints
 *           -> Called whenever a card is moved from the deck
 *       deductUndoPoints
@@ -46,15 +44,12 @@ import kotlin.time.Duration
 class SolitaireScoringSystem :
     GameScoringSystem<SolitaireGame, SolitaireGameMove, SolitaireGameConfiguration, SolitaireGameProvider> {
 
-    private var currentPointsSystem: SolitairePointsSystem? = null
+    private var currentPointsSystem: SolitairePointsSystem = SolitairePointsSystem()
 
-    override var points: StateFlow<Int> = MutableStateFlow(0).asStateFlow()
+    override val points: StateFlow<Int> = currentPointsSystem.points
 
     override fun initializedGame(provider: SolitaireGameProvider, configuration: SolitaireGameConfiguration) {
-        val newPointsSystem = SolitairePointsSystem(provider, configuration)
-        points = newPointsSystem.points
-
-        newPointsSystem.awardInitializationPoints()
+        currentPointsSystem.awardInitializationPoints(provider)
     }
 
     @UnusableGenericGameApi("Does not have enough information to know whether a card was revealed or the favorable dealOffset to use")
@@ -62,46 +57,50 @@ class SolitaireScoringSystem :
     }
 
     fun moveMade(
-        game: SolitaireGame,
         move: SolitaireUserMove.CardMove,
-        lastMove: SolitaireUserMove,
-        doesRevealCard: Boolean = false,
-        isRepetitiveMove: Boolean = false
+        lastMove: SolitaireUserMove?,
+        fromDeckDifficulty: SolitaireDealOffset?,
+        doesRevealCard: Boolean,
+        isRepetitiveMove: Boolean,
+        awardMovePoints: Boolean = true
     ) {
         if (!isRepetitiveMove) {
             if (doesRevealCard) {
-                currentPointsSystem?.awardGamePoints(SolitaireGamePointOption.RevealCard)
+                currentPointsSystem.awardGamePoints(SolitaireGamePointOption.RevealCard)
             }
 
             if (move.to == MoveDestination.ToFoundation) {
-                currentPointsSystem?.awardGamePoints(SolitaireGamePointOption.MoveToFoundation)
+                currentPointsSystem.awardGamePoints(SolitaireGamePointOption.MoveToFoundation)
             }
 
             if (move.from == MoveSource.FromFoundation) {
-                currentPointsSystem?.deductGamePoints(SolitaireGamePointOption.MoveToFoundation)
+                currentPointsSystem.deductGamePoints(SolitaireGamePointOption.MoveToFoundation)
             }
 
-            currentPointsSystem?.awardMovePoints(
-                timeFromLastMove = move.timeSinceStart - lastMove.timeSinceStart
-            )
+            fromDeckDifficulty?.let {
+                currentPointsSystem.awardFromDeckPoints(fromDeckDifficulty)
+            }
+
+            if (awardMovePoints) {
+                currentPointsSystem.awardMovePoints(
+                    timeFromLastMove = move.timeSinceStart - (lastMove?.timeSinceStart ?: Duration.ZERO)
+                )
+            }
         }
     }
 
     fun moveMade(
-        game: SolitaireGame,
         move: SolitaireUserMove.Deal,
-        lastMove: SolitaireUserMove,
-        dealOffset: SolitaireDealOffset
+        lastMove: SolitaireUserMove?
     ) {
-        currentPointsSystem?.awardFromDeckPoints(dealOffset = dealOffset)
-
-        currentPointsSystem?.awardMovePoints(
-            timeFromLastMove = move.timeSinceStart - lastMove.timeSinceStart
-        )
+        // Resorted to remove awarding move points on deals
+//        currentPointsSystem.awardMovePoints(
+//            timeFromLastMove = move.timeSinceStart - (lastMove?.timeSinceStart ?: Duration.ZERO)
+//        )
     }
 
     override fun hintProvided() {
-        currentPointsSystem?.deductHintPoints()
+        currentPointsSystem.deductHintPoints()
     }
 
     @UnusableGenericGameApi("Does not have enough information to check if a card was hidden")
@@ -109,25 +108,24 @@ class SolitaireScoringSystem :
     }
 
     fun undoMovePerformed(
-        game: SolitaireGame,
         move: SolitaireGameMove,
         doesReturnCardToDeck: SolitaireDealOffset? = null,
         doesHideCard: Boolean = false,
         doesMoveCardFromFoundation: Boolean = false
     ) {
-        doesReturnCardToDeck?.let { doesReturnCardToDeck ->
-            currentPointsSystem?.deductFromDeckPoints(doesReturnCardToDeck)
+        doesReturnCardToDeck?.let {
+            currentPointsSystem.deductFromDeckPoints(doesReturnCardToDeck)
         }
 
         if (doesHideCard) {
-            currentPointsSystem?.deductGamePoints(SolitaireGamePointOption.RevealCard)
+            currentPointsSystem.deductGamePoints(SolitaireGamePointOption.RevealCard)
         }
 
         if (doesMoveCardFromFoundation) {
-            currentPointsSystem?.deductGamePoints(SolitaireGamePointOption.MoveToFoundation)
+            currentPointsSystem.deductGamePoints(SolitaireGamePointOption.MoveToFoundation)
         }
 
-        currentPointsSystem?.deductUndoPoints()
+        currentPointsSystem.deductUndoPoints()
     }
 
     @UnusableGenericGameApi("Does not have enough context to determine whether a card is revealed or the favorable deal offset")
@@ -135,53 +133,44 @@ class SolitaireScoringSystem :
     }
 
     fun redoMovePerformed(
-        game: SolitaireGame,
         move: SolitaireUserMove.CardMove,
-        lastMove: SolitaireUserMove,
-        doesRevealCard: Boolean = false,
-        isRepetitiveMove: Boolean = false
+        lastMove: SolitaireUserMove?,
+        fromDeckDifficulty: SolitaireDealOffset?,
+        doesRevealCard: Boolean,
+        isRepetitiveMove: Boolean
     ) {
-        currentPointsSystem?.deductRedoPoints()
+        currentPointsSystem.deductRedoPoints()
 
         moveMade(
-            game = game,
             move = move,
             lastMove = lastMove,
+            fromDeckDifficulty = fromDeckDifficulty,
             doesRevealCard = doesRevealCard,
-            isRepetitiveMove = isRepetitiveMove
+            isRepetitiveMove = isRepetitiveMove,
+            awardMovePoints = false
         )
     }
 
     fun redoMovePerformed(
-        game: SolitaireGame,
-        move: SolitaireUserMove.Deal,
-        lastMove: SolitaireUserMove,
-        dealOffset: SolitaireDealOffset
+        move: SolitaireUserMove.Deal
     ) {
-        currentPointsSystem?.deductRedoPoints()
-
-        moveMade(
-            game = game,
-            move = move,
-            lastMove = lastMove,
-            dealOffset = dealOffset
-        )
+        currentPointsSystem.deductRedoPoints()
     }
 
 
     override fun finishedGame(game: SolitaireGame) {
         when {
-            game.isWon() -> currentPointsSystem?.awardOutcomePoints(SolitaireOutcome.Won)
-            game.isDrawn() -> currentPointsSystem?.awardOutcomePoints(SolitaireOutcome.Drawn)
+            game.isWon() -> currentPointsSystem.awardOutcomePoints(SolitaireOutcome.Won)
+            game.isDrawn() -> currentPointsSystem.awardOutcomePoints(SolitaireOutcome.Drawn)
         }
     }
 
     override fun penalizeGameTime(duration: Duration) {
         when (duration.inWholeMinutes) {
-            3L -> currentPointsSystem?.deductGameTimePoints(SolitaireGameTimeOption.THREE_MINUTES)
-            7L -> currentPointsSystem?.deductGameTimePoints(SolitaireGameTimeOption.SEVEN_MINUTES)
-            10L -> currentPointsSystem?.deductGameTimePoints(SolitaireGameTimeOption.TEN_MINUTES)
-            20L -> currentPointsSystem?.deductGameTimePoints(SolitaireGameTimeOption.TWENTY_MINUTES)
+            3L -> currentPointsSystem.deductGameTimePoints(SolitaireGameTimeOption.THREE_MINUTES)
+            7L -> currentPointsSystem.deductGameTimePoints(SolitaireGameTimeOption.SEVEN_MINUTES)
+            10L -> currentPointsSystem.deductGameTimePoints(SolitaireGameTimeOption.TEN_MINUTES)
+            20L -> currentPointsSystem.deductGameTimePoints(SolitaireGameTimeOption.TWENTY_MINUTES)
             else -> {}
         }
     }

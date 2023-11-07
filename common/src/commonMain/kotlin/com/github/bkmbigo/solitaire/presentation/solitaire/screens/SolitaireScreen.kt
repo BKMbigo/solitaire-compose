@@ -16,8 +16,11 @@ import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.LocalCard
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameCreationDialog
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameDrawnDialog
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameWonDialog
+import com.github.bkmbigo.solitaire.presentation.solitaire.components.duration.SolitaireDurationText
+import com.github.bkmbigo.solitaire.presentation.solitaire.components.points.SolitairePointText
 import com.github.bkmbigo.solitaire.presentation.solitaire.layouts.SolitaireGameLayout
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Duration
 
 
 expect object SolitaireScreen
@@ -25,6 +28,8 @@ expect object SolitaireScreen
 @Composable
 fun SolitaireGameScreenContent(
     state: SolitaireState,
+    gameTime: Duration,
+    score: Int,
     hint: Flow<SolitaireUserMove>,
     onAction: (SolitaireAction) -> Unit,
     onNavigateBack: () -> Unit
@@ -196,14 +201,38 @@ fun SolitaireGameScreenContent(
                         .padding(horizontal = 16.dp)
                 )
 
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                        .fillMaxWidth()
                 ) {
-                    Text(
-                        text = "*The project is still in active development"
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "*The project is still in active development"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        SolitaireDurationText(
+                            duration = gameTime
+                        )
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        SolitairePointText(
+                            points = score
+                        )
+                    }
                 }
             }
         }

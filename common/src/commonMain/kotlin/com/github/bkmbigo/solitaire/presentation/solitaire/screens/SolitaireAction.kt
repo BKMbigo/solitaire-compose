@@ -25,6 +25,6 @@ sealed class SolitaireAction {
     data object Deal : SolitaireAction()
 
     /** The user has played a [move] */
-    data class PlayMove(val move: SolitaireUserMove) : SolitaireAction()
+    data class PlayMove(val move: SolitaireUserMove.CardMove) : SolitaireAction()
 
 }

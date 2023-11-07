@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 actual class SolitaireScreenModel(
     private val coroutineScope: CoroutineScope
 ) : ScreenModel, AbstractSolitaireScreenModel() {
+    override val scope: CoroutineScope = coroutineScope
 
     actual fun createGame(provider: SolitaireGameProvider, cardsPerDeal: SolitaireCardsPerDeal) {
         coroutineScope.launch {
@@ -20,7 +21,7 @@ actual class SolitaireScreenModel(
 
     actual fun deal() = performDeal()
 
-    actual fun play(move: SolitaireUserMove) = performPlay(move)
+    actual fun play(move: SolitaireUserMove.CardMove) = performPlay(move)
 
     actual fun undo() = performUndo()
 
