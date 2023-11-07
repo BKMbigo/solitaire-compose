@@ -182,3 +182,34 @@ The provider has a function `provideHints` that takes in a Game and returns a li
 > }
 >```
 
+#### GameScoringSystem
+
+Provides a mechanism for scoring in a game
+
+```kotlin
+/** Provides a scoring mechanism for */
+interface GameScoringSystem<
+        G : Game,
+        M : GameMove,
+        C : GameConfiguration,
+        P : GameProvider> {
+
+    val points: StateFlow<Int>
+
+
+    fun initializedGame(provider: P, configuration: C)
+
+    fun moveMade(game: G, move: M, lastMove: M)
+
+    fun hintProvided()
+
+    fun undoMovePerformed(game: G, move: M)
+
+    fun redoMovePerformed(game: G, move: M)
+
+    fun finishedGame(game: G)
+
+    fun penalizeGameTime(duration: Duration)
+
+}
+```

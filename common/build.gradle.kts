@@ -41,7 +41,7 @@ kotlin {
                 implementation(compose.components.resources)
 
                 implementation(libs.kotlinx.coroutines)
-                //implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.datetime)
             }
         }
 

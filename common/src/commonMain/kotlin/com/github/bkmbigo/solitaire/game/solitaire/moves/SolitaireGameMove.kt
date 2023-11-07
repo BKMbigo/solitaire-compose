@@ -7,9 +7,13 @@ import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
 import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 /** A Solitaire game move.*/
 sealed class SolitaireGameMove : GameMove<SolitaireGame, SolitaireGameMove> {
+
+    override val time: Instant = Clock.System.now()
 
     /** Reverses a [SolitaireUserMove.Deal] move
      * <p> The move should only be called by the system, not the user. </p>*/

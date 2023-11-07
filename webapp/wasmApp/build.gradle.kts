@@ -28,12 +28,11 @@ kotlin {
                             "name" to "google-chrome",
                         )
                     )
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(project.rootDir.path)
-                        add(project.rootDir.path + "/common/")
-                        add(project.rootDir.path + "/webapp/wasmApp/")
-                    }
+//                    static = (static ?: mutableListOf()).apply {
+//                        // Serve sources to debug inside browser
+//                        add(project.rootDir.path + "/common/")
+//                        add(project.rootDir.path + "/webapp/wasmApp/")
+//                    }
                 }
             }
         }
