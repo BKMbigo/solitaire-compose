@@ -87,7 +87,7 @@ move, the hint provider to express a possible move, and also make adjustments su
 ```kotlin
 interface GameMove<G : Game, M : GameMove> {
 
-    val time: Instant
+    val timeSinceStart: Duration
 
     fun isValid(game: G): Boolean
 

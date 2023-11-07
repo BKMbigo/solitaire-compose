@@ -6,8 +6,8 @@ import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsP
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource.FromFoundation
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardColor
 import com.github.bkmbigo.solitaire.models.core.CardColor.BLACK
@@ -71,8 +71,8 @@ val foundationToTableStackTestObjects = listOf(
             FIVE of SPADE
         ),
         moves = listOf(
-            FIVE of SPADE move FromFoundation to TableStackEntry.ONE,
-            FOUR of DIAMOND move TableStackEntry.TWO to TableStackEntry.ONE
+            FIVE of SPADE moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            FOUR of DIAMOND moveSolitaireInstantlyFrom TableStackEntry.TWO moveTo TableStackEntry.ONE
         ),
         resultingGame = SolitaireGame(
             configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),
@@ -171,15 +171,15 @@ val foundationToTableStackTestObjects = listOf(
             TWO of DIAMOND
         ),
         moves = listOf(
-            SIX of HEARTS move FromFoundation to TableStackEntry.ONE,
-            FIVE of SPADE move FromFoundation to TableStackEntry.ONE,
-            FIVE of HEARTS move FromFoundation to TableStackEntry.THREE,    // Adjustment move to free FOUR of HEARTS
-            FOUR of HEARTS move FromFoundation to TableStackEntry.ONE,
-            FOUR of SPADE move FromFoundation to TableStackEntry.THREE,      // Adjustment move to free THREE of SPADE
-            THREE of SPADE move FromFoundation to TableStackEntry.ONE,
-            THREE of DIAMOND move FromFoundation to TableStackEntry.THREE,    // Adjustment move to free TWO of DIAMOND
-            TWO of DIAMOND move FromFoundation to TableStackEntry.ONE,
-            ACE of CLOVER move TableStackEntry.TWO to TableStackEntry.ONE
+            SIX of HEARTS moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            FIVE of SPADE moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            FIVE of HEARTS moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.THREE,    // Adjustment move to free FOUR of HEARTS
+            FOUR of HEARTS moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            FOUR of SPADE moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.THREE,      // Adjustment move to free THREE of SPADE
+            THREE of SPADE moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            THREE of DIAMOND moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.THREE,    // Adjustment move to free TWO of DIAMOND
+            TWO of DIAMOND moveSolitaireInstantlyFrom FromFoundation moveTo TableStackEntry.ONE,
+            ACE of CLOVER moveSolitaireInstantlyFrom TableStackEntry.TWO moveTo TableStackEntry.ONE
         ),
         resultingGame = SolitaireGame(
             configuration = SolitaireGameConfiguration(cardsPerDeal = SolitaireCardsPerDeal.ONE),

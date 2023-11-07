@@ -17,8 +17,8 @@ import androidx.compose.ui.zIndex
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardSuite
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
@@ -197,8 +197,8 @@ fun SolitaireGameLayout(
                             if (state.game.deckPositions.isNotEmpty() && state.game.deckPositions.last() == deck.size - index) {
                                 detectTapGestures(
                                     onDoubleTap = {
-                                        val move =
-                                            card move MoveSource.FromDeck(index) to MoveDestination.ToFoundation
+                                        val move = card moveSolitaireInstantlyFrom
+                                                MoveSource.FromDeck(index) moveTo MoveDestination.ToFoundation
                                         if (move.isValid(state.game)) {
                                             onAction(SolitaireAction.PlayMove(move))
                                         }
@@ -950,7 +950,8 @@ private fun StackPlacement(
                     if (index == tableStack.revealedCards.size - 1) {
                         detectTapGestures(
                             onDoubleTap = {
-                                val move = card move tableStackEntry to MoveDestination.ToFoundation
+                                val move =
+                                    card moveSolitaireInstantlyFrom tableStackEntry moveTo MoveDestination.ToFoundation
                                 if (move.isValid(state.game)) {
                                     onAction(SolitaireAction.PlayMove(move))
                                 }

@@ -5,8 +5,8 @@ import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGameTestObject
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination.*
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource.*
+import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination.ToFoundation
+import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource.FromDeck
 import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.*
 import com.github.bkmbigo.solitaire.models.core.CardRank.*
 import com.github.bkmbigo.solitaire.models.core.CardSuite.*
@@ -117,7 +117,7 @@ val SolitaireGameOne = SolitaireGameTestObject(
     isWon = false,
     isDrawn = false,
     moveTests = listOf(
-        (ACE of HEARTS) move TableStackEntry.TWO to ToFoundation
+        (ACE of HEARTS) moveSolitaireInstantlyFrom TableStackEntry.TWO moveTo ToFoundation
                 testIsValid originalGame withMessage "Move of Ace from Table(on Top) to Empty Foundation fails"
                 expectGame originalGame
                     .withTableStack(TableStackEntry.TWO, originalGame.secondTableStackState.withRemovedCard(ACE of HEARTS))
@@ -125,7 +125,7 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         HEARTS, listOf(ACE of HEARTS)
                     ),
 
-        (SIX of DIAMOND) move TableStackEntry.THREE to ToFoundation testIsValid originalGame
+        (SIX of DIAMOND) moveSolitaireInstantlyFrom TableStackEntry.THREE moveTo ToFoundation testIsValid originalGame
                 withMessage "Move of [Six of Diamonds] from Table to Diamond Foundation(Ace to Five) fails"
                 expectGame originalGame
                     .withTableStack(
@@ -137,7 +137,7 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         )
                     ),
 
-        (ACE of SPADE) move FromDeck(0) to ToFoundation testIsValid originalGame
+        (ACE of SPADE) moveSolitaireInstantlyFrom FromDeck(0) moveTo ToFoundation testIsValid originalGame
                 withMessage "Move of [Ace of Spade] from Deck to Empty Foundation fails"
                 expectGame originalGame
                     .withRemoveFromDeck(ACE of SPADE)
@@ -147,11 +147,11 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         )
                     ),
 
-        (ACE of HEARTS) move FromDeck(0) to ToFoundation testIsNotValid originalGame
+        (ACE of HEARTS) moveSolitaireInstantlyFrom FromDeck(0) moveTo ToFoundation testIsNotValid originalGame
                 withMessage "Invalid Move of [Ace of Hearts] from Deck (Not in deck) to Empty Foundation Passes"
                 expectGame originalGame,
 
-        (KING of HEARTS) move FromDeck(7) to TableStackEntry.ONE
+        (KING of HEARTS) moveSolitaireInstantlyFrom FromDeck(7) moveTo TableStackEntry.ONE
                 testIsValid originalGame withMessage "Move of King from Deck to Empty Table Stack fails"
                 expectGame originalGame
                     .withRemoveFromDeck(KING of HEARTS)
@@ -161,14 +161,15 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         )
                     ),
 
-        (QUEEN of DIAMOND) move FromDeck(9) to TableStackEntry.ONE
-                testIsNotValid originalGame withMessage "Invalid move of Queen from Deck to Empty Table Stack passes"
+        (QUEEN of DIAMOND) moveSolitaireInstantlyFrom FromDeck(9) moveTo TableStackEntry.ONE
+                testIsNotValid originalGame
+                withMessage "Invalid move of Queen from Deck to Empty Table Stack passes"
                 expectGame originalGame,
 
-        (THREE of CLOVER) move TableStackEntry.SEVEN to ToFoundation
+        (THREE of CLOVER) moveSolitaireInstantlyFrom TableStackEntry.SEVEN moveTo ToFoundation
                 testIsNotValid originalGame withMessage "Invalid move of [Three of Clover] from table(is Hidden) to deck passes",
 
-        (JUDGE of SPADE) move FromDeck(2) to TableStackEntry.SEVEN testIsValid originalGame
+        (JUDGE of SPADE) moveSolitaireInstantlyFrom FromDeck(2) moveTo TableStackEntry.SEVEN testIsValid originalGame
                 withMessage "Move of [Judge of Spade] from deck to Table([Queen of Hearts] on top of stack)"
                 expectGame originalGame
                     .withRemoveFromDeck(JUDGE of SPADE)
@@ -178,7 +179,10 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         )
                     ),
 
-        listOf(FIVE of CLOVER, FOUR of HEARTS) move TableStackEntry.FIVE to TableStackEntry.THREE testIsValid originalGame
+        listOf(
+            FIVE of CLOVER,
+            FOUR of HEARTS
+        ) moveSolitaireInstantlyFrom TableStackEntry.FIVE moveTo TableStackEntry.THREE testIsValid originalGame
                 withMessage "Move of [Five of Clover, Four of Spade] from Table([SIX of HEARTS, FIVE of CLOVER, FOUR of HEARTS]) to Table([EIGHT of DIAMOND, SEVEN of CLOVER, SIX of DIAMOND]) fails"
                 expectGame originalGame
                     .withTableStack(
@@ -192,7 +196,9 @@ val SolitaireGameOne = SolitaireGameTestObject(
                         )
                     ),
 
-        originalGame.sixthTableStackState.revealedCards move TableStackEntry.SIX to TableStackEntry.FOUR testIsValid originalGame
+        originalGame.sixthTableStackState.revealedCards moveSolitaireInstantlyFrom TableStackEntry.SIX
+                moveTo TableStackEntry.FOUR
+                testIsValid originalGame
                 withMessage "Move of [NINE of DIAMOND, EIGHT of SPADE, SEVEN of HEARTS] to Table([KING of DIAMOND, QUEEN of CLOVER, JUDGE of DIAMOND, TEN of SPADE]) fails"
                 expectGame originalGame
             .withTableStack(
@@ -205,7 +211,9 @@ val SolitaireGameOne = SolitaireGameTestObject(
                 )
             ),
 
-        originalGame.seventhTableStackState.revealedCards move TableStackEntry.SEVEN to TableStackEntry.ONE testIsValid originalGame
+        originalGame.seventhTableStackState.revealedCards moveSolitaireInstantlyFrom TableStackEntry.SEVEN
+                moveTo TableStackEntry.ONE
+                testIsValid originalGame
                 withMessage "Move of [KING of SPADE, QUEEN of HEARTS] to Empty Table fails"
                 expectGame originalGame
                     .withTableStack(TableStackEntry.SEVEN, originalGame.seventhTableStackState.copy(revealedCards = emptyList()))

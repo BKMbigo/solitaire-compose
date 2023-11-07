@@ -1,13 +1,13 @@
 package com.github.bkmbigo.solitaire.game.solitaire.hints
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardRank
-import com.github.bkmbigo.solitaire.models.core.CardRank.*
+import com.github.bkmbigo.solitaire.models.core.CardRank.ACE
+import com.github.bkmbigo.solitaire.models.core.CardRank.KING
 import com.github.bkmbigo.solitaire.models.core.CardSuite.*
 import com.github.bkmbigo.solitaire.models.core.utils.of
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
@@ -40,7 +40,8 @@ object SolitaireAdvancedTableStackToFoundationHintProvider {
                                 val cardsToMove = currentTableStack.revealedCards.filterIndexed { index, card ->
                                     matchIndex < index
                                 }
-                                val move = cardsToMove move currentTableStackEntry to targetTableStackEntry
+                                val move = cardsToMove moveSolitaireInstantlyFrom
+                                        currentTableStackEntry moveTo targetTableStackEntry
                                 if (move.isValid(game)) {
                                     moves.add(move)
                                     // moves.add(match move currentTableStackEntry to MoveDestination.ToFoundation)

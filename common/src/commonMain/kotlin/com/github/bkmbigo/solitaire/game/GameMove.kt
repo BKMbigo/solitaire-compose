@@ -1,6 +1,6 @@
 package com.github.bkmbigo.solitaire.game
 
-import kotlinx.datetime.Instant
+import kotlin.time.Duration
 
 /* A mechanism helping in
 *       - providing hints.
@@ -11,10 +11,10 @@ interface GameMove<
         G : Game<G, M>,
         M : GameMove<G, M>> {
 
-    val time: Instant
+    val timeSinceStart: Duration
 
     /** The move is valid in the context of a game.*/
     fun isValid(game: G): Boolean
 
-    fun reversed(): M?
+    fun reversed(timeSinceStart: Duration): M?
 }

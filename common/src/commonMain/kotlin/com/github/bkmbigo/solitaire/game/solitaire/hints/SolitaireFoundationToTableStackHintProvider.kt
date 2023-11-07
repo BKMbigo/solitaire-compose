@@ -2,11 +2,10 @@ package com.github.bkmbigo.solitaire.game.solitaire.hints
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
-import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardColor
 import com.github.bkmbigo.solitaire.models.core.CardRank
@@ -160,7 +159,8 @@ internal object SolitaireFoundationToTableStackHintProvider {
 
             // After fittingCards are placed on the stack, attempt to place the targetCard on the currentStack
             val finalMove =
-                tableStack(currentTableStackEntry).revealedCards move currentTableStackEntry to TableStackEntry.entries[targetTableStackIndex]
+                tableStack(currentTableStackEntry).revealedCards moveSolitaireInstantlyFrom
+                        currentTableStackEntry moveTo TableStackEntry.entries[targetTableStackIndex]
 
             if (finalMove.isValid(newGame)) {
                 moves.add(finalMove)
@@ -188,7 +188,7 @@ internal object SolitaireFoundationToTableStackHintProvider {
                 /* If the card you want to move is the target card, then it should move to the targetTableStack. No other card should move to the target tableStack */
                 val possibleMove = if (card == cardToFindMove) {
                     val proposedMove =
-                        card move MoveSource.FromFoundation to MoveDestination.ToTable(TableStackEntry.entries[targetTableStackIndex])
+                        card moveSolitaireInstantlyFrom MoveSource.FromFoundation moveTo TableStackEntry.entries[targetTableStackIndex]
                     if (proposedMove.isValid(newGame)) {
                         proposedMove
                     } else {
@@ -218,7 +218,7 @@ internal object SolitaireFoundationToTableStackHintProvider {
             /* For each tableStack attempt a move and find whether it is valid. Does not propose a move to the currentTableStack */
             TableStackEntry.entries.forEachIndexed { index, targetTableStackEntry ->
                 if (index != targetTableStackIndex) {
-                    val move = card move MoveSource.FromFoundation to MoveDestination.ToTable(targetTableStackEntry)
+                    val move = card moveSolitaireInstantlyFrom MoveSource.FromFoundation moveTo targetTableStackEntry
                     if (move.isValid(this)) {
                         return move
                     }

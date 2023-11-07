@@ -14,6 +14,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 abstract class AbstractSolitaireScreenModel {
     private val _state = MutableStateFlow(SolitaireState())
@@ -24,12 +27,17 @@ abstract class AbstractSolitaireScreenModel {
     private val _hint = Channel<SolitaireUserMove>()
     val hint = _hint.receiveAsFlow()
 
+    private val _gameTime = MutableStateFlow(0)
+    val gameTime = _gameTime.asStateFlow()
+
     private val pastMoves = mutableListOf<RecordedUserMove>()
     private val redoMoves = mutableListOf<RecordedGameMove>()
 
     private val availableHints = mutableListOf<SolitaireUserMove>()
     private var isHintProvided = false
     private var hintIteration = 0
+
+    private fun getCurrentGameTime(): Duration = _gameTime.value.toDuration(DurationUnit.SECONDS)
 
     protected suspend fun performCreateGame(
         provider: SolitaireGameProvider,
@@ -55,7 +63,7 @@ abstract class AbstractSolitaireScreenModel {
 
     protected fun performDeal() {
         val pastDealOffset = currentDealOffset
-        val newGame = _state.value.game.play(SolitaireUserMove.Deal(pastDealOffset))
+        val newGame = _state.value.game.play(SolitaireUserMove.Deal(getCurrentGameTime(), pastDealOffset))
 
         if (newGame.deckPositions.isEmpty()) {
             currentDealOffset = SolitaireDealOffset.NONE
@@ -64,7 +72,7 @@ abstract class AbstractSolitaireScreenModel {
         // record moves made in iteration
         pastMoves.add(
             RecordedUserMove(
-                userMove = SolitaireUserMove.Deal(pastDealOffset),
+                userMove = SolitaireUserMove.Deal(getCurrentGameTime(), pastDealOffset),
                 amendments = emptyList()
             )
         )
@@ -87,10 +95,13 @@ abstract class AbstractSolitaireScreenModel {
     protected fun performPlay(move: SolitaireUserMove) {
         if (!move.isValid(_state.value.game)) return
 
-        val newGame = _state.value.game.play(move)
+        // Move obtained from screen does not have a timeSinceStart. We need to update it here
+        val correctedMove = move.copy(timeSinceStart = getCurrentGameTime())
+
+        val newGame = _state.value.game.play(correctedMove)
 
         // If card moved from deck, increase the currentDealOffset
-        if (move is SolitaireUserMove.CardMove && move.from is MoveSource.FromDeck) {
+        if (correctedMove is SolitaireUserMove.CardMove && correctedMove.from is MoveSource.FromDeck) {
             currentDealOffset = currentDealOffset.increase()
         }
 
@@ -102,7 +113,7 @@ abstract class AbstractSolitaireScreenModel {
         // record moves made in iteration
         pastMoves.add(
             RecordedUserMove(
-                userMove = move,
+                userMove = correctedMove,
                 amendments = gameWithAmendments.second
             )
         )
@@ -128,8 +139,8 @@ abstract class AbstractSolitaireScreenModel {
         *  2. Add the undone move to the redo move stack */
 
         pastMoves.lastOrNull()?.let { lastMove ->
-            lastMove.userMove.reversed()?.let { reverseMove ->
-                val reverseAmendments = lastMove.amendments.mapNotNull { it.reversed() }.reversed()
+            lastMove.userMove.reversed(getCurrentGameTime())?.let { reverseMove ->
+                val reverseAmendments = lastMove.amendments.mapNotNull { it.reversed(getCurrentGameTime()) }.reversed()
 
                 var newGame = _state.value.game
 
@@ -170,10 +181,11 @@ abstract class AbstractSolitaireScreenModel {
     protected fun performRedo() {
         /* The user would like to redo a previously undone move. */
         redoMoves.lastOrNull()?.let { lastMove ->
-            lastMove.userMove.reversed()?.let { reverse ->
+            lastMove.userMove.reversed(getCurrentGameTime())?.let { reverse ->
                 val reverseUserMove = reverse as? SolitaireUserMove
                 reverseUserMove?.let { reverseMove ->
-                    val reverseAmendments = lastMove.amendments.mapNotNull { it.reversed() }.reversed()
+                    val reverseAmendments =
+                        lastMove.amendments.mapNotNull { it.reversed(getCurrentGameTime()) }.reversed()
 
                     var newGame = _state.value.game
 
@@ -253,7 +265,12 @@ abstract class AbstractSolitaireScreenModel {
     }
 
     private fun SolitaireGame.findAmendments(): List<SolitaireGameMove> = tableStacks.mapIndexed { index, tableStack ->
-        if (tableStack.hasRevealAmendment()) SolitaireGameMove.RevealCard(getTableStackEntryFromIndex(index)) else null
+        if (tableStack.hasRevealAmendment())
+            SolitaireGameMove.RevealCard(
+                timeSinceStart = getCurrentGameTime(),
+                tableStackEntry = getTableStackEntryFromIndex(index)
+            )
+        else null
     }.filterNotNull()
 
     private fun TableStack.hasRevealAmendment(): Boolean = revealedCards.isEmpty() && hiddenCards.isNotEmpty()

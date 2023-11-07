@@ -2,14 +2,12 @@ package com.github.bkmbigo.solitaire.game.solitaire.logic
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
-import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findDeckToFoundationMoves
-import com.github.bkmbigo.solitaire.game.solitaire.hints.SolitaireHintProvider.findDeckToTableStackMoves
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyUpperTo
 import com.github.bkmbigo.solitaire.models.core.CardRank
@@ -67,7 +65,8 @@ object SolitaireDeckDrawDeterminer {
         val moves = mutableListOf<SolitaireUserMove>()
 
         deck.getOrNull(deck.size - index)?.let { card ->
-            val move = card move MoveSource.FromDeck(deck.size - index) to MoveDestination.ToFoundation
+            val move =
+                card moveSolitaireInstantlyFrom MoveSource.FromDeck(deck.size - index) moveTo MoveDestination.ToFoundation
             if (move.verifyDeckMove(this)) {
                 moves.add(move)
             }
@@ -75,7 +74,8 @@ object SolitaireDeckDrawDeterminer {
 
         TableStackEntry.entries.forEach { tableStackEntry ->
                 deck.getOrNull(deck.size - index)?.let { card ->
-                    val move = card move MoveSource.FromDeck(deck.size - index) to tableStackEntry
+                    val move =
+                        card moveSolitaireInstantlyFrom MoveSource.FromDeck(deck.size - index) moveTo tableStackEntry
                     if (move.verifyDeckMove(this)) {
                         moves.add(move)
                     }

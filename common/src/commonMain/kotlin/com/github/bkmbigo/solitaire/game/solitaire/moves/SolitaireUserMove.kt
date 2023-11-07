@@ -2,38 +2,54 @@ package com.github.bkmbigo.solitaire.game.solitaire.moves
 
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.logic.isValidTableStack
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireAtTime
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyLowerTo
 import com.github.bkmbigo.solitaire.game.utils.isImmediatelyUpperTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.core.CardRank
+import kotlin.time.Duration
 
 sealed class SolitaireUserMove : SolitaireGameMove() {
+    abstract fun copy(timeSinceStart: Duration = this.timeSinceStart): SolitaireUserMove
+
     /** Deal new cards from the deck */
     // The offset is only used to find the corresponding reverse move
     data class Deal(
+        override val timeSinceStart: Duration,
         val offset: SolitaireDealOffset = SolitaireDealOffset.NONE
     ) : SolitaireUserMove() {
         override fun isValid(game: SolitaireGame): Boolean = true
-        override fun reversed(): SolitaireGameMove = Undeal(offset)
+        override fun reversed(timeSinceStart: Duration): SolitaireGameMove = Undeal(timeSinceStart, offset)
+        override fun copy(timeSinceStart: Duration): Deal = Deal(timeSinceStart, offset)
     }
 
     /** Make a card move  */
     data class CardMove(
+        override val timeSinceStart: Duration,
         val cards: List<Card>,
         val from: MoveSource,
         val to: MoveDestination
     ) : SolitaireUserMove() {
         constructor(
+            timeSinceStart: Duration,
             card: Card,
             from: MoveSource,
             to: MoveDestination,
         ) : this(
+            timeSinceStart,
             listOf(card),
             from,
             to
+        )
+
+        override fun copy(timeSinceStart: Duration): CardMove = CardMove(
+            timeSinceStart = timeSinceStart,
+            cards = cards,
+            from = from,
+            to = to
         )
 
         override fun isValid(game: SolitaireGame): Boolean {
@@ -132,7 +148,7 @@ sealed class SolitaireUserMove : SolitaireGameMove() {
             return true
         }
 
-        override fun reversed(): SolitaireGameMove? {
+        override fun reversed(timeSinceStart: Duration): SolitaireGameMove? {
             when (from) {
                 is MoveSource.FromDeck -> {
                     val returnToDeckSource = when (to) {
@@ -145,6 +161,7 @@ sealed class SolitaireUserMove : SolitaireGameMove() {
                     }
 
                     return ReturnToDeck(
+                        timeSinceStart = timeSinceStart,
                         card = cards.first(),
                         from = returnToDeckSource,
                         index = from.index
@@ -166,7 +183,7 @@ sealed class SolitaireUserMove : SolitaireGameMove() {
                         is MoveSource.FromTable -> MoveDestination.ToTable(from.tableStackEntry)
                     }
 
-                    return cards move reverseFrom to reverseTo
+                    return cards moveSolitaireAtTime timeSinceStart moveFrom reverseFrom moveTo reverseTo
                 }
             }
         }

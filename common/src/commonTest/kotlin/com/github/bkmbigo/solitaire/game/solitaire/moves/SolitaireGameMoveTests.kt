@@ -34,7 +34,9 @@ private fun testMoves(moves: List<SolitaireGameMoveTest>) = moves.forEach { move
 private fun testPlayResult(moves: List<SolitaireGameMoveTest>) = moves.forEach { moveTest ->
     assertEquals(
         moveTest.expectedGame,
-        moveTest.game.play(moveTest.move),
+        if (moveTest.move.isValid(moveTest.game)) {
+            moveTest.game.play(moveTest.move)
+        } else moveTest.game,
         "${moveTest.message} play result differs"
     )
 }

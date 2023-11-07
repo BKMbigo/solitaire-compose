@@ -4,8 +4,8 @@ import androidx.compose.ui.unit.IntOffset
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.Card
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
@@ -45,7 +45,8 @@ internal fun SolitairePlacer.processDeckMove(
         )
 
         if (destination != null) {
-            val move = card move MoveSource.FromDeck(game.deck.size - game.deckPositions.last()) to destination
+            val move = card moveSolitaireInstantlyFrom
+                    MoveSource.FromDeck(game.deck.size - game.deckPositions.last()) moveTo destination
             if (move.isValid(game)) {
                 onMoveSuccess(move)
             } else {
@@ -90,7 +91,7 @@ internal fun SolitairePlacer.processFoundationMove(
     if (destination == null) {
         onMoveFailed()
     } else {
-        val move = card move MoveSource.FromFoundation to destination
+        val move = card moveSolitaireInstantlyFrom MoveSource.FromFoundation moveTo destination
 
         if (move.isValid(game)) {
             onMoveSuccess(move)
@@ -136,7 +137,7 @@ internal fun SolitairePlacer.processTableStackMove(
     if (destination == null) {
         onMoveFailed()
     } else {
-        val move = cards move MoveSource.FromTable(tableStackEntry) to destination
+        val move = cards moveSolitaireInstantlyFrom tableStackEntry moveTo destination
 
         if (move.isValid(game)) {
             onMoveSuccess(move)

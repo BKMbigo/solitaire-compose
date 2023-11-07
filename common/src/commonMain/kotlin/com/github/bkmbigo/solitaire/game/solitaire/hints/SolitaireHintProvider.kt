@@ -7,8 +7,8 @@ import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveDestination
 import com.github.bkmbigo.solitaire.game.solitaire.moves.MoveSource
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireGameMove
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.move
-import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.to
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveSolitaireInstantlyFrom
+import com.github.bkmbigo.solitaire.game.solitaire.moves.dsl.moveTo
 import com.github.bkmbigo.solitaire.models.core.CardRank
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
 
@@ -53,7 +53,7 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
 
         for (tableStackEntry in TableStackEntry.entries) {
             tableStack(tableStackEntry).lastCard?.let { card ->
-                val move = card move MoveSource.FromTable(tableStackEntry) to MoveDestination.ToFoundation
+                val move = card moveSolitaireInstantlyFrom tableStackEntry moveTo MoveDestination.ToFoundation
                 if (move.isValid(this)) {
                     moves.add(move)
                 }
@@ -68,7 +68,8 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
 
         deckPositions.lastOrNull()?.let { lastDeckPosition ->
             deck.getOrNull(deck.size - lastDeckPosition)?.let { card ->
-                val move = card move MoveSource.FromDeck(deck.size - lastDeckPosition) to MoveDestination.ToFoundation
+                val move =
+                    card moveSolitaireInstantlyFrom MoveSource.FromDeck(deck.size - lastDeckPosition) moveTo MoveDestination.ToFoundation
                 if (move.isValid(this)) {
                     moves.add(move)
                 }
@@ -88,7 +89,7 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
             deckPositions.lastOrNull()?.let { lastDeckPosition ->
                 deck.getOrNull(deck.size - lastDeckPosition)?.let { card ->
                     val move =
-                        card move MoveSource.FromDeck(deck.size - lastDeckPosition) to MoveDestination.ToTable(
+                        card moveSolitaireInstantlyFrom MoveSource.FromDeck(deck.size - lastDeckPosition) moveTo MoveDestination.ToTable(
                             tableStackEntry
                         )
                     if (move.isValid(this)) {
@@ -108,8 +109,8 @@ object SolitaireHintProvider : GameHintProvider<SolitaireGame, SolitaireGameMove
         tableStacks.forEachIndexed { currentIndex, currentTableStack ->
             tableStacks.forEachIndexed { targetIndex, _ ->
                 if (currentIndex != targetIndex) {
-                    val move = currentTableStack.revealedCards move TableStackEntry.entries[currentIndex] to
-                            TableStackEntry.entries[targetIndex]
+                    val move = currentTableStack.revealedCards moveSolitaireInstantlyFrom
+                            TableStackEntry.entries[currentIndex] moveTo TableStackEntry.entries[targetIndex]
                     if (move.isValid(this) && currentTableStack.revealedCards.isNotEmpty() && !(currentTableStack.hiddenCards.isEmpty() && currentTableStack.firstRevealedCard?.rank == CardRank.KING)) {
                         moves.add(move)
                     }

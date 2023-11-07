@@ -82,7 +82,7 @@ class SolitaireScoringSystem :
             }
 
             currentPointsSystem?.awardMovePoints(
-                timeFromLastMove = move.time - lastMove.time
+                timeFromLastMove = move.timeSinceStart - lastMove.timeSinceStart
             )
         }
     }
@@ -96,7 +96,7 @@ class SolitaireScoringSystem :
         currentPointsSystem?.awardFromDeckPoints(dealOffset = dealOffset)
 
         currentPointsSystem?.awardMovePoints(
-            timeFromLastMove = move.time - lastMove.time
+            timeFromLastMove = move.timeSinceStart - lastMove.timeSinceStart
         )
     }
 
