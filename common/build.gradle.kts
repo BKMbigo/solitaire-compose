@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinxSerialization)
 } true
 
 
@@ -42,6 +43,7 @@ kotlin {
 
                 implementation(libs.kotlinx.coroutines)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json.wasm)
             }
         }
 
@@ -55,12 +57,16 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(libs.multiplatform.uuid)
+
+                implementation(libs.gitlive.firebase.firestore)
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
                 implementation(libs.kotlinx.atomicfu.wasm)
+
+                implementation(npm("firebase", libs.versions.firebase.npm.get()))
             }
         }
 
@@ -69,12 +75,22 @@ kotlin {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.voyager.navigator)
+
+                // Firebase
+                implementation(project.dependencies.platform(libs.firebase.bom))
+                implementation(libs.firebase.firestore)
             }
         }
         val desktopMain by getting {
             dependencies {
                 api(compose.desktop.common)
                 implementation(libs.voyager.navigator)
+
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.java)
+                implementation(libs.ktor.client.clientNegotiation)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktor.serialization.json)
             }
         }
     }
@@ -101,7 +117,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2"
+        kotlinCompilerExtensionVersion = libs.versions.compose.multiplatform.android.compiler.get()
     }
     dependencies {
 

@@ -14,6 +14,7 @@ espresso-core = "3.5.1"
 compose-bom = "2023.10.01"
 compose-multiplatform-stable = "1.5.3"
 compose-multiplatform-compiler = "1.5.3"
+compose-multiplatform-android-compiler = "1.5.4"
 compose-multiplatform-wasm = "1.5.10-dev-wasm02"
 
 kotlinx-coroutines = "1.7.3"
@@ -22,10 +23,24 @@ kotlinx-coroutines-wasm = "1.7.2-wasm3"
 kotlinx-datetime = "0.4.1"
 kotlinx-datetime-wasm = "0.4.1-wasm1"
 
+kotlinx-serialization = "1.6.1"
+kotlinx-serialization-wasm = "1.6.1-wasm1"
+
 kotlinx-atomicfu-wasm = "0.22.0-wasm1"
 multiplatform-uuid = "0.8.0"
 
 voyager = "1.0.0-rc05"
+
+# Firebase
+gms-googleServices = "4.4.0"
+firebase-bom = "32.5.0"
+
+gitlive-firebase = "1.10.4"
+
+firebase-npm = "10.5.2"
+
+# ktor
+ktor = "2.3.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
@@ -56,10 +71,26 @@ kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-datetime-wasm = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime-wasm" }
 
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json-wasm = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-wasm" }
+
 kotlinx-atomicfu-wasm = { group = "org.jetbrains.kotlinx", name = "atomicfu-wasm-js", version.ref = "kotlinx-atomicfu-wasm" }
 multiplatform-uuid = { module = "com.benasher44:uuid", version.ref = "multiplatform-uuid" }
 
 voyager-navigator = { group = "cafe.adriel.voyager", name = "voyager-navigator", version.ref = "voyager" }
+
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+
+gitlive-firebase-firestore = { group = "dev.gitlive", name = "firebase-firestore", version.ref = "gitlive-firebase" }
+
+# ktor
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-java = { group = "io.ktor", name = "ktor-client-java", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-clientNegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -69,6 +100,8 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform-wasm" }
 gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "gms-googleServices" }
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
 

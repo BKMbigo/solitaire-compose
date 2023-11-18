@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.gradleIntelliJPlugin) apply false
+    alias(libs.plugins.kotlinxSerialization) apply false
+    alias(libs.plugins.googleServices) apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block
 
