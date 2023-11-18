@@ -30,8 +30,6 @@ actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painte
 
     val fullResourcePath = "${generalResourcePath}${resourcePath.directoryPath}/$res"
 
-    print("The full resource path is: $fullResourcePath")
-
     return if (vectorCache.containsKey(fullResourcePath)) {
         rememberVectorPainter(vectorCache[fullResourcePath]!!)
     } else {
