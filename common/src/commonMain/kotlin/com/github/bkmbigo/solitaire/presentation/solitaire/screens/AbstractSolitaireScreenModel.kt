@@ -1,5 +1,7 @@
 package com.github.bkmbigo.solitaire.presentation.solitaire.screens
 
+import com.github.bkmbigo.solitaire.data.FirebaseScoreRepository
+import com.github.bkmbigo.solitaire.data.SolitaireScore
 import com.github.bkmbigo.solitaire.game.solitaire.SolitaireGame
 import com.github.bkmbigo.solitaire.game.solitaire.TableStack
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireGameConfiguration
@@ -11,6 +13,7 @@ import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvid
 import com.github.bkmbigo.solitaire.game.solitaire.scoring.SolitaireScoringSystem
 import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
+import com.github.bkmbigo.solitaire.utils.Platform
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +23,9 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-abstract class AbstractSolitaireScreenModel {
+abstract class AbstractSolitaireScreenModel(
+    private val firebaseScoreRepository: FirebaseScoreRepository
+) {
     abstract val scope: CoroutineScope
 
     private val _state = MutableStateFlow(SolitaireState())
@@ -116,9 +121,7 @@ abstract class AbstractSolitaireScreenModel {
         _state.value = _state.value.copy(
             game = newGame,
             canUndo = pastMoves.isNotEmpty(),
-            canRedo = redoMoves.isNotEmpty(),
-            isWon = newGame.isWon(),
-            isDrawn = newGame.isDrawn()
+            canRedo = redoMoves.isNotEmpty()
         )
     }
 
@@ -168,9 +171,7 @@ abstract class AbstractSolitaireScreenModel {
         _state.value = _state.value.copy(
             game = gameWithAmendments.first,
             canUndo = pastMoves.isNotEmpty(),
-            canRedo = redoMoves.isNotEmpty(),
-            isWon = gameWithAmendments.first.isWon(),
-            isDrawn = gameWithAmendments.first.isDrawn()
+            canRedo = redoMoves.isNotEmpty()
         )
     }
 
@@ -221,9 +222,7 @@ abstract class AbstractSolitaireScreenModel {
                 _state.value = _state.value.copy(
                     game = newGame,
                     canUndo = pastMoves.isNotEmpty(),
-                    canRedo = redoMoves.isNotEmpty(),
-                    isWon = newGame.isWon(),
-                    isDrawn = newGame.isDrawn()
+                    canRedo = redoMoves.isNotEmpty()
                 )
             }
         }
@@ -293,9 +292,7 @@ abstract class AbstractSolitaireScreenModel {
                     _state.value = _state.value.copy(
                         game = newGame,
                         canUndo = pastMoves.isNotEmpty(),
-                        canRedo = redoMoves.isNotEmpty(),
-                        isWon = newGame.isWon(),
-                        isDrawn = newGame.isDrawn()
+                        canRedo = redoMoves.isNotEmpty()
                     )
                 }
             }
@@ -331,6 +328,27 @@ abstract class AbstractSolitaireScreenModel {
         // Pass the hint to the state
         availableHints.getOrNull(hintIteration)?.let { _hint.trySend(it) }
     }
+
+    protected suspend fun submitScore(
+        playerName: String,
+        leaderboard: String?,
+        platform: Platform
+    ) {
+        firebaseScoreRepository.addKlondikeScore(
+            SolitaireScore(
+                playerName = playerName,
+                score = score.value,
+                leaderboard = leaderboard,
+                platform = platform
+            )
+        )
+    }
+
+    private suspend fun retrieveLeaderboardByCustomLeaderboard(leaderboard: String) =
+        firebaseScoreRepository.getLeaderboard(leaderboard)
+
+    private suspend fun retrieveLeaderboard(): List<SolitaireScore> =
+        firebaseScoreRepository.getTopLeaderboard()
 
     private fun resetHints() {
         availableHints.clear()

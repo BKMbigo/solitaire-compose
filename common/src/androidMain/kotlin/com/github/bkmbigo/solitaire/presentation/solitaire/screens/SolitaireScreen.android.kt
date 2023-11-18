@@ -3,15 +3,22 @@ package com.github.bkmbigo.solitaire.presentation.solitaire.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.github.bkmbigo.solitaire.data.FirebaseScoreRepositoryImpl
 
 actual object SolitaireScreen : Screen {
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val screenModel = rememberScreenModel { SolitaireScreenModel() }
+        val context = LocalContext.current
+
+        val firebaseScoreRepository = remember { FirebaseScoreRepositoryImpl.initializeFirebase(context) }
+        val screenModel = rememberScreenModel { SolitaireScreenModel(firebaseScoreRepository!!) } // TODO!!
 
         val state by screenModel.state.collectAsState()
         val gameTime by screenModel.gameTime.collectAsState()
@@ -47,6 +54,10 @@ actual object SolitaireScreen : Screen {
 
                     SolitaireAction.OfferHint -> {
                         screenModel.offerHint()
+                    }
+
+                    is SolitaireAction.SubmitLeaderboardScore -> {
+                        screenModel.submitLeaderboardScore(action.playerName, action.leaderboard, action.platform)
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.github.bkmbigo.solitaire.presentation.solitaire.screens
 import com.github.bkmbigo.solitaire.game.solitaire.configuration.SolitaireCardsPerDeal
 import com.github.bkmbigo.solitaire.game.solitaire.moves.SolitaireUserMove
 import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvider
+import com.github.bkmbigo.solitaire.utils.Platform
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration
 
@@ -22,4 +23,6 @@ expect class SolitaireScreenModel {
     fun redo()
 
     fun offerHint()
+
+    fun submitLeaderboardScore(playerName: String, leaderboard: String?, platform: Platform)
 }

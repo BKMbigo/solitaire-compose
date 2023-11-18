@@ -25,6 +25,7 @@ import kotlin.time.Duration
 
 expect object SolitaireScreen
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SolitaireGameScreenContent(
     state: SolitaireState,
@@ -40,7 +41,7 @@ fun SolitaireGameScreenContent(
     var showGameWonDialog by remember { mutableStateOf(false) }
     var showGameDrawnDialog by remember { mutableStateOf(false) }
 
-    var ignoreDraw = remember { false }
+    var ignoreDraw by remember { mutableStateOf(false) }
 
     LaunchedEffect(state) {
         if (state.game.isWon()) {
@@ -62,6 +63,7 @@ fun SolitaireGameScreenContent(
                 SolitaireGameCreationDialog(
                     onConfigurationSet = { solitaireGameProvider, solitaireCardsPerDeal ->
                         onAction(SolitaireAction.StartNewGame(solitaireGameProvider, solitaireCardsPerDeal))
+                        ignoreDraw = false
                         showGameCreationDialog = false
                     },
                     onDismissRequest = {
@@ -94,12 +96,10 @@ fun SolitaireGameScreenContent(
                         showGameDrawnDialog = false
                     },
                     onCreateNewGame = {
-                        ignoreDraw = true
                         showGameDrawnDialog = false
                         showGameCreationDialog = true
                     },
                     onUndoLastMove = {
-                        ignoreDraw = true
                         onAction(SolitaireAction.UndoLastMove)
                         showGameDrawnDialog = false
                     },
@@ -129,7 +129,9 @@ fun SolitaireGameScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(
-                        onClick = { onNavigateBack() }
+                        onClick = {
+                            onNavigateBack()
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ChevronLeft,
@@ -137,13 +139,30 @@ fun SolitaireGameScreenContent(
                         )
                     }
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    FlowRow(
+                        horizontalArrangement = Arrangement.End,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Button(
-                            onClick = { showGameCreationDialog = true },
+                            onClick = {
+                                onAction(
+                                    SolitaireAction.SubmitLeaderboardScore(
+                                        "Trial Player",
+                                        "Trial",
+                                        cardTheme.platform
+                                    )
+                                )
+                            },
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text("Submit Score")
+                        }
+
+                        Button(
+                            onClick = { showGameCreationDialog = true },
+                            shape = RoundedCornerShape(4.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
                             Text(
                                 text = "New Game"
@@ -152,7 +171,8 @@ fun SolitaireGameScreenContent(
 
                         Button(
                             onClick = { onAction(SolitaireAction.OfferHint) },
-                            shape = RoundedCornerShape(4.dp)
+                            shape = RoundedCornerShape(4.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
                             Text(
                                 text = "Offer Hint"
@@ -162,6 +182,7 @@ fun SolitaireGameScreenContent(
                         Button(
                             onClick = { onAction(SolitaireAction.UndoLastMove) },
                             enabled = state.canUndo,
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
@@ -172,6 +193,7 @@ fun SolitaireGameScreenContent(
                         Button(
                             onClick = { onAction(SolitaireAction.RedoLastMove) },
                             enabled = state.canRedo,
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(

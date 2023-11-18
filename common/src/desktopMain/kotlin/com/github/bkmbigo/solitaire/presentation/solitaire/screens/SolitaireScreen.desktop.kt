@@ -7,14 +7,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.github.bkmbigo.solitaire.data.FirebaseScoreRepositoryImpl
+import com.github.bkmbigo.solitaire.data.ktor.SolitaireFirestoreApi
 
 actual object SolitaireScreen : Screen {
+
+    val firebaseRepository = FirebaseScoreRepositoryImpl(SolitaireFirestoreApi())
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
         val coroutineScope = rememberCoroutineScope()
 
-        val screenModel = rememberScreenModel { SolitaireScreenModel(coroutineScope) }
+        val screenModel = rememberScreenModel { SolitaireScreenModel(coroutineScope, firebaseRepository) }
 
         val state by screenModel.state.collectAsState()
         val gameTime by screenModel.gameTime.collectAsState()
@@ -50,6 +55,10 @@ actual object SolitaireScreen : Screen {
 
                     SolitaireAction.OfferHint -> {
                         screenModel.offerHint()
+                    }
+
+                    is SolitaireAction.SubmitLeaderboardScore -> {
+                        screenModel.submitLeaderboardScore(action.playerName, action.leaderboard, action.platform)
                     }
                 }
             }
