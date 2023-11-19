@@ -1,6 +1,6 @@
 [versions]
 agp = "8.1.0"
-kotlin = "1.9.20"
+kotlin = "2.0.0-Beta1"
 gradleIntelliJPlugin = "1.15.0"
 
 androidx-core = "1.12.0"
@@ -13,9 +13,9 @@ espresso-core = "3.5.1"
 
 compose-bom = "2023.10.01"
 compose-multiplatform-stable = "1.5.3"
-compose-multiplatform-compiler = "1.5.3"
+compose-multiplatform-compiler = "1.5.4-dev1-kt2.0.0-Beta1"
 compose-multiplatform-android-compiler = "1.5.4"
-compose-multiplatform-wasm = "1.5.10-dev-wasm02"
+compose-multiplatform-wasm = "1.5.10-dev-wasm03"
 
 kotlinx-coroutines = "1.7.3"
 kotlinx-coroutines-wasm = "1.7.2-wasm3"

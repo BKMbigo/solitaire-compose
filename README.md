@@ -1,6 +1,6 @@
 # Solitaire Compose
 
-![Static Badge](https://img.shields.io/badge/1.9.20-purple?style=for-the-badge&logo=kotlin)
+![Static Badge](https://img.shields.io/badge/2.0.0_Beta1-purple?style=for-the-badge&logo=kotlin)
 
 A simple solitaire game developed using Compose.
 
