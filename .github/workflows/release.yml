@@ -65,7 +65,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v1
 
-    release-ide:
+  release_ide:
       name: Release IDE Plugin
       runs-on: ubuntu-latest
       steps:
