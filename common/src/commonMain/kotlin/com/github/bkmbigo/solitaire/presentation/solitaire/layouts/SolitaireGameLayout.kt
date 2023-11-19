@@ -28,7 +28,7 @@ import com.github.bkmbigo.solitaire.presentation.solitaire.components.deck.Empty
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.foundation.EmptyFoundation
 import com.github.bkmbigo.solitaire.presentation.solitaire.layouts.utils.*
 import com.github.bkmbigo.solitaire.presentation.solitaire.screens.SolitaireAction
-import com.github.bkmbigo.solitaire.presentation.solitaire.screens.SolitaireState
+import com.github.bkmbigo.solitaire.presentation.solitaire.screens.state.SolitaireState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow

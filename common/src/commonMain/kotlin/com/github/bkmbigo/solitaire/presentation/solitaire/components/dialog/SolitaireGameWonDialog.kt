@@ -15,7 +15,8 @@ import com.github.bkmbigo.solitaire.presentation.core.layouts.DialogLayout
 fun SolitaireGameWonDialog(
     onCreateNewGame: () -> Unit,
     onUndoLastMove: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onSubmitToLeaderboard: () -> Unit
 ) {
 
     DialogLayout(
@@ -45,6 +46,16 @@ fun SolitaireGameWonDialog(
                     text = "Start New Game"
                 )
             }
+
+            Button(
+                onClick = onSubmitToLeaderboard,
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Text(
+                    text = "Save To Leaderboard"
+                )
+            }
+
             Button(
                 onClick = onUndoLastMove,
                 shape = RoundedCornerShape(5.dp)

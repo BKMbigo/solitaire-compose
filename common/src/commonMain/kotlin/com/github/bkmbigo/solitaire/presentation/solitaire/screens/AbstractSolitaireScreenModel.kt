@@ -13,6 +13,9 @@ import com.github.bkmbigo.solitaire.game.solitaire.providers.SolitaireGameProvid
 import com.github.bkmbigo.solitaire.game.solitaire.scoring.SolitaireScoringSystem
 import com.github.bkmbigo.solitaire.game.solitaire.utils.SolitaireDealOffset
 import com.github.bkmbigo.solitaire.models.solitaire.TableStackEntry
+import com.github.bkmbigo.solitaire.presentation.solitaire.screens.state.SolitaireLeaderboardDialogState
+import com.github.bkmbigo.solitaire.presentation.solitaire.screens.state.SolitaireLeaderboardListState
+import com.github.bkmbigo.solitaire.presentation.solitaire.screens.state.SolitaireState
 import com.github.bkmbigo.solitaire.utils.Platform
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -334,6 +337,17 @@ abstract class AbstractSolitaireScreenModel(
         leaderboard: String?,
         platform: Platform
     ) {
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = if (_state.value.showLeaderboardDialog is SolitaireLeaderboardDialogState.LeaderboardAndScore) {
+                (_state.value.showLeaderboardDialog as SolitaireLeaderboardDialogState.LeaderboardAndScore).copy(
+                    isEntryAllowed = false,
+                    isEntryLoading = true
+                )
+            } else {
+                _state.value.showLeaderboardDialog
+            }
+        )
+
         firebaseScoreRepository.addKlondikeScore(
             SolitaireScore(
                 playerName = playerName,
@@ -341,6 +355,78 @@ abstract class AbstractSolitaireScreenModel(
                 leaderboard = leaderboard,
                 platform = platform
             )
+        )
+
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = if (_state.value.showLeaderboardDialog is SolitaireLeaderboardDialogState.LeaderboardAndScore) {
+                (_state.value.showLeaderboardDialog as SolitaireLeaderboardDialogState.LeaderboardAndScore).copy(
+                    isEntryAllowed = false,
+                    isEntryLoading = false
+                )
+            } else {
+                _state.value.showLeaderboardDialog
+            }
+        )
+    }
+
+    protected suspend fun showLeaderboardDialogBeforeWin() {
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = SolitaireLeaderboardDialogState.LeaderboardOnly(
+                leaderboard = SolitaireLeaderboardListState.Loading
+            )
+        )
+
+        val latestList = retrieveLeaderboard()
+
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = _state.value.showLeaderboardDialog?.copyWithLeaderboard(
+                leaderboard = SolitaireLeaderboardListState.Success(latestList)
+            )
+        )
+    }
+
+    protected suspend fun showLeaderboardDialogAfterWin(platform: Platform) {
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = SolitaireLeaderboardDialogState.LeaderboardAndScore(
+                leaderboard = SolitaireLeaderboardListState.Loading,
+                isEntryAllowed = true,
+                score = score.value,
+                platform = platform
+            )
+        )
+
+        val latestList = retrieveLeaderboard()
+
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = _state.value.showLeaderboardDialog?.copyWithLeaderboard(
+                leaderboard = SolitaireLeaderboardListState.Success(latestList)
+            )
+        )
+    }
+
+    protected suspend fun getLatestCustomLeaderboard(leaderboard: String?) {
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = _state.value.showLeaderboardDialog?.copyWithLeaderboard(
+                leaderboard = SolitaireLeaderboardListState.Loading
+            )
+        )
+
+        val newList = if (!leaderboard.isNullOrBlank()) {
+            retrieveLeaderboardByCustomLeaderboard(leaderboard)
+        } else {
+            retrieveLeaderboard()
+        }
+
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = _state.value.showLeaderboardDialog?.copyWithLeaderboard(
+                leaderboard = SolitaireLeaderboardListState.Success(newList)
+            )
+        )
+    }
+
+    protected fun performHideLeaderboardDialog() {
+        _state.value = _state.value.copy(
+            showLeaderboardDialog = null
         )
     }
 

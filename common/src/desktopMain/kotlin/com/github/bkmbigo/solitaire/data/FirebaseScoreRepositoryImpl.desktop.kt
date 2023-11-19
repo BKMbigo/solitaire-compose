@@ -5,8 +5,8 @@ import com.github.bkmbigo.solitaire.data.ktor.dto.FirestoreFilterResultDto
 import com.github.bkmbigo.solitaire.data.ktor.dto.FirestoreListResponseDto
 import com.github.bkmbigo.solitaire.data.ktor.mappers.toSolitaireScore
 import com.github.bkmbigo.solitaire.data.ktor.utils.safeApiCall
+import com.github.bkmbigo.solitaire.utils.Logger
 import io.ktor.client.call.*
-
 
 actual class FirebaseScoreRepositoryImpl(
     private val firestoreApi: SolitaireFirestoreApi
@@ -20,9 +20,10 @@ actual class FirebaseScoreRepositoryImpl(
         safeApiCall {
             firestoreApi
                 .getRecordByEqualFilter(klondikePath, "leaderboard", leaderboard)
-                .body<FirestoreListResponseDto>()
-                .documents
-                .mapNotNull { it.fields.toSolitaireScore() }
+                .body<List<FirestoreFilterResultDto>>()
+                .mapNotNull { it.document.fields.toSolitaireScore() }
+        }.applyIfError { errorCode, errorMessage ->
+            Logger.LogInfo("Error while obtaining Leaderboard", "Error is $errorCode: $errorMessage")
         }.dataOrElse {
             emptyList()
         }
@@ -32,8 +33,11 @@ actual class FirebaseScoreRepositoryImpl(
         safeApiCall {
             firestoreApi
                 .getAllRecords(klondikePath)
-                .body<List<FirestoreFilterResultDto>>()
-                .mapNotNull { it.document.fields.toSolitaireScore() }
+                .body<FirestoreListResponseDto>()
+                .documents
+                .mapNotNull { it.fields.toSolitaireScore() }
+        }.applyIfError { errorCode, errorMessage ->
+            Logger.LogInfo("Error while obtaining Top Leaderboard", "Error is $errorCode: $errorMessage")
         }.dataOrElse {
             emptyList()
         }

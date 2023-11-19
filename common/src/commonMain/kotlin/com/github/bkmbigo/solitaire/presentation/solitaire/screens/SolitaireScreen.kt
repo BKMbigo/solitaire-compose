@@ -16,9 +16,12 @@ import com.github.bkmbigo.solitaire.presentation.core.locals.cardtheme.LocalCard
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameCreationDialog
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameDrawnDialog
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.SolitaireGameWonDialog
+import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.leaderboard.SolitaireLeaderboardDialog
+import com.github.bkmbigo.solitaire.presentation.solitaire.components.dialog.leaderboard.SolitaireLeaderboardDialogAction
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.duration.SolitaireDurationText
 import com.github.bkmbigo.solitaire.presentation.solitaire.components.points.SolitairePointText
 import com.github.bkmbigo.solitaire.presentation.solitaire.layouts.SolitaireGameLayout
+import com.github.bkmbigo.solitaire.presentation.solitaire.screens.state.SolitaireState
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
@@ -52,11 +55,12 @@ fun SolitaireGameScreenContent(
     }
 
     DialogScreen(
-        isDialogOpen = showGameCreationDialog || showGameWonDialog || showGameDrawnDialog,
+        isDialogOpen = showGameCreationDialog || showGameWonDialog || showGameDrawnDialog || state.showLeaderboardDialog != null,
         onDismissRequest = {
             showGameCreationDialog = false
             showGameWonDialog = false
             showGameDrawnDialog = false
+            onAction(SolitaireAction.HideLeaderboardDialog)
         },
         dialog = {
             if (showGameCreationDialog) {
@@ -84,8 +88,11 @@ fun SolitaireGameScreenContent(
                     },
                     onDismissRequest = {
                         showGameWonDialog = false
+                    },
+                    onSubmitToLeaderboard = {
+                        showGameWonDialog = false
+                        onAction(SolitaireAction.ShowLeaderboardDialogAfterWin(platform = cardTheme.platform))
                     }
-
                 )
             }
 
@@ -108,6 +115,36 @@ fun SolitaireGameScreenContent(
                         showGameDrawnDialog = false
                     }
 
+                )
+            }
+
+            if (state.showLeaderboardDialog != null) {
+                SolitaireLeaderboardDialog(
+                    state = state.showLeaderboardDialog,
+                    onAction = { action ->
+                        when (action) {
+                            SolitaireLeaderboardDialogAction.DismissDialog -> onAction(SolitaireAction.HideLeaderboardDialog)
+                            is SolitaireLeaderboardDialogAction.FilterByLeaderboard -> {
+                                onAction(
+                                    SolitaireAction.FilterLeaderboard(
+                                        leaderboard = action.leaderboardName
+                                    )
+                                )
+                            }
+
+                            SolitaireLeaderboardDialogAction.GoToNextPage -> {}
+                            is SolitaireLeaderboardDialogAction.SubmitLeaderboardScore ->
+                                onAction(
+                                    SolitaireAction.SubmitLeaderboardScore(
+                                        playerName = action.playerName,
+                                        leaderboard = action.customLeaderboardName,
+                                        platform = action.platform
+                                    )
+                                )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxHeight(0.75f)
                 )
             }
         }
@@ -144,19 +181,13 @@ fun SolitaireGameScreenContent(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Button(
-                            onClick = {
-                                onAction(
-                                    SolitaireAction.SubmitLeaderboardScore(
-                                        "Trial Player",
-                                        "Trial",
-                                        cardTheme.platform
-                                    )
-                                )
-                            },
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            shape = RoundedCornerShape(4.dp)
+                            onClick = { onAction(SolitaireAction.ShowLeaderboardOnlyDialog) },
+                            shape = RoundedCornerShape(4.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
-                            Text("Submit Score")
+                            Text(
+                                text = "Show Leaderboard"
+                            )
                         }
 
                         Button(

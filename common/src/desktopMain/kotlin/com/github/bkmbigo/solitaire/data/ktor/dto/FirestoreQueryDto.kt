@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class FirestoreQueryDto(
-    val structuredQueryDto: FirestoreStructuredQueryDto = FirestoreStructuredQueryDto()
+    val structuredQuery: FirestoreStructuredQueryDto = FirestoreStructuredQueryDto()
 )

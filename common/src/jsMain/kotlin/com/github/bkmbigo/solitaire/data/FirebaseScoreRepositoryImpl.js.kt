@@ -3,9 +3,7 @@ package com.github.bkmbigo.solitaire.data
 import com.github.bkmbigo.solitaire.utils.Logger
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
-import dev.gitlive.firebase.firestore.FirebaseFirestore
-import dev.gitlive.firebase.firestore.firestore
-import dev.gitlive.firebase.firestore.where
+import dev.gitlive.firebase.firestore.*
 import dev.gitlive.firebase.initialize
 
 actual class FirebaseScoreRepositoryImpl(
@@ -25,6 +23,7 @@ actual class FirebaseScoreRepositoryImpl(
             firebaseFirestore
                 .collection(klondikePath)
                 .where("leaderboard", leaderboard)
+                .orderBy("score", Direction.DESCENDING)
                 .get()
                 .documents
                 .map { it.data<SolitaireScore>() }
@@ -37,6 +36,7 @@ actual class FirebaseScoreRepositoryImpl(
         try {
             firebaseFirestore
                 .collection(klondikePath)
+                .orderBy("score", Direction.DESCENDING)
                 .get()
                 .documents
                 .map { it.data<SolitaireScore>() }

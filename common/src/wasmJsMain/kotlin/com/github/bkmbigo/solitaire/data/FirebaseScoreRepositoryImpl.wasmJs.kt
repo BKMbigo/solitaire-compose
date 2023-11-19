@@ -4,9 +4,7 @@ import com.github.bkmbigo.solitaire.utils.Logger
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseApp
 import dev.gitlive.firebase.FirebaseOptions
-import dev.gitlive.firebase.firestore.FirebaseFirestore
-import dev.gitlive.firebase.firestore.firestore
-import dev.gitlive.firebase.firestore.where
+import dev.gitlive.firebase.firestore.*
 import dev.gitlive.firebase.initialize
 import externals.catchJsExceptions
 
@@ -30,6 +28,7 @@ actual class FirebaseScoreRepositoryImpl(
             firebaseFirestore
                 .collection(klondikePath)
                 .where("leaderboard", leaderboard.toJsString())
+                .orderBy("score", Direction.DESCENDING)
                 .get()
                 .documents
                 .mapNotNull { it.data()?.let { it1 -> getSolitaireScoreFromJsObject(it1) } }
@@ -43,6 +42,7 @@ actual class FirebaseScoreRepositoryImpl(
         try {
             firebaseFirestore
                 .collection(klondikePath)
+                .orderBy("score", Direction.DESCENDING)
                 .get()
                 .documents
                 .mapNotNull { it.data()?.let { it1 -> getSolitaireScoreFromJsObject(it1) } }

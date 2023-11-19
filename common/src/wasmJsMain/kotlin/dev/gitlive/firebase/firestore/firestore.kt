@@ -82,6 +82,17 @@ open class Query(open val js: JsQuery) {
         rethrow { Query(query(js, jsWhere(path.js, "==", equalTo.js))) }
 }
 
+enum class Direction(internal val jsString: String) {
+    ASCENDING("asc"),
+    DESCENDING("desc");
+}
+
+private fun _orderBy(field: String, direction: JsAny) = orderBy(field, direction)
+
+fun Query.orderBy(field: String, direction: Direction = Direction.ASCENDING) = rethrow {
+    Query(query(js, _orderBy(field, direction.jsString.toJsString())))
+}
+
 fun Query.where(field: String, equalTo: JsAny?) = _where(field, equalTo)
 fun Query.where(path: FieldPath, equalTo: JsAny?) = _where(path, equalTo)
 

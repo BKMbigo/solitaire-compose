@@ -100,30 +100,33 @@ class SolitaireFirestoreApi(
     * */
     suspend fun getRecordByEqualFilter(collectionName: String, fieldName: String, value: String) =
         client.post("$BASE_URL/$projectId/$DATABASE_URL:runQuery") {
+            contentType(ContentType.Application.Json)
             setBody(
-                FirestoreStructuredQueryDto(
-                    where = FirestoreWhereDto(
-                        fieldFilter = FirestoreFieldFilterDto(
-                            field = mapOf(
-                                "fieldPath" to fieldName
-                            ),
-                            op = "EQUAL",
-                            value = mapOf(
-                                "stringValue" to value
+                FirestoreQueryDto(
+                    structuredQuery = FirestoreStructuredQueryDto(
+                        where = FirestoreWhereDto(
+                            fieldFilter = FirestoreFieldFilterDto(
+                                field = mapOf(
+                                    "fieldPath" to fieldName
+                                ),
+                                op = "EQUAL",
+                                value = mapOf(
+                                    "stringValue" to value
+                                )
                             )
-                        )
-                    ),
-                    orderBy = listOf(
-                        FirestoreOrderByDto(
-                            field = mapOf(
-                                "fieldPath" to "score"
-                            ),
-                            direction = FirestoreFieldDirection.DESCENDING
-                        )
-                    ),
-                    from = listOf(
-                        mapOf(
-                            "collectionId" to collectionName
+                        ),
+                        orderBy = listOf(
+                            FirestoreOrderByDto(
+                                field = mapOf(
+                                    "fieldPath" to "score"
+                                ),
+                                direction = FirestoreFieldDirection.DESCENDING
+                            )
+                        ),
+                        from = listOf(
+                            mapOf(
+                                "collectionId" to collectionName.replace("/", "")
+                            )
                         )
                     )
                 )
@@ -166,7 +169,7 @@ class SolitaireFirestoreApi(
 
     * */
     suspend fun getAllRecords(collectionName: String) =
-        client.get("$BASE_URL/$projectId/$DATABASE_URL/$collectionName") {
+        client.get("$BASE_URL/$projectId/$DATABASE_URL$collectionName") {
             parameters {
                 parameter("pageSize", 20)
                 parameter("orderBy", "score desc")

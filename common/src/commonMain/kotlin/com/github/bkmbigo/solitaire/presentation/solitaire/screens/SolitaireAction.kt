@@ -28,11 +28,25 @@ sealed class SolitaireAction {
     /** The user has played a [move] */
     data class PlayMove(val move: SolitaireUserMove.CardMove) : SolitaireAction()
 
+    /** Show Leaderboard Dialog with no option to submit score */
+    data object ShowLeaderboardOnlyDialog : SolitaireAction()
+
+    /** Show Leaderboard Dialog with a win */
+    data class ShowLeaderboardDialogAfterWin(val platform: Platform) : SolitaireAction()
+
+    /** Filter the leaderboard dialog to only show scores belonging to a  specific custom leaderboard */
+    data class FilterLeaderboard(
+        val leaderboard: String? = null
+    ) : SolitaireAction()
+
     /** The User wishes to submit a score to the leaderboard */
     data class SubmitLeaderboardScore(
         val playerName: String,
         val leaderboard: String?,
         val platform: Platform
     ) : SolitaireAction()
+
+    /** Hide the leaderboard dialog */
+    data object HideLeaderboardDialog : SolitaireAction()
 
 }

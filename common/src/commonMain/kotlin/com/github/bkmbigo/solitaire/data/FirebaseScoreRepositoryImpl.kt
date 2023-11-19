@@ -9,4 +9,4 @@ expect class FirebaseScoreRepositoryImpl : FirebaseScoreRepository {
     override suspend fun getTopLeaderboard(): List<SolitaireScore>
 }
 
-internal const val klondikePath = "experimentalKlondike/"
+internal const val klondikePath = "klondikeScore/"

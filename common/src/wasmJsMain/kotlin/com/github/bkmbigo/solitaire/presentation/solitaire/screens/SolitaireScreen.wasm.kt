@@ -53,8 +53,24 @@ actual object SolitaireScreen : Screen {
                         screenModel.offerHint()
                     }
 
+                    SolitaireAction.ShowLeaderboardOnlyDialog -> {
+                        screenModel.showLeaderboardOnlyDialog()
+                    }
+
                     is SolitaireAction.SubmitLeaderboardScore -> {
                         screenModel.submitLeaderboardScore(action.playerName, action.leaderboard, action.platform)
+                    }
+
+                    is SolitaireAction.FilterLeaderboard -> {
+                        screenModel.retrieveCustomLeaderboard(action.leaderboard)
+                    }
+
+                    SolitaireAction.HideLeaderboardDialog -> {
+                        screenModel.hideLeaderboardDialog()
+                    }
+
+                    is SolitaireAction.ShowLeaderboardDialogAfterWin -> {
+                        screenModel.showLeaderboardDialog(action.platform)
                     }
                 }
             }

@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class FirestoreWhereDto(
-    val fieldFilter: FirestoreFieldFilterDto = FirestoreFieldFilterDto()
+    val fieldFilter: FirestoreFieldFilterDto = FirestoreFieldFilterDto(op = "EQUAL")
 )

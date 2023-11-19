@@ -4,6 +4,7 @@ import android.content.Context
 import com.github.bkmbigo.solitaire.utils.Logger
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 
@@ -24,6 +25,7 @@ actual class FirebaseScoreRepositoryImpl(
             firebaseFirestore
                 .collection(klondikePath)
                 .whereEqualTo("leaderboard", leaderboard)
+                .orderBy("score", Query.Direction.DESCENDING)
                 .get()
                 .await()
                 .documents
@@ -38,6 +40,7 @@ actual class FirebaseScoreRepositoryImpl(
         try {
             firebaseFirestore
                 .collection(klondikePath)
+                .orderBy("score", Query.Direction.DESCENDING)
                 .get()
                 .await()
                 .documents

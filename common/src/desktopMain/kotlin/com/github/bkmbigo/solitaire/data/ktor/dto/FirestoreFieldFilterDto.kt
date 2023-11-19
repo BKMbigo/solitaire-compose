@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class FirestoreFieldFilterDto(
     val field: Map<String, String> = emptyMap(),
-    val op: String = "EQUAL",
+    /* Workaround as the field  is emitted when there is a default value*/
+    val op: String,
     val value: Map<String, String> = emptyMap()
 )

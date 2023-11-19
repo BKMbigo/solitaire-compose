@@ -28,6 +28,8 @@ external fun initializeFirestore(app: FirebaseApp): Firestore
 
 external fun query(query: Query, vararg queryConstraints: QueryConstraint): Query
 
+external fun orderBy(field: String, direction: JsAny): QueryConstraint
+
 external fun setDoc(
     documentReference: DocumentReference,
     data: JsAny

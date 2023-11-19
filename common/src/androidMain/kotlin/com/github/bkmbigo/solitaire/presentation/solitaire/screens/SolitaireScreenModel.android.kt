@@ -35,6 +35,28 @@ actual class SolitaireScreenModel(
 
     actual fun offerHint() = performHint()
 
+    actual fun retrieveCustomLeaderboard(leaderboard: String?) {
+        coroutineScope.launch {
+            getLatestCustomLeaderboard(leaderboard)
+        }
+    }
+
+    actual fun showLeaderboardOnlyDialog() {
+        coroutineScope.launch {
+            showLeaderboardDialogBeforeWin()
+        }
+    }
+
+    actual fun showLeaderboardDialog(platform: Platform) {
+        coroutineScope.launch {
+            showLeaderboardDialogAfterWin(platform)
+        }
+    }
+
+    actual fun hideLeaderboardDialog() {
+        performHideLeaderboardDialog()
+    }
+
     actual fun submitLeaderboardScore(playerName: String, leaderboard: String?, platform: Platform) {
         coroutineScope.launch {
             submitScore(playerName = playerName, leaderboard = leaderboard, platform = platform)
