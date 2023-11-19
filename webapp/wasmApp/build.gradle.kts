@@ -35,6 +35,18 @@ kotlin {
 //                    }
                 }
             }
+            applyBinaryen {
+                binaryenArgs = mutableListOf(
+                    "--enable-nontrapping-float-to-int",
+                    "--enable-gc",
+                    "--enable-reference-types",
+                    "--enable-exception-handling",
+                    "--enable-bulk-memory",
+                    "--inline-functions-with-loops",
+                    "--traps-never-happen",
+                    "--fast-math"
+                )
+            }
         }
         binaries.executable()
     }

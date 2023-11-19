@@ -1,25 +1,90 @@
 on:
   release:
     types: [created]
+
+  workflow_dispatch:
+
 name: Release Artifacts
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
+  # Deploy Website
+  deploy-website:
+    name: Build and Deploy Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2.4.2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create Deployment Folder
+        run: mkdir -p ${{ github.workspace }}/build/deployment
+
+      - name: Copy Welcome screen to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/welcomeScreen/. ${{ github.workspace }}/build/deployment/
+
+      - name: Build WebAssembly production site
+        run: ./gradlew :webapp:wasmApp:wasmJsBrowserDistribution
+
+      - name: Copy Webassembly to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/productionExecutable/. ${{ github.workspace }}/build/deployment/wasm/
+
+      - name: Build JavaScript production site
+        run: ./gradlew :webapp:jsApp:jsBrowserDistribution
+
+      - name: Copy JavaScript to Deployment Folder
+        run: cp -a ${{ github.workspace }}/webapp/jsApp/build/dist/js/productionExecutable/. ${{ github.workspace }}/build/deployment/js/
+
+      - name: Copy common resources to Deployment Folder
+        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/build/deployment/
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ github.workspace }}/build/deployment
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
     release-ide:
       name: Release IDE Plugin
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
           uses: actions/checkout@v2
-  
+
         - uses: actions/setup-java@v1
           with:
             java-version: '17'
             java-package: jdk
-  
+
         - name: Validate gradle wrapper
           uses: gradle/wrapper-validation-action@v1
 
         - name: Grant execute permission for gradlew
           run: chmod +x gradlew
+
+        - name: Setup Gradle
+          uses: gradle/gradle-build-action@v2.4.2
 
         - name: Build IDE Plugin
           run: ./gradlew :ide-plugins:intellij:buildPlugin
@@ -31,4 +96,4 @@ jobs:
             automatic_release_tag: "latest"
             prerelease: false
             files: |
-              ide-plugins/intellij/build/distributions/Solitaire Compose.zip
+              ide-plugins/intellij/build/distributions/Solitaire Compose IntelliJ.zip

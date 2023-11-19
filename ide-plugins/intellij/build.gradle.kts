@@ -8,7 +8,7 @@ group = "com.github.bkmbigo.solitaire"
 version = "unspecified"
 
 intellij {
-    pluginName.set("Solitaire Compose")
+    pluginName.set("Solitaire Compose IntelliJ")
     version.set("2022.3")
     type.set("IC")
 }
@@ -42,7 +42,7 @@ tasks.test {
 
 tasks {
     patchPluginXml {
-        version.set("0.0.0-beta.4")
+        version.set("0.0.0-beta.5")
 
         sinceBuild.set("223")
         untilBuild.set("233.*")
@@ -50,11 +50,6 @@ tasks {
 }
 
 compose {
-    experimental {
-        web {
-            application {}
-        }
-    }
     kotlinCompilerPlugin.set(libs.versions.compose.multiplatform.compiler)
     kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=${libs.versions.kotlin.get()}")
 }
