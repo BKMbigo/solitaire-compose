@@ -40,7 +40,12 @@ The project can only use a limited number of Kotlin libraries due to having a Wa
 
 - Compose Multiplatform
 - Voyager (Custom implementation on Wasm target).
-
+- Firebase
+  > **Note**  
+  > For firebase, client libraries are used whenever possible:  
+  > **Android** - Firebase-Android client  
+  > **JVM - based targets** - ktor calls to firebase REST api  
+  > **JS and Wasm targets** - Firebase-js client
 
 ## Contribution
 
