@@ -43,7 +43,7 @@ kotlin {
 
                 implementation(libs.kotlinx.coroutines)
                 implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.json.wasm)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
 
@@ -64,7 +64,7 @@ kotlin {
 
         val wasmJsMain by getting {
             dependencies {
-                implementation(libs.kotlinx.atomicfu.wasm)
+                implementation(libs.kotlinx.atomicfu)
 
                 implementation(npm("firebase", libs.versions.firebase.npm.get()))
             }

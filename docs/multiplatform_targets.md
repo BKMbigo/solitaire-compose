@@ -17,7 +17,7 @@ plugins {
     // Other gradle plugins
 
     id("org.jetbrains.kotlin.multiplatform") version "1.9.20"
-    id("org.jetbrains.compose") version "1.5.10-dev-wasm02" // Take note of the compose version
+    id("org.jetbrains.compose") version "1.6.0-alpha01"
 }
 
 kotlin {
@@ -66,7 +66,7 @@ compose {
     experimental {
         web.application {}
     }
-    kotlinCompilerPlugin.set("1.5.3") // Compose compiler version is different from compose gradle plugin version
+    kotlinCompilerPlugin.set("1.5.3")
 }
 ```
 
@@ -75,22 +75,9 @@ compose {
 Add the following line to your gradle.properties
 
 ```
-org.jetbrains.compose.experimental.jscanvas.enabled=true
+org.jetbrains.compose.experimental.wasm.enabled=true
 ```
 
-###### [settings.gradle.kts](../settings.gradle.kts)
-
-```kotlin
-pluginManagement {
-    repositories {
-
-        // Other Repositories
-
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
-
-    }
-}
-```
 #### Resources
 
 Sync the project and head over to [`src/wasmJsMain/resources`](../webapp/wasmApp/src/wasmJsMain/resources) and prepare
