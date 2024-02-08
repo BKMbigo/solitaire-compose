@@ -28,6 +28,9 @@ actual fun vectorResourceCached(res: String, resourcePath: ResourcePath): Painte
 
     val generalResourcePath = cardTheme.generalResourcePath.ifBlank { "" }
 
+//    "https://bkmbigo.github.io/solitaire-compose/wasm/solitaire-compose/assets/images/suite_spade.xml"
+//    "https://bkmbigo.github.io/solitaire-compose/assets/images/suite_spade.xml"
+
     val fullResourcePath = "${generalResourcePath}${resourcePath.directoryPath}/$res"
 
     return if (vectorCache.containsKey(fullResourcePath)) {

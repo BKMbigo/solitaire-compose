@@ -47,6 +47,9 @@ jobs:
       - name: Copy Webassembly to Deployment Folder
         run: cp -a ${{ github.workspace }}/webapp/wasmApp/build/dist/wasmJs/productionExecutable/. ${{ github.workspace }}/build/deployment/wasm/
 
+      - name: Copy common resources to wasm deployment folder
+        run: cp -a ${{ github.workspace }}/common/src/commonMain/resources/. ${{ github.workspace }}/build/deployment/wasm/
+
       - name: Build JavaScript production site
         run: ./gradlew :webapp:jsApp:jsBrowserDistribution
 
